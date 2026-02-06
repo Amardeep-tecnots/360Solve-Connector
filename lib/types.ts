@@ -2,7 +2,39 @@
 export type ConnectorStatus = "online" | "offline" | "warning" | "syncing"
 export type ExecutionStatus = "success" | "failed" | "running" | "pending" | "cancelled"
 export type WorkflowStatus = "active" | "inactive" | "draft"
-export type NodeType = "extract" | "transform" | "load" | "trigger" | "condition"
+
+// ─── Node Types (Zapier-like: Source → Transform → Destination) ────
+export type NodeType = "source" | "transform" | "destination"
+
+// Connection method for Source/Destination nodes
+export type ConnectionMethod =
+  | "credentials"       // Direct DB credentials (host, port, user, pass, db)
+  | "connection_string"  // Raw connection string (postgres://..., mongodb://..., etc.)
+  | "aggregator"        // Pre-built aggregator from marketplace (with auth)
+  | "custom_api"        // User-created REST/GraphQL API endpoint
+
+export interface ConnectionConfig {
+  method: ConnectionMethod
+  // For credentials
+  host?: string
+  port?: number
+  username?: string
+  password?: string
+  database?: string
+  dbType?: "postgresql" | "mysql" | "mongodb" | "oracle" | "mssql" | "snowflake" | "bigquery"
+  // For connection_string
+  connectionString?: string
+  // For aggregator
+  aggregatorId?: string
+  aggregatorName?: string
+  apiKey?: string
+  // For custom_api
+  endpoint?: string
+  method_type?: "GET" | "POST" | "PUT" | "PATCH"
+  headers?: Record<string, string>
+  authType?: "bearer" | "api_key" | "basic" | "none"
+  authToken?: string
+}
 
 // ─── Stat Card ────────────────────────────────────────
 export interface StatCardData {
@@ -80,7 +112,44 @@ export interface WorkflowNode {
   label: string
   description: string
   icon: string
-  config: Record<string, unknown>
+  config: ConnectionConfig
+}
+
+// ─── Canvas Node (runtime) ────────────────────────────
+export interface CanvasNode {
+  id: string
+  type: NodeType
+  label: string
+  description: string
+  icon: string
+  x: number
+  y: number
+  connectionConfig?: ConnectionConfig
+  transformConfig?: TransformConfig
+}
+
+export interface TransformConfig {
+  logic: string
+  aiAssisted: boolean
+  skipNulls: boolean
+  fieldMappings: Array<{ from: string; to: string; transform?: string }>
+}
+
+export interface CanvasConnection {
+  from: string
+  to: string
+}
+
+// ─── AI Chat Messages ─────────────────────────────────
+export interface AIChatMessage {
+  id: string
+  role: "user" | "assistant" | "system"
+  content: string
+  timestamp: Date
+  action?: {
+    type: "add_node" | "connect_nodes" | "configure_node" | "suggest_workflow"
+    payload: Record<string, unknown>
+  }
 }
 
 // ─── Execution ────────────────────────────────────────
@@ -126,4 +195,14 @@ export interface NavItem {
   href: string
   icon: string
   badge?: string | number
+}
+
+// ─── Palette Node (for drag-and-drop) ─────────────────
+export interface PaletteNode {
+  id: string
+  type: NodeType
+  label: string
+  description: string
+  icon: string
+  connectionMethod?: ConnectionMethod
 }

@@ -3,24 +3,24 @@ import Link from "next/link"
 
 const actions = [
   {
-    label: "Create Workflow",
-    description: "Design a new data pipeline",
+    label: "Build with AI",
+    description: "Describe a pipeline, AI builds it",
     href: "/workflows",
-    icon: Plus,
+    icon: Sparkles,
     accent: "bg-primary/10 text-primary",
   },
   {
-    label: "Install Aggregator",
-    description: "Browse the marketplace",
-    href: "/marketplace",
-    icon: Store,
+    label: "Create Workflow",
+    description: "Drag-and-drop Source to Destination",
+    href: "/workflows",
+    icon: Plus,
     accent: "bg-success/10 text-success",
   },
   {
-    label: "AI Assist",
-    description: "Generate SDK or mapping",
-    href: "#",
-    icon: Sparkles,
+    label: "Browse Connectors",
+    description: "Install from the marketplace",
+    href: "/marketplace",
+    icon: Store,
     accent: "bg-info/10 text-info",
   },
 ]

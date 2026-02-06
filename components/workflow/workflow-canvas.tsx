@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useRef } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 import {
   X,
   Database,
@@ -10,52 +10,78 @@ import {
   Layers,
   Code,
   Cloud,
-  Snowflake,
-  BarChart3,
-  HardDrive,
+  Sparkles,
+  Link,
+  FileSpreadsheet,
+  Store,
+  Webhook,
   GripVertical,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { NodeType } from "@/lib/types"
+import type { NodeType, CanvasNode, CanvasConnection } from "@/lib/types"
 
 const iconMap: Record<string, React.ElementType> = {
-  Database, Globe, ArrowLeftRight, Filter, Layers, Code, Cloud, Snowflake, BarChart3, HardDrive,
+  Database,
+  Globe,
+  ArrowLeftRight,
+  Filter,
+  Layers,
+  Code,
+  Cloud,
+  Sparkles,
+  Link,
+  FileSpreadsheet,
+  Store,
+  Webhook,
 }
 
-const typeAccents: Record<NodeType, { border: string; bg: string; dot: string }> = {
-  extract: { border: "border-l-primary", bg: "bg-primary/5", dot: "bg-primary" },
-  transform: { border: "border-l-warning", bg: "bg-warning/5", dot: "bg-warning" },
-  load: { border: "border-l-success", bg: "bg-success/5", dot: "bg-success" },
-  trigger: { border: "border-l-info", bg: "bg-info/5", dot: "bg-info" },
-  condition: { border: "border-l-muted-foreground", bg: "bg-muted", dot: "bg-muted-foreground" },
-}
-
-interface CanvasNode {
-  id: string
-  type: NodeType
-  label: string
-  description: string
-  icon: string
-  x: number
-  y: number
-}
-
-interface Connection {
-  from: string
-  to: string
+const typeAccents: Record<
+  NodeType,
+  { border: string; bg: string; dot: string; label: string }
+> = {
+  source: {
+    border: "border-l-primary",
+    bg: "bg-primary/5",
+    dot: "bg-primary",
+    label: "Source",
+  },
+  transform: {
+    border: "border-l-warning",
+    bg: "bg-warning/5",
+    dot: "bg-warning",
+    label: "Transform",
+  },
+  destination: {
+    border: "border-l-success",
+    bg: "bg-success/5",
+    dot: "bg-success",
+    label: "Destination",
+  },
 }
 
 interface WorkflowCanvasProps {
+  nodes: CanvasNode[]
+  connections: CanvasConnection[]
+  onNodesChange: (nodes: CanvasNode[]) => void
+  onConnectionsChange: (connections: CanvasConnection[]) => void
   onNodeSelect: (node: CanvasNode | null) => void
 }
 
-export function WorkflowCanvas({ onNodeSelect }: WorkflowCanvasProps) {
-  const [nodes, setNodes] = useState<CanvasNode[]>([])
-  const [connections, setConnections] = useState<Connection[]>([])
+export function WorkflowCanvas({
+  nodes,
+  connections,
+  onNodesChange,
+  onConnectionsChange,
+  onNodeSelect,
+}: WorkflowCanvasProps) {
   const [selectedNode, setSelectedNode] = useState<string | null>(null)
   const [connectingFrom, setConnectingFrom] = useState<string | null>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
-  const dragRef = useRef<{ nodeId: string; offsetX: number; offsetY: number } | null>(null)
+  const dragRef = useRef<{
+    nodeId: string
+    offsetX: number
+    offsetY: number
+  } | null>(null)
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -73,13 +99,13 @@ export function WorkflowCanvas({ onNodeSelect }: WorkflowCanvasProps) {
         label: nodeData.label,
         description: nodeData.description,
         icon: nodeData.icon,
-        x: e.clientX - rect.left - 80,
-        y: e.clientY - rect.top - 30,
+        x: e.clientX - rect.left - 80 + (canvasRef.current?.scrollLeft || 0),
+        y: e.clientY - rect.top - 30 + (canvasRef.current?.scrollTop || 0),
       }
 
-      setNodes((prev) => [...prev, newNode])
+      onNodesChange([...nodes, newNode])
     },
-    []
+    [nodes, onNodesChange]
   )
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -92,25 +118,26 @@ export function WorkflowCanvas({ onNodeSelect }: WorkflowCanvasProps) {
       if ((e.target as HTMLElement).closest("[data-connector]")) return
       e.stopPropagation()
       const node = nodes.find((n) => n.id === nodeId)
-      if (!node) return
+      if (!node || !canvasRef.current) return
 
+      const rect = canvasRef.current.getBoundingClientRect()
       dragRef.current = {
         nodeId,
-        offsetX: e.clientX - node.x,
-        offsetY: e.clientY - node.y,
+        offsetX: e.clientX - rect.left - node.x + canvasRef.current.scrollLeft,
+        offsetY: e.clientY - rect.top - node.y + canvasRef.current.scrollTop,
       }
 
       const handleMouseMove = (me: MouseEvent) => {
         if (!dragRef.current || !canvasRef.current) return
-        const rect = canvasRef.current.getBoundingClientRect()
-        setNodes((prev) =>
-          prev.map((n) =>
+        const r = canvasRef.current.getBoundingClientRect()
+        const newX =
+          me.clientX - r.left - dragRef.current.offsetX + canvasRef.current.scrollLeft
+        const newY =
+          me.clientY - r.top - dragRef.current.offsetY + canvasRef.current.scrollTop
+        onNodesChange(
+          nodes.map((n) =>
             n.id === dragRef.current!.nodeId
-              ? {
-                  ...n,
-                  x: me.clientX - rect.left - dragRef.current!.offsetX + canvasRef.current!.scrollLeft,
-                  y: me.clientY - rect.top - dragRef.current!.offsetY + canvasRef.current!.scrollTop,
-                }
+              ? { ...n, x: Math.max(0, newX), y: Math.max(0, newY) }
               : n
           )
         )
@@ -125,7 +152,7 @@ export function WorkflowCanvas({ onNodeSelect }: WorkflowCanvasProps) {
       document.addEventListener("mousemove", handleMouseMove)
       document.addEventListener("mouseup", handleMouseUp)
     },
-    [nodes]
+    [nodes, onNodesChange]
   )
 
   const handleNodeClick = useCallback(
@@ -141,28 +168,40 @@ export function WorkflowCanvas({ onNodeSelect }: WorkflowCanvasProps) {
       if (isOutput) {
         setConnectingFrom(nodeId)
       } else if (connectingFrom && connectingFrom !== nodeId) {
-        setConnections((prev) => [
-          ...prev,
-          { from: connectingFrom, to: nodeId },
-        ])
+        const exists = connections.some(
+          (c) => c.from === connectingFrom && c.to === nodeId
+        )
+        if (!exists) {
+          onConnectionsChange([
+            ...connections,
+            { from: connectingFrom, to: nodeId },
+          ])
+        }
         setConnectingFrom(null)
       }
     },
-    [connectingFrom]
+    [connectingFrom, connections, onConnectionsChange]
   )
 
   const handleDeleteNode = useCallback(
     (nodeId: string) => {
-      setNodes((prev) => prev.filter((n) => n.id !== nodeId))
-      setConnections((prev) =>
-        prev.filter((c) => c.from !== nodeId && c.to !== nodeId)
+      onNodesChange(nodes.filter((n) => n.id !== nodeId))
+      onConnectionsChange(
+        connections.filter((c) => c.from !== nodeId && c.to !== nodeId)
       )
       if (selectedNode === nodeId) {
         setSelectedNode(null)
         onNodeSelect(null)
       }
     },
-    [selectedNode, onNodeSelect]
+    [
+      nodes,
+      connections,
+      selectedNode,
+      onNodeSelect,
+      onNodesChange,
+      onConnectionsChange,
+    ]
   )
 
   const handleCanvasClick = useCallback(() => {
@@ -171,12 +210,11 @@ export function WorkflowCanvas({ onNodeSelect }: WorkflowCanvasProps) {
     onNodeSelect(null)
   }, [onNodeSelect])
 
-  // Compute SVG lines for connections
   function getNodeCenter(id: string, isOutput: boolean) {
     const node = nodes.find((n) => n.id === id)
     if (!node) return { x: 0, y: 0 }
     return {
-      x: isOutput ? node.x + 180 : node.x,
+      x: isOutput ? node.x + 184 : node.x,
       y: node.y + 32,
     }
   }
@@ -206,14 +244,23 @@ export function WorkflowCanvas({ onNodeSelect }: WorkflowCanvasProps) {
           const to = getNodeCenter(conn.to, false)
           const midX = (from.x + to.x) / 2
           return (
-            <path
-              key={i}
-              d={`M ${from.x} ${from.y} C ${midX} ${from.y}, ${midX} ${to.y}, ${to.x} ${to.y}`}
-              fill="none"
-              stroke="hsl(var(--border))"
-              strokeWidth="2"
-              strokeDasharray="4,4"
-            />
+            <g key={i}>
+              <path
+                d={`M ${from.x} ${from.y} C ${midX} ${from.y}, ${midX} ${to.y}, ${to.x} ${to.y}`}
+                fill="none"
+                stroke="hsl(var(--primary))"
+                strokeWidth="2"
+                opacity="0.4"
+              />
+              {/* Arrow */}
+              <circle
+                cx={to.x}
+                cy={to.y}
+                r="3"
+                fill="hsl(var(--primary))"
+                opacity="0.6"
+              />
+            </g>
           )
         })}
       </svg>
@@ -228,7 +275,7 @@ export function WorkflowCanvas({ onNodeSelect }: WorkflowCanvasProps) {
           <div
             key={node.id}
             className={cn(
-              "absolute flex w-44 cursor-move items-center rounded-lg border border-l-[3px] bg-card shadow-sm transition-shadow",
+              "absolute flex w-[184px] cursor-move items-center rounded-lg border border-l-[3px] bg-card shadow-sm transition-shadow",
               accents.border,
               isSelected
                 ? "ring-2 ring-primary shadow-md"
@@ -242,7 +289,7 @@ export function WorkflowCanvas({ onNodeSelect }: WorkflowCanvasProps) {
             }}
           >
             {/* Input connector */}
-            {(node.type === "transform" || node.type === "load") && (
+            {(node.type === "transform" || node.type === "destination") && (
               <button
                 data-connector
                 className={cn(
@@ -261,7 +308,12 @@ export function WorkflowCanvas({ onNodeSelect }: WorkflowCanvasProps) {
 
             {/* Node content */}
             <div className="flex flex-1 items-center gap-2 px-3 py-2.5">
-              <div className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded", accents.bg)}>
+              <div
+                className={cn(
+                  "flex h-7 w-7 shrink-0 items-center justify-center rounded",
+                  accents.bg
+                )}
+              >
                 <Icon className="h-3.5 w-3.5" />
               </div>
               <div className="min-w-0 flex-1">
@@ -269,13 +321,13 @@ export function WorkflowCanvas({ onNodeSelect }: WorkflowCanvasProps) {
                   {node.label}
                 </p>
                 <p className="truncate text-[10px] text-muted-foreground">
-                  {node.type}
+                  {accents.label}
                 </p>
               </div>
             </div>
 
             {/* Output connector */}
-            {(node.type === "extract" || node.type === "transform") && (
+            {(node.type === "source" || node.type === "transform") && (
               <button
                 data-connector
                 className={cn(
@@ -312,13 +364,16 @@ export function WorkflowCanvas({ onNodeSelect }: WorkflowCanvasProps) {
       {/* Empty state */}
       {nodes.length === 0 && (
         <div className="flex h-full items-center justify-center">
-          <div className="text-center">
-            <GripVertical className="mx-auto mb-3 h-8 w-8 text-muted-foreground/40" />
-            <p className="text-sm font-medium text-muted-foreground">
-              Drag nodes from the palette to get started
+          <div className="text-center max-w-xs">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+              <GripVertical className="h-6 w-6 text-primary/40" />
+            </div>
+            <p className="text-sm font-medium text-foreground">
+              Build your data pipeline
             </p>
-            <p className="mt-1 text-xs text-muted-foreground/70">
-              Connect extract, transform, and load nodes to build your workflow
+            <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+              Drag Source, Transform, and Destination nodes from the palette, or
+              use the AI assistant to generate a workflow from a description.
             </p>
           </div>
         </div>

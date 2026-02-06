@@ -5,6 +5,7 @@ import type {
   Execution,
   ExecutionLog,
   Workflow,
+  PaletteNode,
 } from "./types"
 
 // ─── Dashboard Stats ──────────────────────────────────
@@ -521,26 +522,35 @@ export const executions: Execution[] = [
   },
 ]
 
-// ─── Workflow Palette Nodes ───────────────────────────
+// ─── Workflow Palette Nodes (Source → Transform → Destination) ─────
 export const paletteNodes = {
-  extract: [
-    { id: "node-sap", type: "extract" as const, label: "SAP B1", description: "Extract from SAP Business One", icon: "Database" },
-    { id: "node-tally", type: "extract" as const, label: "Tally Prime", description: "Extract from Tally Prime", icon: "Database" },
-    { id: "node-oracle", type: "extract" as const, label: "Oracle DB", description: "Extract from Oracle Database", icon: "Database" },
-    { id: "node-postgres", type: "extract" as const, label: "PostgreSQL", description: "Extract from PostgreSQL", icon: "Database" },
-    { id: "node-api", type: "extract" as const, label: "REST API", description: "Extract from REST endpoint", icon: "Globe" },
+  source: [
+    { id: "node-db-source", type: "source" as const, label: "Database", description: "Connect with credentials or connection string", icon: "Database", connectionMethod: "credentials" as const },
+    { id: "node-api-source", type: "source" as const, label: "Custom API", description: "Pull data from your own REST API", icon: "Globe", connectionMethod: "custom_api" as const },
+    { id: "node-agg-source", type: "source" as const, label: "Aggregator", description: "Use a pre-built marketplace connector", icon: "Store", connectionMethod: "aggregator" as const },
+    { id: "node-connstr-source", type: "source" as const, label: "Connection String", description: "Direct connection string to any database", icon: "Link", connectionMethod: "connection_string" as const },
+    { id: "node-csv-source", type: "source" as const, label: "File / CSV", description: "Upload or stream from files", icon: "FileSpreadsheet", connectionMethod: "custom_api" as const },
   ],
   transform: [
+    { id: "node-ai-transform", type: "transform" as const, label: "AI Transform", description: "AI-assisted data mapping & conversion", icon: "Sparkles" },
     { id: "node-map", type: "transform" as const, label: "Field Mapper", description: "Map fields between schemas", icon: "ArrowLeftRight" },
     { id: "node-filter", type: "transform" as const, label: "Filter", description: "Filter records by condition", icon: "Filter" },
     { id: "node-aggregate", type: "transform" as const, label: "Aggregate", description: "Group and aggregate data", icon: "Layers" },
-    { id: "node-script", type: "transform" as const, label: "Custom Script", description: "Run custom TypeScript", icon: "Code" },
+    { id: "node-script", type: "transform" as const, label: "Custom Script", description: "Run custom TypeScript logic", icon: "Code" },
   ],
-  load: [
-    { id: "node-sf", type: "load" as const, label: "Salesforce", description: "Load into Salesforce", icon: "Cloud" },
-    { id: "node-snowflake", type: "load" as const, label: "Snowflake", description: "Load into Snowflake", icon: "Snowflake" },
-    { id: "node-hubspot", type: "load" as const, label: "HubSpot", description: "Load into HubSpot", icon: "Cloud" },
-    { id: "node-bigquery", type: "load" as const, label: "BigQuery", description: "Load into BigQuery", icon: "BarChart3" },
-    { id: "node-s3", type: "load" as const, label: "AWS S3", description: "Write files to S3", icon: "HardDrive" },
+  destination: [
+    { id: "node-db-dest", type: "destination" as const, label: "Database", description: "Write to any database with credentials", icon: "Database", connectionMethod: "credentials" as const },
+    { id: "node-api-dest", type: "destination" as const, label: "Custom API", description: "Push data to your own REST API", icon: "Globe", connectionMethod: "custom_api" as const },
+    { id: "node-agg-dest", type: "destination" as const, label: "Aggregator", description: "Use a pre-built marketplace connector", icon: "Store", connectionMethod: "aggregator" as const },
+    { id: "node-connstr-dest", type: "destination" as const, label: "Connection String", description: "Direct connection string to any database", icon: "Link", connectionMethod: "connection_string" as const },
+    { id: "node-webhook-dest", type: "destination" as const, label: "Webhook", description: "POST data to a webhook URL", icon: "Webhook", connectionMethod: "custom_api" as const },
   ],
 }
+
+// ─── AI Assistant preset messages ────────────────────
+export const aiPresetMessages = [
+  "Transfer all orders from my PostgreSQL to Snowflake",
+  "Set up a sync from SAP Business One to Salesforce",
+  "Create a pipeline from my REST API to BigQuery",
+  "Help me map fields from Oracle DB to a webhook",
+]
