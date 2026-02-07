@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
+import { ReduxProvider } from "@/lib/store/provider"
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -31,9 +32,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="font-sans">
-        {children}
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
+      <body className="font-sans" suppressHydrationWarning>
+        <ReduxProvider>
+          {children}
+        </ReduxProvider>
         <Toaster position="bottom-right" richColors />
       </body>
     </html>
