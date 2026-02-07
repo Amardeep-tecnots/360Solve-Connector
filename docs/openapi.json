@@ -1,0 +1,200 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/auth/sign-up": {
+      "post": {
+        "operationId": "AuthController_signUp",
+        "summary": "Create new tenant and user",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User and tenant created successfully"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/sign-in": {
+      "post": {
+        "operationId": "AuthController_signIn",
+        "summary": "Authenticate user",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh",
+        "summary": "Refresh access token",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tokens refreshed successfully"
+          },
+          "401": {
+            "description": "Invalid refresh token"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/sign-out": {
+      "post": {
+        "operationId": "AuthController_signOut",
+        "summary": "Sign out",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "Signed out successfully"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "360Solve Connector API",
+    "description": "Multi-tenant ERP Integration Platform API",
+    "version": "1.0.0",
+    "contact": {
+
+    }
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      },
+      "tenantId": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Tenant-ID"
+      }
+    },
+    "schemas": {
+      "SignUpDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@company.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "SecurePass123!"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "companyName": {
+            "type": "string",
+            "example": "Acme Corp"
+          },
+          "tier": {
+            "type": "string",
+            "example": "free",
+            "enum": [
+              "free",
+              "standard",
+              "enterprise"
+            ]
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "name",
+          "companyName",
+          "tier"
+        ]
+      },
+      "SignInDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@company.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "SecurePass123!"
+          },
+          "rememberMe": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "rememberMe"
+        ]
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      }
+    }
+  }
+}
