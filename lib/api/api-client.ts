@@ -1,6 +1,6 @@
 import { Configuration } from '@/src/generated/api/configuration'
-import { AuthApi, AggregatorsApi, TenantAggregatorsApi, SchemaDiscoveryApi } from '@/src/generated/api/api'
-import type { SignInDto, SignUpDto, RefreshTokenDto, PreviewTableDto } from '@/src/generated/api/api'
+import { AuthApi, AggregatorsApi, TenantAggregatorsApi, SchemaDiscoveryApi, WorkflowsApi } from '@/src/generated/api/api'
+import type { SignInDto, SignUpDto, RefreshTokenDto, PreviewTableDto, CreateWorkflowDto, UpdateWorkflowDto, WorkflowDefinitionDto } from '@/src/generated/api/api'
 
 // Cookie utilities for auth tokens
 export const authCookies = {
@@ -56,6 +56,7 @@ export class ApiClient {
   private aggregatorsApi!: AggregatorsApi
   private tenantAggregatorsApi!: TenantAggregatorsApi
   private schemaDiscoveryApi!: SchemaDiscoveryApi
+  private workflowsApi!: WorkflowsApi
   private configuration: Configuration
 
   constructor() {
@@ -96,6 +97,7 @@ export class ApiClient {
     this.aggregatorsApi = new AggregatorsApi(this.configuration)
     this.tenantAggregatorsApi = new TenantAggregatorsApi(this.configuration)
     this.schemaDiscoveryApi = new SchemaDiscoveryApi(this.configuration)
+    this.workflowsApi = new WorkflowsApi(this.configuration)
   }
 
   // Call this after login/logout to refresh API instances with new token
@@ -119,6 +121,40 @@ export class ApiClient {
 
   get schemaDiscovery() {
     return this.schemaDiscoveryApi
+  }
+
+  get workflows() {
+    return this.workflowsApi
+  }
+
+  // Workflow helpers
+  async listWorkflows(status: string = 'all') {
+    const response = await this.workflows.workflowsControllerFindAll(status)
+    return (response.data as any)?.data || response.data
+  }
+
+  async getWorkflow(id: string) {
+    const response = await this.workflows.workflowsControllerFindOne(id)
+    return (response.data as any)?.data || response.data
+  }
+
+  async createWorkflow(data: CreateWorkflowDto) {
+    const response = await this.workflows.workflowsControllerCreate(data)
+    return (response.data as any)?.data || response.data
+  }
+
+  async updateWorkflow(id: string, data: UpdateWorkflowDto) {
+    const response = await this.workflows.workflowsControllerUpdate(id, data)
+    return (response.data as any)?.data || response.data
+  }
+
+  async deleteWorkflow(id: string) {
+    await this.workflows.workflowsControllerDelete(id)
+  }
+
+  async validateWorkflow(data: WorkflowDefinitionDto) {
+    const response = await this.workflows.workflowsControllerValidate(data)
+    return (response.data as any)?.data || response.data
   }
 
   // Auth helpers

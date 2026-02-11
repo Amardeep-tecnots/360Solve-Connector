@@ -7,11 +7,14 @@ import { uiSlice } from './slices/ui-slice'
 import { connectorSlice } from './slices/connector-slice'
 import { aggregatorsSlice } from './slices/aggregators-slice'
 
+import { workflowsSlice } from './slices/workflows-slice'
+
 export const store = configureStore({
   reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
     auth: authSlice.reducer,
     workflow: workflowSlice.reducer,
+    workflows: workflowsSlice.reducer,
     ui: uiSlice.reducer,
     connector: connectorSlice.reducer,
     aggregators: aggregatorsSlice.reducer,

@@ -100,6 +100,215 @@
         ]
       }
     },
+    "/api/workflows": {
+      "get": {
+        "operationId": "WorkflowsController_findAll",
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Workflows"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "WorkflowsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkflowDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowDetailResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Workflows"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/workflows/{id}": {
+      "get": {
+        "operationId": "WorkflowsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowDetailResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Workflows"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "WorkflowsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkflowDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowDetailResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Workflows"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "WorkflowsController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Workflows"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/workflows/validate": {
+      "post": {
+        "operationId": "WorkflowsController_validate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowDefinitionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowValidationResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Workflows"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
     "/api/aggregators": {
       "get": {
         "operationId": "AggregatorsController_findAll",
@@ -249,6 +458,42 @@
           }
         ]
       },
+      "put": {
+        "operationId": "TenantAggregatorsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTenantAggregatorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "TenantAggregators"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
       "delete": {
         "operationId": "TenantAggregatorsController_delete",
         "parameters": [
@@ -292,44 +537,6 @@
         },
         "responses": {
           "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "TenantAggregators"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/tenant-aggregators/{id}/credentials": {
-      "put": {
-        "operationId": "TenantAggregatorsController_saveCredentials",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SaveTenantAggregatorCredentialsDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
             "description": ""
           }
         },
@@ -606,6 +813,309 @@
           }
         ]
       }
+    },
+    "/api/workflows/{id}/execute": {
+      "post": {
+        "operationId": "ExecutionsController_triggerWorkflow",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecuteWorkflowDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionTriggerResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Executions"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/executions": {
+      "get": {
+        "operationId": "ExecutionsController_findAll",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by workflow ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "PENDING",
+                "RUNNING",
+                "PAUSED",
+                "COMPLETED",
+                "FAILED",
+                "CANCELLED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter by date range start",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter by date range end",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 0,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Executions"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/executions/{id}": {
+      "get": {
+        "operationId": "ExecutionsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionDetailResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Executions"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/executions/{id}/pause": {
+      "post": {
+        "operationId": "ExecutionsController_pause",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PauseExecutionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionControlResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Executions"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/executions/{id}/resume": {
+      "post": {
+        "operationId": "ExecutionsController_resume",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResumeExecutionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionControlResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Executions"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/executions/{id}/cancel": {
+      "post": {
+        "operationId": "ExecutionsController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelExecutionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionControlResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Executions"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
     }
   },
   "info": {
@@ -700,6 +1210,376 @@
         },
         "required": [
           "refreshToken"
+        ]
+      },
+      "WorkflowActivityResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "config": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "name",
+          "config"
+        ]
+      },
+      "WorkflowStepResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "activityId": {
+            "type": "string"
+          },
+          "dependsOn": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "activityId",
+          "dependsOn"
+        ]
+      },
+      "WorkflowDefinitionResponseDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "activities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowActivityResponseDto"
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepResponseDto"
+            }
+          },
+          "schedule": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "activities",
+          "steps"
+        ]
+      },
+      "WorkflowResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "string"
+          },
+          "version": {
+            "type": "number"
+          },
+          "hash": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "definition": {
+            "$ref": "#/components/schemas/WorkflowDefinitionResponseDto"
+          },
+          "status": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "schedule": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deprecatedAfter": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "forceCancelAfter": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "tenantId",
+          "version",
+          "hash",
+          "name",
+          "definition",
+          "status",
+          "isActive",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "WorkflowListResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowResponseDto"
+            }
+          }
+        },
+        "required": [
+          "success",
+          "data"
+        ]
+      },
+      "WorkflowDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/WorkflowResponseDto"
+          }
+        },
+        "required": [
+          "success",
+          "data"
+        ]
+      },
+      "ActivityDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "extract",
+              "transform",
+              "load",
+              "filter",
+              "join"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "config": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "name",
+          "config"
+        ]
+      },
+      "WorkflowStepDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "activityId": {
+            "type": "string"
+          },
+          "dependsOn": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "activityId",
+          "dependsOn"
+        ]
+      },
+      "WorkflowDefinitionDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "default": "1.0"
+          },
+          "activities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityDto"
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepDto"
+            }
+          },
+          "schedule": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "activities",
+          "steps"
+        ]
+      },
+      "CreateWorkflowDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Workflow name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Workflow description"
+          },
+          "definition": {
+            "description": "Workflow definition with activities and DAG",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WorkflowDefinitionDto"
+              }
+            ]
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Activate workflow immediately",
+            "default": false
+          },
+          "schedule": {
+            "type": "string",
+            "description": "Cron expression for scheduling"
+          }
+        },
+        "required": [
+          "name",
+          "definition"
+        ]
+      },
+      "UpdateWorkflowDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "definition": {
+            "$ref": "#/components/schemas/WorkflowDefinitionDto"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "schedule": {
+            "type": "string"
+          }
+        }
+      },
+      "ValidationErrorDto": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "message"
+        ]
+      },
+      "WorkflowValidationDataDto": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationErrorDto"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "activitiesChecked": {
+            "type": "number"
+          },
+          "aggregatorsVerified": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "valid",
+          "errors",
+          "warnings",
+          "activitiesChecked",
+          "aggregatorsVerified"
+        ]
+      },
+      "WorkflowValidationResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/WorkflowValidationDataDto"
+          }
+        },
+        "required": [
+          "success",
+          "data"
         ]
       },
       "TenantAggregatorResponseDto": {
@@ -833,8 +1713,14 @@
           "config": {
             "type": "object"
           },
+          "credentialId": {
+            "type": "string"
+          },
           "credentials": {
             "type": "object"
+          },
+          "connectorId": {
+            "type": "string"
           },
           "testConnection": {
             "type": "boolean",
@@ -845,7 +1731,7 @@
           "name"
         ]
       },
-      "SaveTenantAggregatorCredentialsDto": {
+      "UpdateTenantAggregatorDto": {
         "type": "object",
         "properties": {
           "name": {
@@ -854,12 +1740,15 @@
           "config": {
             "type": "object"
           },
-          "credentials": {
-            "type": "object"
+          "credentialId": {
+            "type": "string"
+          },
+          "connectorId": {
+            "type": "string"
           }
         },
         "required": [
-          "credentials"
+          "name"
         ]
       },
       "SchemaDiscoveryResponseDto": {
@@ -885,6 +1774,186 @@
             "default": 10,
             "minimum": 1,
             "maximum": 100
+          }
+        }
+      },
+      "ExecuteWorkflowDto": {
+        "type": "object",
+        "properties": {
+          "triggerContext": {
+            "type": "object",
+            "description": "Optional execution trigger context"
+          },
+          "scheduledFor": {
+            "type": "string",
+            "description": "Override workflow schedule for this run"
+          },
+          "immediate": {
+            "type": "boolean",
+            "description": "Execute immediately vs queue",
+            "default": true
+          }
+        }
+      },
+      "ExecutionTriggerResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "success",
+          "data"
+        ]
+      },
+      "ExecutionListResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "offset": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "total",
+          "limit",
+          "offset"
+        ]
+      },
+      "ExecutionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "workflowVersion": {
+            "type": "number"
+          },
+          "workflowHash": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "currentStepId": {
+            "type": "string"
+          },
+          "activities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "startedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "completedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "errorMessage": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "tenantId",
+          "workflowId",
+          "workflowVersion",
+          "workflowHash",
+          "status",
+          "activities",
+          "events",
+          "startedAt"
+        ]
+      },
+      "ExecutionDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ExecutionResponseDto"
+          }
+        },
+        "required": [
+          "success",
+          "data"
+        ]
+      },
+      "PauseExecutionDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Reason for pausing"
+          }
+        }
+      },
+      "ExecutionControlResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "success",
+          "data"
+        ]
+      },
+      "ResumeExecutionDto": {
+        "type": "object",
+        "properties": {
+          "context": {
+            "type": "string",
+            "description": "Resume context"
+          }
+        }
+      },
+      "CancelExecutionDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Reason for cancellation"
           }
         }
       }

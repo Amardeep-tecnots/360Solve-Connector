@@ -1,4 +1,4 @@
-import { Plus, Store, Sparkles } from "lucide-react"
+import { Plus, Store, Sparkles, List } from "lucide-react"
 import Link from "next/link"
 
 const actions = [
@@ -15,6 +15,13 @@ const actions = [
     href: "/workflows",
     icon: Plus,
     accent: "bg-success/10 text-success",
+  },
+  {
+    label: "View Workflows",
+    description: "Manage and monitor workflows",
+    href: "/workflows/list",
+    icon: List,
+    accent: "bg-warning/10 text-warning",
   },
   {
     label: "Browse Connectors",

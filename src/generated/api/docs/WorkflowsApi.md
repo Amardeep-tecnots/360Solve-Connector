@@ -1,186 +1,36 @@
-# TenantAggregatorsApi
+# WorkflowsApi
 
 All URIs are relative to *http://localhost*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**tenantAggregatorsControllerDelete**](#tenantaggregatorscontrollerdelete) | **DELETE** /api/tenant-aggregators/{id} | |
-|[**tenantAggregatorsControllerFindAll**](#tenantaggregatorscontrollerfindall) | **GET** /api/tenant-aggregators | |
-|[**tenantAggregatorsControllerFindOne**](#tenantaggregatorscontrollerfindone) | **GET** /api/tenant-aggregators/{id} | |
-|[**tenantAggregatorsControllerInstall**](#tenantaggregatorscontrollerinstall) | **POST** /api/tenant-aggregators/install | |
-|[**tenantAggregatorsControllerTestConnection**](#tenantaggregatorscontrollertestconnection) | **POST** /api/tenant-aggregators/{id}/test | |
-|[**tenantAggregatorsControllerUpdate**](#tenantaggregatorscontrollerupdate) | **PUT** /api/tenant-aggregators/{id} | |
+|[**workflowsControllerCreate**](#workflowscontrollercreate) | **POST** /api/workflows | |
+|[**workflowsControllerDelete**](#workflowscontrollerdelete) | **DELETE** /api/workflows/{id} | |
+|[**workflowsControllerFindAll**](#workflowscontrollerfindall) | **GET** /api/workflows | |
+|[**workflowsControllerFindOne**](#workflowscontrollerfindone) | **GET** /api/workflows/{id} | |
+|[**workflowsControllerUpdate**](#workflowscontrollerupdate) | **PUT** /api/workflows/{id} | |
+|[**workflowsControllerValidate**](#workflowscontrollervalidate) | **POST** /api/workflows/validate | |
 
-# **tenantAggregatorsControllerDelete**
-> tenantAggregatorsControllerDelete()
-
-
-### Example
-
-```typescript
-import {
-    TenantAggregatorsApi,
-    Configuration
-} from '360solve-api-client';
-
-const configuration = new Configuration();
-const apiInstance = new TenantAggregatorsApi(configuration);
-
-let id: string; // (default to undefined)
-
-const { status, data } = await apiInstance.tenantAggregatorsControllerDelete(
-    id
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] |  | defaults to undefined|
-
-
-### Return type
-
-void (empty response body)
-
-### Authorization
-
-[bearer](../README.md#bearer)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: Not defined
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** |  |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **tenantAggregatorsControllerFindAll**
-> TenantAggregatorListResponseDto tenantAggregatorsControllerFindAll()
+# **workflowsControllerCreate**
+> WorkflowDetailResponseDto workflowsControllerCreate(createWorkflowDto)
 
 
 ### Example
 
 ```typescript
 import {
-    TenantAggregatorsApi,
-    Configuration
-} from '360solve-api-client';
-
-const configuration = new Configuration();
-const apiInstance = new TenantAggregatorsApi(configuration);
-
-let aggregatorId: string; // (default to undefined)
-
-const { status, data } = await apiInstance.tenantAggregatorsControllerFindAll(
-    aggregatorId
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **aggregatorId** | [**string**] |  | defaults to undefined|
-
-
-### Return type
-
-**TenantAggregatorListResponseDto**
-
-### Authorization
-
-[bearer](../README.md#bearer)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** |  |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **tenantAggregatorsControllerFindOne**
-> TenantAggregatorDetailResponseDto tenantAggregatorsControllerFindOne()
-
-
-### Example
-
-```typescript
-import {
-    TenantAggregatorsApi,
-    Configuration
-} from '360solve-api-client';
-
-const configuration = new Configuration();
-const apiInstance = new TenantAggregatorsApi(configuration);
-
-let id: string; // (default to undefined)
-
-const { status, data } = await apiInstance.tenantAggregatorsControllerFindOne(
-    id
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] |  | defaults to undefined|
-
-
-### Return type
-
-**TenantAggregatorDetailResponseDto**
-
-### Authorization
-
-[bearer](../README.md#bearer)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** |  |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **tenantAggregatorsControllerInstall**
-> tenantAggregatorsControllerInstall(installTenantAggregatorDto)
-
-
-### Example
-
-```typescript
-import {
-    TenantAggregatorsApi,
+    WorkflowsApi,
     Configuration,
-    InstallTenantAggregatorDto
+    CreateWorkflowDto
 } from '360solve-api-client';
 
 const configuration = new Configuration();
-const apiInstance = new TenantAggregatorsApi(configuration);
+const apiInstance = new WorkflowsApi(configuration);
 
-let installTenantAggregatorDto: InstallTenantAggregatorDto; //
+let createWorkflowDto: CreateWorkflowDto; //
 
-const { status, data } = await apiInstance.tenantAggregatorsControllerInstall(
-    installTenantAggregatorDto
+const { status, data } = await apiInstance.workflowsControllerCreate(
+    createWorkflowDto
 );
 ```
 
@@ -188,12 +38,12 @@ const { status, data } = await apiInstance.tenantAggregatorsControllerInstall(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **installTenantAggregatorDto** | **InstallTenantAggregatorDto**|  | |
+| **createWorkflowDto** | **CreateWorkflowDto**|  | |
 
 
 ### Return type
 
-void (empty response body)
+**WorkflowDetailResponseDto**
 
 ### Authorization
 
@@ -202,7 +52,7 @@ void (empty response body)
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
@@ -212,24 +62,24 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **tenantAggregatorsControllerTestConnection**
-> tenantAggregatorsControllerTestConnection()
+# **workflowsControllerDelete**
+> workflowsControllerDelete()
 
 
 ### Example
 
 ```typescript
 import {
-    TenantAggregatorsApi,
+    WorkflowsApi,
     Configuration
 } from '360solve-api-client';
 
 const configuration = new Configuration();
-const apiInstance = new TenantAggregatorsApi(configuration);
+const apiInstance = new WorkflowsApi(configuration);
 
 let id: string; // (default to undefined)
 
-const { status, data } = await apiInstance.tenantAggregatorsControllerTestConnection(
+const { status, data } = await apiInstance.workflowsControllerDelete(
     id
 );
 ```
@@ -258,32 +108,132 @@ void (empty response body)
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**201** |  |  -  |
+|**200** |  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **tenantAggregatorsControllerUpdate**
-> tenantAggregatorsControllerUpdate(updateTenantAggregatorDto)
+# **workflowsControllerFindAll**
+> WorkflowListResponseDto workflowsControllerFindAll()
 
 
 ### Example
 
 ```typescript
 import {
-    TenantAggregatorsApi,
-    Configuration,
-    UpdateTenantAggregatorDto
+    WorkflowsApi,
+    Configuration
 } from '360solve-api-client';
 
 const configuration = new Configuration();
-const apiInstance = new TenantAggregatorsApi(configuration);
+const apiInstance = new WorkflowsApi(configuration);
+
+let status: string; // (default to undefined)
+
+const { status, data } = await apiInstance.workflowsControllerFindAll(
+    status
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **status** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**WorkflowListResponseDto**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **workflowsControllerFindOne**
+> WorkflowDetailResponseDto workflowsControllerFindOne()
+
+
+### Example
+
+```typescript
+import {
+    WorkflowsApi,
+    Configuration
+} from '360solve-api-client';
+
+const configuration = new Configuration();
+const apiInstance = new WorkflowsApi(configuration);
 
 let id: string; // (default to undefined)
-let updateTenantAggregatorDto: UpdateTenantAggregatorDto; //
 
-const { status, data } = await apiInstance.tenantAggregatorsControllerUpdate(
+const { status, data } = await apiInstance.workflowsControllerFindOne(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**WorkflowDetailResponseDto**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **workflowsControllerUpdate**
+> WorkflowDetailResponseDto workflowsControllerUpdate(updateWorkflowDto)
+
+
+### Example
+
+```typescript
+import {
+    WorkflowsApi,
+    Configuration,
+    UpdateWorkflowDto
+} from '360solve-api-client';
+
+const configuration = new Configuration();
+const apiInstance = new WorkflowsApi(configuration);
+
+let id: string; // (default to undefined)
+let updateWorkflowDto: UpdateWorkflowDto; //
+
+const { status, data } = await apiInstance.workflowsControllerUpdate(
     id,
-    updateTenantAggregatorDto
+    updateWorkflowDto
 );
 ```
 
@@ -291,13 +241,13 @@ const { status, data } = await apiInstance.tenantAggregatorsControllerUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **updateTenantAggregatorDto** | **UpdateTenantAggregatorDto**|  | |
+| **updateWorkflowDto** | **UpdateWorkflowDto**|  | |
 | **id** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
 
-void (empty response body)
+**WorkflowDetailResponseDto**
 
 ### Authorization
 
@@ -306,7 +256,58 @@ void (empty response body)
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **workflowsControllerValidate**
+> WorkflowValidationResponseDto workflowsControllerValidate(workflowDefinitionDto)
+
+
+### Example
+
+```typescript
+import {
+    WorkflowsApi,
+    Configuration,
+    WorkflowDefinitionDto
+} from '360solve-api-client';
+
+const configuration = new Configuration();
+const apiInstance = new WorkflowsApi(configuration);
+
+let workflowDefinitionDto: WorkflowDefinitionDto; //
+
+const { status, data } = await apiInstance.workflowsControllerValidate(
+    workflowDefinitionDto
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **workflowDefinitionDto** | **WorkflowDefinitionDto**|  | |
+
+
+### Return type
+
+**WorkflowValidationResponseDto**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
 
 
 ### HTTP response details

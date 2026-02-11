@@ -57,6 +57,12 @@ Class | Method | HTTP request | Description
 *AuthApi* | [**authControllerSignIn**](docs/AuthApi.md#authcontrollersignin) | **POST** /auth/sign-in | Authenticate user
 *AuthApi* | [**authControllerSignOut**](docs/AuthApi.md#authcontrollersignout) | **POST** /auth/sign-out | Sign out
 *AuthApi* | [**authControllerSignUp**](docs/AuthApi.md#authcontrollersignup) | **POST** /auth/sign-up | Create new tenant and user
+*ExecutionsApi* | [**executionsControllerCancel**](docs/ExecutionsApi.md#executionscontrollercancel) | **POST** /api/executions/{id}/cancel | 
+*ExecutionsApi* | [**executionsControllerFindAll**](docs/ExecutionsApi.md#executionscontrollerfindall) | **GET** /api/executions | 
+*ExecutionsApi* | [**executionsControllerFindOne**](docs/ExecutionsApi.md#executionscontrollerfindone) | **GET** /api/executions/{id} | 
+*ExecutionsApi* | [**executionsControllerPause**](docs/ExecutionsApi.md#executionscontrollerpause) | **POST** /api/executions/{id}/pause | 
+*ExecutionsApi* | [**executionsControllerResume**](docs/ExecutionsApi.md#executionscontrollerresume) | **POST** /api/executions/{id}/resume | 
+*ExecutionsApi* | [**executionsControllerTriggerWorkflow**](docs/ExecutionsApi.md#executionscontrollertriggerworkflow) | **POST** /api/workflows/{id}/execute | 
 *SchemaDiscoveryApi* | [**schemaDiscoveryControllerDiscover**](docs/SchemaDiscoveryApi.md#schemadiscoverycontrollerdiscover) | **POST** /api/tenant-aggregators/{id}/discover | 
 *SchemaDiscoveryApi* | [**schemaDiscoveryControllerGetRelationships**](docs/SchemaDiscoveryApi.md#schemadiscoverycontrollergetrelationships) | **GET** /api/tenant-aggregators/{id}/schema/relationships | 
 *SchemaDiscoveryApi* | [**schemaDiscoveryControllerGetSchema**](docs/SchemaDiscoveryApi.md#schemadiscoverycontrollergetschema) | **GET** /api/tenant-aggregators/{id}/schema | 
@@ -67,22 +73,51 @@ Class | Method | HTTP request | Description
 *TenantAggregatorsApi* | [**tenantAggregatorsControllerFindAll**](docs/TenantAggregatorsApi.md#tenantaggregatorscontrollerfindall) | **GET** /api/tenant-aggregators | 
 *TenantAggregatorsApi* | [**tenantAggregatorsControllerFindOne**](docs/TenantAggregatorsApi.md#tenantaggregatorscontrollerfindone) | **GET** /api/tenant-aggregators/{id} | 
 *TenantAggregatorsApi* | [**tenantAggregatorsControllerInstall**](docs/TenantAggregatorsApi.md#tenantaggregatorscontrollerinstall) | **POST** /api/tenant-aggregators/install | 
-*TenantAggregatorsApi* | [**tenantAggregatorsControllerSaveCredentials**](docs/TenantAggregatorsApi.md#tenantaggregatorscontrollersavecredentials) | **PUT** /api/tenant-aggregators/{id}/credentials | 
 *TenantAggregatorsApi* | [**tenantAggregatorsControllerTestConnection**](docs/TenantAggregatorsApi.md#tenantaggregatorscontrollertestconnection) | **POST** /api/tenant-aggregators/{id}/test | 
+*TenantAggregatorsApi* | [**tenantAggregatorsControllerUpdate**](docs/TenantAggregatorsApi.md#tenantaggregatorscontrollerupdate) | **PUT** /api/tenant-aggregators/{id} | 
+*WorkflowsApi* | [**workflowsControllerCreate**](docs/WorkflowsApi.md#workflowscontrollercreate) | **POST** /api/workflows | 
+*WorkflowsApi* | [**workflowsControllerDelete**](docs/WorkflowsApi.md#workflowscontrollerdelete) | **DELETE** /api/workflows/{id} | 
+*WorkflowsApi* | [**workflowsControllerFindAll**](docs/WorkflowsApi.md#workflowscontrollerfindall) | **GET** /api/workflows | 
+*WorkflowsApi* | [**workflowsControllerFindOne**](docs/WorkflowsApi.md#workflowscontrollerfindone) | **GET** /api/workflows/{id} | 
+*WorkflowsApi* | [**workflowsControllerUpdate**](docs/WorkflowsApi.md#workflowscontrollerupdate) | **PUT** /api/workflows/{id} | 
+*WorkflowsApi* | [**workflowsControllerValidate**](docs/WorkflowsApi.md#workflowscontrollervalidate) | **POST** /api/workflows/validate | 
 
 
 ### Documentation For Models
 
+ - [ActivityDto](docs/ActivityDto.md)
+ - [CancelExecutionDto](docs/CancelExecutionDto.md)
+ - [CreateWorkflowDto](docs/CreateWorkflowDto.md)
+ - [ExecuteWorkflowDto](docs/ExecuteWorkflowDto.md)
+ - [ExecutionControlResponseDto](docs/ExecutionControlResponseDto.md)
+ - [ExecutionDetailResponseDto](docs/ExecutionDetailResponseDto.md)
+ - [ExecutionListResponseDto](docs/ExecutionListResponseDto.md)
+ - [ExecutionResponseDto](docs/ExecutionResponseDto.md)
+ - [ExecutionTriggerResponseDto](docs/ExecutionTriggerResponseDto.md)
  - [InstallTenantAggregatorDto](docs/InstallTenantAggregatorDto.md)
+ - [PauseExecutionDto](docs/PauseExecutionDto.md)
  - [PreviewTableDto](docs/PreviewTableDto.md)
  - [RefreshTokenDto](docs/RefreshTokenDto.md)
- - [SaveTenantAggregatorCredentialsDto](docs/SaveTenantAggregatorCredentialsDto.md)
+ - [ResumeExecutionDto](docs/ResumeExecutionDto.md)
  - [SchemaDiscoveryResponseDto](docs/SchemaDiscoveryResponseDto.md)
  - [SignInDto](docs/SignInDto.md)
  - [SignUpDto](docs/SignUpDto.md)
  - [TenantAggregatorDetailResponseDto](docs/TenantAggregatorDetailResponseDto.md)
  - [TenantAggregatorListResponseDto](docs/TenantAggregatorListResponseDto.md)
  - [TenantAggregatorResponseDto](docs/TenantAggregatorResponseDto.md)
+ - [UpdateTenantAggregatorDto](docs/UpdateTenantAggregatorDto.md)
+ - [UpdateWorkflowDto](docs/UpdateWorkflowDto.md)
+ - [ValidationErrorDto](docs/ValidationErrorDto.md)
+ - [WorkflowActivityResponseDto](docs/WorkflowActivityResponseDto.md)
+ - [WorkflowDefinitionDto](docs/WorkflowDefinitionDto.md)
+ - [WorkflowDefinitionResponseDto](docs/WorkflowDefinitionResponseDto.md)
+ - [WorkflowDetailResponseDto](docs/WorkflowDetailResponseDto.md)
+ - [WorkflowListResponseDto](docs/WorkflowListResponseDto.md)
+ - [WorkflowResponseDto](docs/WorkflowResponseDto.md)
+ - [WorkflowStepDto](docs/WorkflowStepDto.md)
+ - [WorkflowStepResponseDto](docs/WorkflowStepResponseDto.md)
+ - [WorkflowValidationDataDto](docs/WorkflowValidationDataDto.md)
+ - [WorkflowValidationResponseDto](docs/WorkflowValidationResponseDto.md)
 
 
 <a id="documentation-for-authorization"></a>

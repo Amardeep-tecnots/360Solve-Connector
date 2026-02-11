@@ -1,33 +1,25 @@
-# InstallTenantAggregatorDto
+# UpdateTenantAggregatorDto
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**aggregatorId** | **string** |  | [optional] [default to undefined]
-**marketplaceId** | **string** |  | [optional] [default to undefined]
 **name** | **string** |  | [default to undefined]
 **config** | **object** |  | [optional] [default to undefined]
 **credentialId** | **string** |  | [optional] [default to undefined]
-**credentials** | **object** |  | [optional] [default to undefined]
 **connectorId** | **string** |  | [optional] [default to undefined]
-**testConnection** | **boolean** |  | [optional] [default to false]
 
 ## Example
 
 ```typescript
-import { InstallTenantAggregatorDto } from '360solve-api-client';
+import { UpdateTenantAggregatorDto } from '360solve-api-client';
 
-const instance: InstallTenantAggregatorDto = {
-    aggregatorId,
-    marketplaceId,
+const instance: UpdateTenantAggregatorDto = {
     name,
     config,
     credentialId,
-    credentials,
     connectorId,
-    testConnection,
 };
 ```
 
