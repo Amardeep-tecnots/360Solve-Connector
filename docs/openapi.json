@@ -99,6 +99,513 @@
           "Auth"
         ]
       }
+    },
+    "/api/aggregators": {
+      "get": {
+        "operationId": "AggregatorsController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Aggregators"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/aggregators/{id}": {
+      "get": {
+        "operationId": "AggregatorsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Aggregators"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/tenant-aggregators": {
+      "get": {
+        "operationId": "TenantAggregatorsController_findAll",
+        "parameters": [
+          {
+            "name": "aggregatorId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAggregatorListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "TenantAggregators"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/tenant-aggregators/{id}": {
+      "get": {
+        "operationId": "TenantAggregatorsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAggregatorDetailResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "TenantAggregators"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "TenantAggregatorsController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "TenantAggregators"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/tenant-aggregators/install": {
+      "post": {
+        "operationId": "TenantAggregatorsController_install",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstallTenantAggregatorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "TenantAggregators"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/tenant-aggregators/{id}/credentials": {
+      "put": {
+        "operationId": "TenantAggregatorsController_saveCredentials",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveTenantAggregatorCredentialsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "TenantAggregators"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/tenant-aggregators/{id}/test": {
+      "post": {
+        "operationId": "TenantAggregatorsController_testConnection",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "TenantAggregators"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/tenant-aggregators/{id}/discover": {
+      "post": {
+        "operationId": "SchemaDiscoveryController_discover",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchemaDiscoveryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "SchemaDiscovery"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/tenant-aggregators/{id}/schema": {
+      "get": {
+        "operationId": "SchemaDiscoveryController_getSchema",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchemaDiscoveryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "SchemaDiscovery"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/tenant-aggregators/{id}/schema/tables": {
+      "get": {
+        "operationId": "SchemaDiscoveryController_getTables",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchemaDiscoveryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "SchemaDiscovery"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/tenant-aggregators/{id}/schema/tables/{tableName}": {
+      "get": {
+        "operationId": "SchemaDiscoveryController_getTable",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tableName",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchemaDiscoveryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "SchemaDiscovery"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/tenant-aggregators/{id}/schema/relationships": {
+      "get": {
+        "operationId": "SchemaDiscoveryController_getRelationships",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchemaDiscoveryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "SchemaDiscovery"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/tenant-aggregators/{id}/schema/preview": {
+      "post": {
+        "operationId": "SchemaDiscoveryController_previewTable",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tableName",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewTableDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchemaDiscoveryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "SchemaDiscovery"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
     }
   },
   "info": {
@@ -194,6 +701,192 @@
         "required": [
           "refreshToken"
         ]
+      },
+      "TenantAggregatorResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "aggregatorId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "aggregatorName": {
+            "type": "string"
+          },
+          "aggregatorDescription": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "type": "string"
+          },
+          "configSchema": {
+            "type": "object"
+          },
+          "status": {
+            "type": "string"
+          },
+          "config": {
+            "type": "object"
+          },
+          "hasCredentials": {
+            "type": "boolean"
+          },
+          "lastTestAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "lastTestStatus": {
+            "type": "string"
+          },
+          "lastTestError": {
+            "type": "string"
+          },
+          "lastSyncAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "miniConnectorId": {
+            "type": "string"
+          },
+          "installedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "aggregatorId",
+          "name",
+          "aggregatorName",
+          "description",
+          "category",
+          "type",
+          "status",
+          "config",
+          "hasCredentials",
+          "installedAt",
+          "updatedAt"
+        ]
+      },
+      "TenantAggregatorListResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TenantAggregatorResponseDto"
+            }
+          }
+        },
+        "required": [
+          "success",
+          "data"
+        ]
+      },
+      "TenantAggregatorDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TenantAggregatorResponseDto"
+          }
+        },
+        "required": [
+          "success",
+          "data"
+        ]
+      },
+      "InstallTenantAggregatorDto": {
+        "type": "object",
+        "properties": {
+          "aggregatorId": {
+            "type": "string"
+          },
+          "marketplaceId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "config": {
+            "type": "object"
+          },
+          "credentials": {
+            "type": "object"
+          },
+          "testConnection": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "SaveTenantAggregatorCredentialsDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "config": {
+            "type": "object"
+          },
+          "credentials": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "credentials"
+        ]
+      },
+      "SchemaDiscoveryResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "success",
+          "data"
+        ]
+      },
+      "PreviewTableDto": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "default": 10,
+            "minimum": 1,
+            "maximum": 100
+          }
+        }
       }
     }
   }

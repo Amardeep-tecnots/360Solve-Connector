@@ -1,6 +1,6 @@
 import { Configuration } from '@/src/generated/api/configuration'
-import { AuthApi } from '@/src/generated/api/api'
-import type { SignInDto, SignUpDto, RefreshTokenDto } from '@/src/generated/api/api'
+import { AuthApi, AggregatorsApi, TenantAggregatorsApi, SchemaDiscoveryApi } from '@/src/generated/api/api'
+import type { SignInDto, SignUpDto, RefreshTokenDto, PreviewTableDto } from '@/src/generated/api/api'
 
 // Cookie utilities for auth tokens
 export const authCookies = {
@@ -53,6 +53,9 @@ export const authCookies = {
 // API Client wrapper that handles authentication
 export class ApiClient {
   private authApi!: AuthApi
+  private aggregatorsApi!: AggregatorsApi
+  private tenantAggregatorsApi!: TenantAggregatorsApi
+  private schemaDiscoveryApi!: SchemaDiscoveryApi
   private configuration: Configuration
 
   constructor() {
@@ -90,6 +93,9 @@ export class ApiClient {
 
   private initializeApis() {
     this.authApi = new AuthApi(this.configuration)
+    this.aggregatorsApi = new AggregatorsApi(this.configuration)
+    this.tenantAggregatorsApi = new TenantAggregatorsApi(this.configuration)
+    this.schemaDiscoveryApi = new SchemaDiscoveryApi(this.configuration)
   }
 
   // Call this after login/logout to refresh API instances with new token
@@ -101,6 +107,18 @@ export class ApiClient {
   // Get API instances
   get auth() {
     return this.authApi
+  }
+
+  get aggregators() {
+    return this.aggregatorsApi
+  }
+
+  get tenantAggregators() {
+    return this.tenantAggregatorsApi
+  }
+
+  get schemaDiscovery() {
+    return this.schemaDiscoveryApi
   }
 
   // Auth helpers
@@ -161,7 +179,98 @@ export class ApiClient {
     return { accessToken }
   }
 
-  // Check if authenticated
+  // Aggregator helpers
+  async listMarketplaceAggregators(params: { page?: string; limit?: string; category?: string; search?: string }) {
+    const response = await this.aggregators.aggregatorsControllerFindAll(
+      params.page || '1',
+      params.limit || '50',
+      params.category || '',
+      params.search || ''
+    )
+    return (response.data as any)?.data || response.data
+  }
+
+  async getAggregator(id: string) {
+    const response = await this.aggregators.aggregatorsControllerFindOne(id)
+    return (response.data as any)?.data || response.data
+  }
+
+  async listInstalledAggregators() {
+    const response = await this.tenantAggregators.tenantAggregatorsControllerFindAll('')
+    return (response.data as any)?.data || response.data
+  }
+
+  async getInstalledAggregator(id: string) {
+    const response = await this.tenantAggregators.tenantAggregatorsControllerFindOne(id)
+    return (response.data as any)?.data || response.data
+  }
+
+  async installAggregator(
+    marketplaceId: string,
+    name: string,
+    config?: Record<string, any>,
+    credentials?: Record<string, string>,
+    testConnection?: boolean
+  ) {
+    const response = await this.tenantAggregators.tenantAggregatorsControllerInstall({
+      marketplaceId,
+      name,
+      config,
+      credentials,
+      testConnection
+    })
+    return (response.data as any)?.data || response.data
+  }
+
+  async configureAggregator(id: string, name: string, credentials: Record<string, string>) {
+    const response = await this.tenantAggregators.tenantAggregatorsControllerSaveCredentials(id, {
+      name,
+      credentials
+    })
+    return (response.data as any)?.data || response.data
+  }
+
+  async testAggregatorConnection(id: string) {
+    const response = await this.tenantAggregators.tenantAggregatorsControllerTestConnection(id)
+    return (response.data as any)?.data || response.data
+  }
+
+  async deleteAggregator(id: string) {
+    await this.tenantAggregators.tenantAggregatorsControllerDelete(id)
+  }
+
+  // Schema Discovery helpers
+  async triggerSchemaDiscovery(id: string) {
+    const response = await this.schemaDiscovery.schemaDiscoveryControllerDiscover(id)
+    return (response.data as any)?.data || response.data
+  }
+
+  async getSchema(id: string) {
+    const response = await this.schemaDiscovery.schemaDiscoveryControllerGetSchema(id)
+    return (response.data as any)?.data || response.data
+  }
+
+  async getTables(id: string) {
+    const response = await this.schemaDiscovery.schemaDiscoveryControllerGetTables(id)
+    return (response.data as any)?.data || response.data
+  }
+
+  async getTableDetails(id: string, tableName: string) {
+    const response = await this.schemaDiscovery.schemaDiscoveryControllerGetTable(id, tableName)
+    return (response.data as any)?.data || response.data
+  }
+
+  async previewTable(id: string, tableName: string, limit: number = 20) {
+    const response = await this.schemaDiscovery.schemaDiscoveryControllerPreviewTable(id, tableName, { limit })
+    const responseData = (response.data as any)?.data || response.data
+    return responseData
+  }
+
+  async getRelationships(id: string) {
+    const response = await this.schemaDiscovery.schemaDiscoveryControllerGetRelationships(id)
+    return (response.data as any)?.data || response.data
+  }
+
   isAuthenticated(): boolean {
     return !!authCookies.getAccessToken()
   }
