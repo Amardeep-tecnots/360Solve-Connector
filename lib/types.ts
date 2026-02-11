@@ -65,6 +65,7 @@ export type AggregatorCategory = "ERP" | "CRM" | "Database" | "Cloud" | "Analyti
 
 export interface Aggregator {
   id: string
+  installedId?: string
   name: string
   description: string
   category: AggregatorCategory
@@ -75,6 +76,19 @@ export interface Aggregator {
   isInstalled: boolean
   author: string
   tags: string[]
+  aggregatorName?: string
+  aggregatorDescription?: string
+  connectionMethod?: string
+  configSchema?: {
+    authType?: "api_key" | "oauth" | "basic" | "connection_string"
+    fields: Array<{
+      name: string
+      label: string
+      type: "text" | "password" | "url" | "select"
+      required: boolean
+      options?: string[]
+    }>
+  }
 }
 
 // ─── Mini Connector ───────────────────────────────────

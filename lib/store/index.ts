@@ -5,6 +5,7 @@ import { authSlice } from './slices/auth-slice'
 import { workflowSlice } from './slices/workflow-slice'
 import { uiSlice } from './slices/ui-slice'
 import { connectorSlice } from './slices/connector-slice'
+import { aggregatorsSlice } from './slices/aggregators-slice'
 
 export const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ export const store = configureStore({
     workflow: workflowSlice.reducer,
     ui: uiSlice.reducer,
     connector: connectorSlice.reducer,
+    aggregators: aggregatorsSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
