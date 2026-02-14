@@ -1,12 +1,28 @@
+"use client"
+
 import { Activity, GitBranch, CheckCircle, AlertTriangle, Server, Clock } from "lucide-react"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { ActivityTable } from "@/components/dashboard/activity-table"
 import { ConnectorStatusCard } from "@/components/dashboard/connector-status-card"
 import { QuickActions } from "@/components/dashboard/quick-actions"
-import { dashboardStats, recentActivities, miniConnectors } from "@/lib/mock-data"
+import { dashboardStats, recentActivities } from "@/lib/mock-data"
 import { formatNumber, formatDuration } from "@/lib/utils"
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks"
+import { fetchConnectors } from "@/lib/store/slices/connector-slice"
+import { useEffect } from "react"
 
 export default function DashboardPage() {
+  const dispatch = useAppDispatch()
+  const { connectors, isLoading } = useAppSelector((state) => state.connector)
+
+  // Create a display list of 4 connectors for the dashboard
+  const displayConnectors = connectors.slice(0, 4)
+  const onlineCount = connectors.filter(c => c.status === 'online').length
+
+  useEffect(() => {
+    dispatch(fetchConnectors())
+  }, [dispatch])
+
   return (
     <div className="mx-auto max-w-7xl">
       {/* Page Header */}
@@ -69,12 +85,18 @@ export default function DashboardPage() {
               </a>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              {miniConnectors.map((connector) => (
-                <ConnectorStatusCard
-                  key={connector.id}
-                  connector={connector}
-                />
-              ))}
+              {isLoading ? (
+                <div className="col-span-2 py-8 text-center text-muted-foreground">Loading connectors...</div>
+              ) : displayConnectors.length === 0 ? (
+                <div className="col-span-2 py-8 text-center text-muted-foreground">No connectors found.</div>
+              ) : (
+                displayConnectors.map((connector) => (
+                  <ConnectorStatusCard
+                    key={connector.id}
+                    connector={connector as any} // Cast to any to avoid type mismatch if mock types differ slightly
+                  />
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -109,7 +131,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Active Connectors</span>
                 <span className="text-sm font-semibold text-card-foreground tabular-nums">
-                  {miniConnectors.filter((c) => c.status === "online").length}/{miniConnectors.length}
+                  {onlineCount}/{connectors.length}
                 </span>
               </div>
               <div className="flex items-center justify-between">

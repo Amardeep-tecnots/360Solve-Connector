@@ -46,6 +46,82 @@ export interface CancelExecutionDto {
      */
     'reason'?: string;
 }
+export interface ConnectorListResponseDto {
+    'data': Array<ConnectorResponseDto>;
+    'total': number;
+    'page': number;
+    'limit': number;
+}
+export interface ConnectorResponseDto {
+    'id': string;
+    'name': string;
+    'type': ConnectorResponseDtoTypeEnum;
+    'status': ConnectorResponseDtoStatusEnum;
+    'lastHeartbeat': string | null;
+    'ipAddress': string | null;
+    'version': string | null;
+    'networkAccess': ConnectorResponseDtoNetworkAccessEnum;
+    'createdAt': string;
+    'updatedAt': string;
+    /**
+     * API Key (only returned on creation for Mini connectors)
+     */
+    'apiKey'?: string;
+}
+
+export const ConnectorResponseDtoTypeEnum = {
+    Cloud: 'CLOUD',
+    Mini: 'MINI'
+} as const;
+
+export type ConnectorResponseDtoTypeEnum = typeof ConnectorResponseDtoTypeEnum[keyof typeof ConnectorResponseDtoTypeEnum];
+export const ConnectorResponseDtoStatusEnum = {
+    Online: 'ONLINE',
+    Offline: 'OFFLINE',
+    Connecting: 'CONNECTING',
+    Error: 'ERROR',
+    Busy: 'BUSY'
+} as const;
+
+export type ConnectorResponseDtoStatusEnum = typeof ConnectorResponseDtoStatusEnum[keyof typeof ConnectorResponseDtoStatusEnum];
+export const ConnectorResponseDtoNetworkAccessEnum = {
+    Local: 'LOCAL',
+    Vpn: 'VPN',
+    Internet: 'INTERNET'
+} as const;
+
+export type ConnectorResponseDtoNetworkAccessEnum = typeof ConnectorResponseDtoNetworkAccessEnum[keyof typeof ConnectorResponseDtoNetworkAccessEnum];
+
+export interface CreateConnectorDto {
+    /**
+     * Name of the connector
+     */
+    'name': string;
+    /**
+     * Type of connector (CLOUD or MINI)
+     */
+    'type': CreateConnectorDtoTypeEnum;
+    'networkAccess'?: CreateConnectorDtoNetworkAccessEnum;
+    /**
+     * Supported aggregator types
+     */
+    'supportedAggregators'?: Array<string>;
+}
+
+export const CreateConnectorDtoTypeEnum = {
+    Cloud: 'CLOUD',
+    Mini: 'MINI'
+} as const;
+
+export type CreateConnectorDtoTypeEnum = typeof CreateConnectorDtoTypeEnum[keyof typeof CreateConnectorDtoTypeEnum];
+export const CreateConnectorDtoNetworkAccessEnum = {
+    Local: 'LOCAL',
+    Vpn: 'VPN',
+    Internet: 'INTERNET'
+} as const;
+
+export type CreateConnectorDtoNetworkAccessEnum = typeof CreateConnectorDtoNetworkAccessEnum[keyof typeof CreateConnectorDtoNetworkAccessEnum];
+
 export interface CreateWorkflowDto {
     /**
      * Workflow name
@@ -114,6 +190,36 @@ export interface ExecutionResponseDto {
 export interface ExecutionTriggerResponseDto {
     'success': boolean;
     'data': object;
+}
+export interface HeartbeatDto {
+    /**
+     * Connector version
+     */
+    'version': string;
+    /**
+     * CPU usage percentage (0-100)
+     */
+    'cpuUsage'?: number;
+    /**
+     * Memory usage in MB
+     */
+    'memoryUsage'?: number;
+    /**
+     * Job capacity
+     */
+    'maxConcurrentJobs'?: number;
+    /**
+     * OS Information
+     */
+    'os'?: string;
+    /**
+     * IP Address
+     */
+    'ipAddress'?: string;
+    /**
+     * Hostname
+     */
+    'hostname'?: string;
 }
 export interface InstallTenantAggregatorDto {
     'aggregatorId'?: string;
@@ -198,12 +304,85 @@ export interface TenantAggregatorResponseDto {
     'installedAt': string;
     'updatedAt': string;
 }
+export interface TenantResponseDto {
+    'id': string;
+    'name': string;
+    'tier': TenantResponseDtoTierEnum;
+    'status': TenantResponseDtoStatusEnum;
+    'maxConcurrentWorkflows': number;
+    'maxJobsPerHour': number;
+    'maxConcurrentJobs': number;
+    'maxStorageGB': number;
+    'createdAt': string;
+}
+
+export const TenantResponseDtoTierEnum = {
+    Free: 'FREE',
+    Standard: 'STANDARD',
+    Enterprise: 'ENTERPRISE'
+} as const;
+
+export type TenantResponseDtoTierEnum = typeof TenantResponseDtoTierEnum[keyof typeof TenantResponseDtoTierEnum];
+export const TenantResponseDtoStatusEnum = {
+    Active: 'ACTIVE',
+    Suspended: 'SUSPENDED',
+    Deleted: 'DELETED'
+} as const;
+
+export type TenantResponseDtoStatusEnum = typeof TenantResponseDtoStatusEnum[keyof typeof TenantResponseDtoStatusEnum];
+
+export interface UpdateConnectorDto {
+    /**
+     * Name of the connector
+     */
+    'name'?: string;
+    /**
+     * Type of connector (CLOUD or MINI)
+     */
+    'type'?: UpdateConnectorDtoTypeEnum;
+    'networkAccess'?: UpdateConnectorDtoNetworkAccessEnum;
+    /**
+     * Supported aggregator types
+     */
+    'supportedAggregators'?: Array<string>;
+}
+
+export const UpdateConnectorDtoTypeEnum = {
+    Cloud: 'CLOUD',
+    Mini: 'MINI'
+} as const;
+
+export type UpdateConnectorDtoTypeEnum = typeof UpdateConnectorDtoTypeEnum[keyof typeof UpdateConnectorDtoTypeEnum];
+export const UpdateConnectorDtoNetworkAccessEnum = {
+    Local: 'LOCAL',
+    Vpn: 'VPN',
+    Internet: 'INTERNET'
+} as const;
+
+export type UpdateConnectorDtoNetworkAccessEnum = typeof UpdateConnectorDtoNetworkAccessEnum[keyof typeof UpdateConnectorDtoNetworkAccessEnum];
+
 export interface UpdateTenantAggregatorDto {
     'name': string;
     'config'?: object;
     'credentialId'?: string;
     'connectorId'?: string;
 }
+export interface UpdateTenantDto {
+    'name'?: string;
+}
+export interface UpdateUserDto {
+    'name'?: string;
+    'role'?: UpdateUserDtoRoleEnum;
+}
+
+export const UpdateUserDtoRoleEnum = {
+    Admin: 'ADMIN',
+    Member: 'MEMBER',
+    Viewer: 'VIEWER'
+} as const;
+
+export type UpdateUserDtoRoleEnum = typeof UpdateUserDtoRoleEnum[keyof typeof UpdateUserDtoRoleEnum];
+
 export interface UpdateWorkflowDto {
     'name'?: string;
     'description'?: string;
@@ -211,6 +390,22 @@ export interface UpdateWorkflowDto {
     'isActive'?: boolean;
     'schedule'?: string;
 }
+export interface UserResponseDto {
+    'id': string;
+    'email': string;
+    'name': string;
+    'role': UserResponseDtoRoleEnum;
+    'createdAt': string;
+}
+
+export const UserResponseDtoRoleEnum = {
+    Admin: 'ADMIN',
+    Member: 'MEMBER',
+    Viewer: 'VIEWER'
+} as const;
+
+export type UserResponseDtoRoleEnum = typeof UserResponseDtoRoleEnum[keyof typeof UserResponseDtoRoleEnum];
+
 export interface ValidationErrorDto {
     'field': string;
     'message': string;
@@ -777,6 +972,493 @@ export class AuthApi extends BaseAPI {
 
 
 /**
+ * ConnectorsApi - axios parameter creator
+ */
+export const ConnectorsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {CreateConnectorDto} createConnectorDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerCreate: async (createConnectorDto: CreateConnectorDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createConnectorDto' is not null or undefined
+            assertParamExists('connectorsControllerCreate', 'createConnectorDto', createConnectorDto)
+            const localVarPath = `/api/connectors`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createConnectorDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {ConnectorsControllerFindAllStatusEnum} [status] 
+         * @param {ConnectorsControllerFindAllTypeEnum} [type] 
+         * @param {string} [search] Search by name
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerFindAll: async (status?: ConnectorsControllerFindAllStatusEnum, type?: ConnectorsControllerFindAllTypeEnum, search?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/connectors`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (type !== undefined) {
+                localVarQueryParameter['type'] = type;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('connectorsControllerFindOne', 'id', id)
+            const localVarPath = `/api/connectors/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {HeartbeatDto} heartbeatDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerHeartbeat: async (id: string, heartbeatDto: HeartbeatDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('connectorsControllerHeartbeat', 'id', id)
+            // verify required parameter 'heartbeatDto' is not null or undefined
+            assertParamExists('connectorsControllerHeartbeat', 'heartbeatDto', heartbeatDto)
+            const localVarPath = `/api/connectors/{id}/heartbeat`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(heartbeatDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerRemove: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('connectorsControllerRemove', 'id', id)
+            const localVarPath = `/api/connectors/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateConnectorDto} updateConnectorDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerUpdate: async (id: string, updateConnectorDto: UpdateConnectorDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('connectorsControllerUpdate', 'id', id)
+            // verify required parameter 'updateConnectorDto' is not null or undefined
+            assertParamExists('connectorsControllerUpdate', 'updateConnectorDto', updateConnectorDto)
+            const localVarPath = `/api/connectors/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateConnectorDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ConnectorsApi - functional programming interface
+ */
+export const ConnectorsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ConnectorsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {CreateConnectorDto} createConnectorDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerCreate(createConnectorDto: CreateConnectorDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ConnectorResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerCreate(createConnectorDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {ConnectorsControllerFindAllStatusEnum} [status] 
+         * @param {ConnectorsControllerFindAllTypeEnum} [type] 
+         * @param {string} [search] Search by name
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerFindAll(status?: ConnectorsControllerFindAllStatusEnum, type?: ConnectorsControllerFindAllTypeEnum, search?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ConnectorListResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerFindAll(status, type, search, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ConnectorResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerFindOne(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {HeartbeatDto} heartbeatDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerHeartbeat(id: string, heartbeatDto: HeartbeatDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ConnectorResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerHeartbeat(id, heartbeatDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerHeartbeat']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerRemove(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerRemove(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerRemove']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateConnectorDto} updateConnectorDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerUpdate(id: string, updateConnectorDto: UpdateConnectorDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ConnectorResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerUpdate(id, updateConnectorDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ConnectorsApi - factory interface
+ */
+export const ConnectorsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ConnectorsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {CreateConnectorDto} createConnectorDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerCreate(createConnectorDto: CreateConnectorDto, options?: RawAxiosRequestConfig): AxiosPromise<ConnectorResponseDto> {
+            return localVarFp.connectorsControllerCreate(createConnectorDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {ConnectorsControllerFindAllStatusEnum} [status] 
+         * @param {ConnectorsControllerFindAllTypeEnum} [type] 
+         * @param {string} [search] Search by name
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerFindAll(status?: ConnectorsControllerFindAllStatusEnum, type?: ConnectorsControllerFindAllTypeEnum, search?: string, options?: RawAxiosRequestConfig): AxiosPromise<ConnectorListResponseDto> {
+            return localVarFp.connectorsControllerFindAll(status, type, search, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<ConnectorResponseDto> {
+            return localVarFp.connectorsControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {HeartbeatDto} heartbeatDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerHeartbeat(id: string, heartbeatDto: HeartbeatDto, options?: RawAxiosRequestConfig): AxiosPromise<ConnectorResponseDto> {
+            return localVarFp.connectorsControllerHeartbeat(id, heartbeatDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerRemove(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.connectorsControllerRemove(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateConnectorDto} updateConnectorDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerUpdate(id: string, updateConnectorDto: UpdateConnectorDto, options?: RawAxiosRequestConfig): AxiosPromise<ConnectorResponseDto> {
+            return localVarFp.connectorsControllerUpdate(id, updateConnectorDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ConnectorsApi - object-oriented interface
+ */
+export class ConnectorsApi extends BaseAPI {
+    /**
+     * 
+     * @param {CreateConnectorDto} createConnectorDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerCreate(createConnectorDto: CreateConnectorDto, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerCreate(createConnectorDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {ConnectorsControllerFindAllStatusEnum} [status] 
+     * @param {ConnectorsControllerFindAllTypeEnum} [type] 
+     * @param {string} [search] Search by name
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerFindAll(status?: ConnectorsControllerFindAllStatusEnum, type?: ConnectorsControllerFindAllTypeEnum, search?: string, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerFindAll(status, type, search, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {HeartbeatDto} heartbeatDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerHeartbeat(id: string, heartbeatDto: HeartbeatDto, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerHeartbeat(id, heartbeatDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerRemove(id: string, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerRemove(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {UpdateConnectorDto} updateConnectorDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerUpdate(id: string, updateConnectorDto: UpdateConnectorDto, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerUpdate(id, updateConnectorDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+export const ConnectorsControllerFindAllStatusEnum = {
+    Online: 'ONLINE',
+    Offline: 'OFFLINE',
+    Connecting: 'CONNECTING',
+    Error: 'ERROR',
+    Busy: 'BUSY'
+} as const;
+export type ConnectorsControllerFindAllStatusEnum = typeof ConnectorsControllerFindAllStatusEnum[keyof typeof ConnectorsControllerFindAllStatusEnum];
+export const ConnectorsControllerFindAllTypeEnum = {
+    Cloud: 'CLOUD',
+    Mini: 'MINI'
+} as const;
+export type ConnectorsControllerFindAllTypeEnum = typeof ConnectorsControllerFindAllTypeEnum[keyof typeof ConnectorsControllerFindAllTypeEnum];
+
+
+/**
  * ExecutionsApi - axios parameter creator
  */
 export const ExecutionsApiAxiosParamCreator = function (configuration?: Configuration) {
@@ -1297,6 +1979,103 @@ export const ExecutionsControllerFindAllStatusEnum = {
     Cancelled: 'CANCELLED'
 } as const;
 export type ExecutionsControllerFindAllStatusEnum = typeof ExecutionsControllerFindAllStatusEnum[keyof typeof ExecutionsControllerFindAllStatusEnum];
+
+
+/**
+ * PublicConnectorsApi - axios parameter creator
+ */
+export const PublicConnectorsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {object} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        publicConnectorsControllerValidateApiKey: async (body: object, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'body' is not null or undefined
+            assertParamExists('publicConnectorsControllerValidateApiKey', 'body', body)
+            const localVarPath = `/api/public/connectors/validate-api-key`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * PublicConnectorsApi - functional programming interface
+ */
+export const PublicConnectorsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = PublicConnectorsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {object} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async publicConnectorsControllerValidateApiKey(body: object, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.publicConnectorsControllerValidateApiKey(body, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PublicConnectorsApi.publicConnectorsControllerValidateApiKey']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * PublicConnectorsApi - factory interface
+ */
+export const PublicConnectorsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = PublicConnectorsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {object} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        publicConnectorsControllerValidateApiKey(body: object, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.publicConnectorsControllerValidateApiKey(body, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * PublicConnectorsApi - object-oriented interface
+ */
+export class PublicConnectorsApi extends BaseAPI {
+    /**
+     * 
+     * @param {object} body 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public publicConnectorsControllerValidateApiKey(body: object, options?: RawAxiosRequestConfig) {
+        return PublicConnectorsApiFp(this.configuration).publicConnectorsControllerValidateApiKey(body, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
 
 
 /**
@@ -2209,6 +2988,474 @@ export class TenantAggregatorsApi extends BaseAPI {
      */
     public tenantAggregatorsControllerUpdate(id: string, updateTenantAggregatorDto: UpdateTenantAggregatorDto, options?: RawAxiosRequestConfig) {
         return TenantAggregatorsApiFp(this.configuration).tenantAggregatorsControllerUpdate(id, updateTenantAggregatorDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * TenantsApi - axios parameter creator
+ */
+export const TenantsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tenantsControllerGetCurrent: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/tenants/current`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {UpdateTenantDto} updateTenantDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tenantsControllerUpdateCurrent: async (updateTenantDto: UpdateTenantDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'updateTenantDto' is not null or undefined
+            assertParamExists('tenantsControllerUpdateCurrent', 'updateTenantDto', updateTenantDto)
+            const localVarPath = `/api/tenants/current`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateTenantDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * TenantsApi - functional programming interface
+ */
+export const TenantsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = TenantsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tenantsControllerGetCurrent(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TenantResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.tenantsControllerGetCurrent(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TenantsApi.tenantsControllerGetCurrent']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {UpdateTenantDto} updateTenantDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tenantsControllerUpdateCurrent(updateTenantDto: UpdateTenantDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TenantResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.tenantsControllerUpdateCurrent(updateTenantDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TenantsApi.tenantsControllerUpdateCurrent']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * TenantsApi - factory interface
+ */
+export const TenantsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = TenantsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tenantsControllerGetCurrent(options?: RawAxiosRequestConfig): AxiosPromise<TenantResponseDto> {
+            return localVarFp.tenantsControllerGetCurrent(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {UpdateTenantDto} updateTenantDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tenantsControllerUpdateCurrent(updateTenantDto: UpdateTenantDto, options?: RawAxiosRequestConfig): AxiosPromise<TenantResponseDto> {
+            return localVarFp.tenantsControllerUpdateCurrent(updateTenantDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * TenantsApi - object-oriented interface
+ */
+export class TenantsApi extends BaseAPI {
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public tenantsControllerGetCurrent(options?: RawAxiosRequestConfig) {
+        return TenantsApiFp(this.configuration).tenantsControllerGetCurrent(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {UpdateTenantDto} updateTenantDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public tenantsControllerUpdateCurrent(updateTenantDto: UpdateTenantDto, options?: RawAxiosRequestConfig) {
+        return TenantsApiFp(this.configuration).tenantsControllerUpdateCurrent(updateTenantDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * UsersApi - axios parameter creator
+ */
+export const UsersApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerFindAll: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/users`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('usersControllerFindOne', 'id', id)
+            const localVarPath = `/api/users/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerRemove: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('usersControllerRemove', 'id', id)
+            const localVarPath = `/api/users/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateUserDto} updateUserDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerUpdate: async (id: string, updateUserDto: UpdateUserDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('usersControllerUpdate', 'id', id)
+            // verify required parameter 'updateUserDto' is not null or undefined
+            assertParamExists('usersControllerUpdate', 'updateUserDto', updateUserDto)
+            const localVarPath = `/api/users/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateUserDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * UsersApi - functional programming interface
+ */
+export const UsersApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = UsersApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async usersControllerFindAll(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<UserResponseDto>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersControllerFindAll(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.usersControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async usersControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersControllerFindOne(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.usersControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async usersControllerRemove(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersControllerRemove(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.usersControllerRemove']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateUserDto} updateUserDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async usersControllerUpdate(id: string, updateUserDto: UpdateUserDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersControllerUpdate(id, updateUserDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.usersControllerUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * UsersApi - factory interface
+ */
+export const UsersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = UsersApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerFindAll(options?: RawAxiosRequestConfig): AxiosPromise<Array<UserResponseDto>> {
+            return localVarFp.usersControllerFindAll(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<UserResponseDto> {
+            return localVarFp.usersControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerRemove(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.usersControllerRemove(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateUserDto} updateUserDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerUpdate(id: string, updateUserDto: UpdateUserDto, options?: RawAxiosRequestConfig): AxiosPromise<UserResponseDto> {
+            return localVarFp.usersControllerUpdate(id, updateUserDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * UsersApi - object-oriented interface
+ */
+export class UsersApi extends BaseAPI {
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public usersControllerFindAll(options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).usersControllerFindAll(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public usersControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).usersControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public usersControllerRemove(id: string, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).usersControllerRemove(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {UpdateUserDto} updateUserDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public usersControllerUpdate(id: string, updateUserDto: UpdateUserDto, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).usersControllerUpdate(id, updateUserDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

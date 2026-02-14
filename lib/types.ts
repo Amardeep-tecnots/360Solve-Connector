@@ -1,5 +1,5 @@
 // ─── Status Types ─────────────────────────────────────
-export type ConnectorStatus = "online" | "offline" | "warning" | "syncing"
+export type ConnectorStatus = "online" | "offline" | "warning" | "syncing" | "error" | "connecting" | "busy"
 export type ExecutionStatus = "success" | "failed" | "running" | "pending" | "cancelled"
 export type WorkflowStatus = "active" | "inactive" | "draft"
 

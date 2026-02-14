@@ -1,6 +1,24 @@
 import { Configuration } from '@/src/generated/api/configuration'
-import { AuthApi, AggregatorsApi, TenantAggregatorsApi, SchemaDiscoveryApi, WorkflowsApi } from '@/src/generated/api/api'
-import type { SignInDto, SignUpDto, RefreshTokenDto, PreviewTableDto, CreateWorkflowDto, UpdateWorkflowDto, WorkflowDefinitionDto } from '@/src/generated/api/api'
+import { AuthApi, AggregatorsApi, TenantAggregatorsApi, SchemaDiscoveryApi, WorkflowsApi, ExecutionsApi, ConnectorsApi, TenantsApi, UsersApi } from '@/src/generated/api/api'
+import type {
+  SignInDto,
+  SignUpDto,
+  RefreshTokenDto,
+  PreviewTableDto,
+  CreateWorkflowDto,
+  UpdateWorkflowDto,
+  WorkflowDefinitionDto,
+  CancelExecutionDto,
+  PauseExecutionDto,
+  ResumeExecutionDto,
+
+  ExecuteWorkflowDto,
+  CreateConnectorDto,
+  UpdateConnectorDto,
+  HeartbeatDto,
+  UpdateTenantDto,
+  UpdateUserDto
+} from '@/src/generated/api/api'
 
 // Cookie utilities for auth tokens
 export const authCookies = {
@@ -50,6 +68,8 @@ export const authCookies = {
   },
 }
 
+
+
 // API Client wrapper that handles authentication
 export class ApiClient {
   private authApi!: AuthApi
@@ -57,6 +77,10 @@ export class ApiClient {
   private tenantAggregatorsApi!: TenantAggregatorsApi
   private schemaDiscoveryApi!: SchemaDiscoveryApi
   private workflowsApi!: WorkflowsApi
+  private executionsApi!: ExecutionsApi
+  private connectorsApi!: ConnectorsApi
+  private tenantsApi!: TenantsApi
+  private usersApi!: UsersApi
   private configuration: Configuration
 
   constructor() {
@@ -98,6 +122,10 @@ export class ApiClient {
     this.tenantAggregatorsApi = new TenantAggregatorsApi(this.configuration)
     this.schemaDiscoveryApi = new SchemaDiscoveryApi(this.configuration)
     this.workflowsApi = new WorkflowsApi(this.configuration)
+    this.executionsApi = new ExecutionsApi(this.configuration)
+    this.connectorsApi = new ConnectorsApi(this.configuration)
+    this.tenantsApi = new TenantsApi(this.configuration)
+    this.usersApi = new UsersApi(this.configuration)
   }
 
   // Call this after login/logout to refresh API instances with new token
@@ -127,6 +155,22 @@ export class ApiClient {
     return this.workflowsApi
   }
 
+  get executions() {
+    return this.executionsApi
+  }
+
+  get connectors() {
+    return this.connectorsApi
+  }
+
+  get tenants() {
+    return this.tenantsApi
+  }
+
+  get users() {
+    return this.usersApi
+  }
+
   // Workflow helpers
   async listWorkflows(status: string = 'all') {
     const response = await this.workflows.workflowsControllerFindAll(status)
@@ -154,6 +198,37 @@ export class ApiClient {
 
   async validateWorkflow(data: WorkflowDefinitionDto) {
     const response = await this.workflows.workflowsControllerValidate(data)
+    return (response.data as any)?.data || response.data
+  }
+
+  // Execution helpers
+  async listExecutions(workflowId?: string, status?: any, startDate?: string, endDate?: string, limit?: number, offset?: number) {
+    const response = await this.executions.executionsControllerFindAll(workflowId, status, startDate, endDate, limit, offset)
+    return (response.data as any)?.data || response.data
+  }
+
+  async getExecution(id: string) {
+    const response = await this.executions.executionsControllerFindOne(id)
+    return (response.data as any)?.data || response.data
+  }
+
+  async cancelExecution(id: string, data: CancelExecutionDto) {
+    const response = await this.executions.executionsControllerCancel(id, data)
+    return (response.data as any)?.data || response.data
+  }
+
+  async pauseExecution(id: string, data: PauseExecutionDto) {
+    const response = await this.executions.executionsControllerPause(id, data)
+    return (response.data as any)?.data || response.data
+  }
+
+  async resumeExecution(id: string, data: ResumeExecutionDto) {
+    const response = await this.executions.executionsControllerResume(id, data)
+    return (response.data as any)?.data || response.data
+  }
+
+  async triggerWorkflow(id: string, data: ExecuteWorkflowDto) {
+    const response = await this.executions.executionsControllerTriggerWorkflow(id, data)
     return (response.data as any)?.data || response.data
   }
 
@@ -259,11 +334,15 @@ export class ApiClient {
   }
 
   async configureAggregator(id: string, name: string, credentials: Record<string, string>) {
+    // TODO: Update to use tenantAggregatorsControllerUpdate once DTO is confirmed
+    /*
     const response = await this.tenantAggregators.tenantAggregatorsControllerSaveCredentials(id, {
       name,
       credentials
     })
     return (response.data as any)?.data || response.data
+    */
+    return null
   }
 
   async testAggregatorConnection(id: string) {
@@ -305,6 +384,67 @@ export class ApiClient {
   async getRelationships(id: string) {
     const response = await this.schemaDiscovery.schemaDiscoveryControllerGetRelationships(id)
     return (response.data as any)?.data || response.data
+  }
+
+  // Connector helpers
+  async createConnector(data: CreateConnectorDto) {
+    const response = await this.connectors.connectorsControllerCreate(data)
+    return (response.data as any)?.data || response.data
+  }
+
+  async getConnectors(status?: string, type?: string, search?: string) {
+    const response = await this.connectors.connectorsControllerFindAll(status as any, type as any, search)
+    return (response.data as any)?.data || response.data
+  }
+
+  async getConnector(id: string) {
+    const response = await this.connectors.connectorsControllerFindOne(id)
+    return (response.data as any)?.data || response.data
+  }
+
+  async updateConnector(id: string, data: UpdateConnectorDto) {
+    const response = await this.connectors.connectorsControllerUpdate(id, data)
+    return (response.data as any)?.data || response.data
+  }
+
+  async deleteConnector(id: string) {
+    await this.connectors.connectorsControllerRemove(id)
+  }
+
+  async connectorHeartbeat(id: string, heartbeat: HeartbeatDto) {
+    const response = await this.connectors.connectorsControllerHeartbeat(id, heartbeat)
+    return (response.data as any)?.data || response.data
+  }
+
+  // Tenant helpers
+  async getCurrentTenant() {
+    const response = await this.tenants.tenantsControllerGetCurrent()
+    return (response.data as any)?.data || response.data
+  }
+
+  async updateCurrentTenant(data: UpdateTenantDto) {
+    const response = await this.tenants.tenantsControllerUpdateCurrent(data)
+    return (response.data as any)?.data || response.data
+  }
+
+  // User helpers
+  async getUsers() {
+    const response = await this.users.usersControllerFindAll()
+    return (response.data as any)?.data || response.data
+  }
+
+  async getUser(id: string) {
+    const response = await this.users.usersControllerFindOne(id)
+    return (response.data as any)?.data || response.data
+  }
+
+  async updateUser(id: string, data: UpdateUserDto) {
+    const response = await this.users.usersControllerUpdate(id, data)
+    return (response.data as any)?.data || response.data
+  }
+
+  async deleteUser(id: string) {
+    await this.users.usersControllerRemove(id)
   }
 
   isAuthenticated(): boolean {

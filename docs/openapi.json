@@ -1116,6 +1116,469 @@
           }
         ]
       }
+    },
+    "/api/connectors": {
+      "post": {
+        "operationId": "ConnectorsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConnectorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Connectors"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "ConnectorsController_findAll",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "ONLINE",
+                "OFFLINE",
+                "CONNECTING",
+                "ERROR",
+                "BUSY"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "CLOUD",
+                "MINI"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectorListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Connectors"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/connectors/{id}": {
+      "get": {
+        "operationId": "ConnectorsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Connectors"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "ConnectorsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateConnectorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Connectors"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "ConnectorsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Connectors"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/connectors/{id}/heartbeat": {
+      "post": {
+        "operationId": "ConnectorsController_heartbeat",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HeartbeatDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Connectors"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/public/connectors/validate-api-key": {
+      "post": {
+        "operationId": "PublicConnectorsController_validateApiKey",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateApiKeyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validates API key and returns tenant info"
+          }
+        },
+        "tags": [
+          "Public Connectors"
+        ]
+      }
+    },
+    "/api/tenants/current": {
+      "get": {
+        "operationId": "TenantsController_getCurrent",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tenants"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "TenantsController_updateCurrent",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTenantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tenants"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/users": {
+      "get": {
+        "operationId": "UsersController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "operationId": "UsersController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "UsersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "UsersController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
     }
   },
   "info": {
@@ -1954,6 +2417,328 @@
           "reason": {
             "type": "string",
             "description": "Reason for cancellation"
+          }
+        }
+      },
+      "CreateConnectorDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the connector"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CLOUD",
+              "MINI"
+            ],
+            "description": "Type of connector (CLOUD or MINI)"
+          },
+          "networkAccess": {
+            "type": "string",
+            "enum": [
+              "LOCAL",
+              "VPN",
+              "INTERNET"
+            ],
+            "default": "LOCAL"
+          },
+          "supportedAggregators": {
+            "description": "Supported aggregator types",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "type"
+        ]
+      },
+      "ConnectorResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CLOUD",
+              "MINI"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ONLINE",
+              "OFFLINE",
+              "CONNECTING",
+              "ERROR",
+              "BUSY"
+            ]
+          },
+          "lastHeartbeat": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "ipAddress": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "networkAccess": {
+            "type": "string",
+            "enum": [
+              "LOCAL",
+              "VPN",
+              "INTERNET"
+            ]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "apiKey": {
+            "type": "string",
+            "description": "API Key (only returned on creation for Mini connectors)"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "status",
+          "lastHeartbeat",
+          "ipAddress",
+          "version",
+          "networkAccess",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ConnectorListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConnectorResponseDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
+      "UpdateConnectorDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the connector"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CLOUD",
+              "MINI"
+            ],
+            "description": "Type of connector (CLOUD or MINI)"
+          },
+          "networkAccess": {
+            "type": "string",
+            "enum": [
+              "LOCAL",
+              "VPN",
+              "INTERNET"
+            ],
+            "default": "LOCAL"
+          },
+          "supportedAggregators": {
+            "description": "Supported aggregator types",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "HeartbeatDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "description": "Connector version"
+          },
+          "cpuUsage": {
+            "type": "number",
+            "description": "CPU usage percentage (0-100)"
+          },
+          "memoryUsage": {
+            "type": "number",
+            "description": "Memory usage in MB"
+          },
+          "maxConcurrentJobs": {
+            "type": "number",
+            "description": "Job capacity"
+          },
+          "os": {
+            "type": "string",
+            "description": "OS Information"
+          },
+          "ipAddress": {
+            "type": "string",
+            "description": "IP Address"
+          },
+          "hostname": {
+            "type": "string",
+            "description": "Hostname"
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "ValidateApiKeyDto": {
+        "type": "object",
+        "properties": {
+
+        }
+      },
+      "TenantResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "tier": {
+            "type": "string",
+            "enum": [
+              "FREE",
+              "STANDARD",
+              "ENTERPRISE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED",
+              "DELETED"
+            ]
+          },
+          "maxConcurrentWorkflows": {
+            "type": "number"
+          },
+          "maxJobsPerHour": {
+            "type": "number"
+          },
+          "maxConcurrentJobs": {
+            "type": "number"
+          },
+          "maxStorageGB": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "tier",
+          "status",
+          "maxConcurrentWorkflows",
+          "maxJobsPerHour",
+          "maxConcurrentJobs",
+          "maxStorageGB",
+          "createdAt"
+        ]
+      },
+      "UpdateTenantDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "UserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "MEMBER",
+              "VIEWER"
+            ]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "name",
+          "role",
+          "createdAt"
+        ]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "MEMBER",
+              "VIEWER"
+            ]
           }
         }
       }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import {
   Activity,
   CheckCircle,
@@ -8,63 +8,128 @@ import {
   Clock,
   Timer,
   Search,
+  RefreshCw,
+  Loader2,
 } from "lucide-react"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { ExecutionDetailPanel } from "@/components/executions/execution-detail-panel"
-import { executions } from "@/lib/mock-data"
 import { formatDuration, getRelativeTime, cn } from "@/lib/utils"
-import type { ExecutionStatus } from "@/lib/types"
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks"
+import { fetchExecutions, selectExecution, clearExecutionErrors } from "@/lib/store/slices/executions-slice"
+import { toast } from "sonner"
+import type { ExecutionResponseDto } from "@/src/generated/api/api"
 
-const filterTabs: Array<{ label: string; value: ExecutionStatus | "all" }> = [
+const filterTabs: Array<{ label: string; value: string }> = [
   { label: "All", value: "all" },
-  { label: "Success", value: "success" },
-  { label: "Failed", value: "failed" },
-  { label: "Running", value: "running" },
-  { label: "Pending", value: "pending" },
+  { label: "Success", value: "COMPLETED" },
+  { label: "Failed", value: "FAILED" },
+  { label: "Running", value: "RUNNING" },
+  { label: "Paused", value: "PAUSED" },
 ]
 
 export default function ExecutionsPage() {
+  const dispatch = useAppDispatch()
+  const {
+    executions,
+    total,
+    listLoading,
+    listError,
+    selectedExecution,
+    operationLoading,
+    operationError
+  } = useAppSelector((state) => state.executions)
+
   const [search, setSearch] = useState("")
   const [activeFilter, setActiveFilter] = useState<string>("all")
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+
+  // Fetch executions on mount and when filter changes
+  useEffect(() => {
+    dispatch(fetchExecutions({
+      status: activeFilter === "all" ? undefined : activeFilter as any
+    }))
+  }, [dispatch, activeFilter])
+
+  // Handle errors
+  useEffect(() => {
+    if (listError) {
+      toast.error("Failed to load executions", { description: listError })
+      dispatch(clearExecutionErrors())
+    }
+    if (operationError) {
+      toast.error("Operation failed", { description: operationError })
+      dispatch(clearExecutionErrors())
+    }
+  }, [listError, operationError, dispatch])
 
   const filtered = useMemo(() => {
-    return executions.filter((exec) => {
+    return (executions as any[]).filter((exec: any) => {
+      const workflowName = exec.workflowName || exec.workflowId || "Unknown Workflow"
       const matchesSearch =
         search === "" ||
-        exec.workflowName.toLowerCase().includes(search.toLowerCase())
-      const matchesFilter =
-        activeFilter === "all" || exec.status === activeFilter
-      return matchesSearch && matchesFilter
+        workflowName.toLowerCase().includes(search.toLowerCase())
+      return matchesSearch
     })
-  }, [search, activeFilter])
+  }, [executions, search])
 
-  const selectedExecution = selectedId
-    ? executions.find((e) => e.id === selectedId) || null
-    : null
+  // Compute stats from local list (ideally would come from API as overview)
+  const totalRuns = total || executions.length
+  const successCount = executions.filter((e: any) => e.status === "COMPLETED").length
+  const failedCount = executions.filter((e: any) => e.status === "FAILED").length
 
-  // Compute stats
-  const totalRuns = executions.length
-  const successCount = executions.filter((e) => e.status === "success").length
-  const failedCount = executions.filter((e) => e.status === "failed").length
-  const avgDuration =
-    executions
-      .filter((e) => e.duration > 0)
-      .reduce((sum, e) => sum + e.duration, 0) /
-    (executions.filter((e) => e.duration > 0).length || 1)
+  // Calculate average duration logic (approximate if field names differ)
+  const durations = executions
+    .map((e: any) => {
+      if (e.startedAt && e.completedAt) {
+        return new Date(e.completedAt).getTime() - new Date(e.startedAt).getTime()
+      }
+      return 0
+    })
+    .filter(d => d > 0)
+
+  const avgDuration = durations.length > 0
+    ? durations.reduce((sum, d) => sum + d, 0) / durations.length
+    : 0
+
+  const handleRefresh = () => {
+    dispatch(fetchExecutions({
+      status: activeFilter === "all" ? undefined : activeFilter as any
+    }))
+  }
+
+  // Map API status to UI status for StatusBadge
+  const mapStatus = (status: string): any => {
+    switch (status) {
+      case 'COMPLETED': return 'success'
+      case 'FAILED': return 'failed'
+      case 'RUNNING': return 'running'
+      case 'PAUSED': return 'pending'
+      case 'CANCELLED': return 'cancelled'
+      default: return 'pending'
+    }
+  }
 
   return (
     <div className="flex h-full">
-      <div className={cn("mx-auto flex-1 max-w-7xl", selectedExecution && "max-w-5xl")}>
+      <div className={cn("mx-auto flex-1 max-w-7xl", selectedExecution && "max-w-5xl transition-all duration-300")}>
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground text-balance">
-            Execution Monitor
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Track and debug workflow executions in real time
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground text-balance">
+              Execution Monitor
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Track and debug workflow executions in real time
+            </p>
+          </div>
+          <button
+            onClick={handleRefresh}
+            disabled={listLoading}
+            className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent disabled:opacity-50"
+          >
+            {listLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+            Refresh
+          </button>
         </div>
 
         {/* Stats Row */}
@@ -77,7 +142,7 @@ export default function ExecutionsPage() {
           />
           <StatCard
             label="Success Rate"
-            value={`${Math.round((successCount / totalRuns) * 100)}%`}
+            value={totalRuns > 0 ? `${Math.round((successCount / totalRuns) * 100)}%` : '0%'}
             icon={<CheckCircle className="h-4 w-4" />}
             accentColor="success"
           />
@@ -142,10 +207,7 @@ export default function ExecutionsPage() {
                     Status
                   </th>
                   <th className="hidden px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:table-cell">
-                    Trigger
-                  </th>
-                  <th className="hidden px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground md:table-cell">
-                    Records
+                    ID
                   </th>
                   <th className="hidden px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground md:table-cell">
                     Duration
@@ -156,59 +218,64 @@ export default function ExecutionsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {filtered.map((exec) => (
-                  <tr
-                    key={exec.id}
-                    className={cn(
-                      "cursor-pointer transition-colors hover:bg-muted/30",
-                      selectedId === exec.id && "bg-primary/5"
-                    )}
-                    onClick={() => setSelectedId(exec.id)}
-                  >
-                    <td className="px-6 py-4">
-                      <span className="text-sm font-medium text-card-foreground">
-                        {exec.workflowName}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusBadge status={exec.status} />
-                    </td>
-                    <td className="hidden px-6 py-4 sm:table-cell">
-                      <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium capitalize text-muted-foreground">
-                        {exec.triggeredBy}
-                      </span>
-                    </td>
-                    <td className="hidden px-6 py-4 text-right md:table-cell">
-                      <span className="text-sm tabular-nums text-muted-foreground">
-                        {exec.recordsProcessed.toLocaleString()}
-                      </span>
-                    </td>
-                    <td className="hidden px-6 py-4 text-right md:table-cell">
-                      <span className="text-sm tabular-nums text-muted-foreground">
-                        {exec.duration > 0
-                          ? formatDuration(exec.duration)
-                          : "--"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="text-xs text-muted-foreground">
-                        {getRelativeTime(exec.startedAt)}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {listLoading && filtered.length === 0 ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i} className="animate-pulse">
+                      <td colSpan={5} className="px-6 py-4 h-12 bg-muted/20"></td>
+                    </tr>
+                  ))
+                ) : filtered.map((exec: any) => {
+                  const duration = (exec.startedAt && exec.completedAt)
+                    ? new Date(exec.completedAt).getTime() - new Date(exec.startedAt).getTime()
+                    : 0
+
+                  return (
+                    <tr
+                      key={exec.id}
+                      className={cn(
+                        "cursor-pointer transition-colors hover:bg-muted/30",
+                        selectedExecution?.id === exec.id && "bg-primary/5"
+                      )}
+                      onClick={() => dispatch(selectExecution(exec))}
+                    >
+                      <td className="px-6 py-4">
+                        <span className="text-sm font-medium text-card-foreground">
+                          {exec.workflowName || exec.workflowId}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <StatusBadge status={mapStatus(exec.status)} />
+                      </td>
+                      <td className="hidden px-6 py-4 sm:table-cell">
+                        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+                          {exec.id.split('-').pop()}
+                        </span>
+                      </td>
+                      <td className="hidden px-6 py-4 text-right md:table-cell">
+                        <span className="text-sm tabular-nums text-muted-foreground">
+                          {duration > 0 ? formatDuration(duration) : "--"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span className="text-xs text-muted-foreground">
+                          {getRelativeTime(exec.startedAt)}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
 
-          {filtered.length === 0 && (
+          {!listLoading && filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16">
               <Clock className="mb-3 h-8 w-8 text-muted-foreground" />
               <p className="text-sm font-medium text-foreground">
                 No executions found
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Try adjusting your search or filter
+                {search ? "Try adjusting your search" : "Workflow runs will appear here"}
               </p>
             </div>
           )}
@@ -218,8 +285,8 @@ export default function ExecutionsPage() {
       {/* Detail Panel */}
       {selectedExecution && (
         <ExecutionDetailPanel
-          execution={selectedExecution}
-          onClose={() => setSelectedId(null)}
+          execution={selectedExecution as any}
+          onClose={() => dispatch(selectExecution(null))}
         />
       )}
     </div>

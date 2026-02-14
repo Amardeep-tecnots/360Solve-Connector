@@ -31,7 +31,7 @@ const navGroups = [
     label: "Integration",
     items: [
       { label: "Marketplace", href: "/marketplace", icon: Store },
-      { label: "Workflows", href: "/workflows", icon: GitBranch },
+      { label: "Workflows", href: "/workflows/list", icon: GitBranch },
       { label: "Executions", href: "/executions", icon: Activity },
     ],
   },

@@ -1,9 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { X, Key, Download, Terminal, Check, Copy, Monitor } from "lucide-react"
+import { X, Key, Download, Terminal, Check, Copy, Monitor, Server } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks"
+import { createConnector } from "@/lib/store/slices/connector-slice"
+import { CreateConnectorDtoTypeEnum, CreateConnectorDtoNetworkAccessEnum } from "@/src/generated/api/api"
 
 interface DownloadModalProps {
   open: boolean
@@ -19,15 +23,54 @@ const platforms: Array<{ value: Platform; label: string; icon: React.ReactNode }
 ]
 
 export function DownloadModal({ open, onClose }: DownloadModalProps) {
-  const [step, setStep] = useState(1)
+  const dispatch = useAppDispatch()
+  const { isLoading } = useAppSelector((state) => state.connector)
+
+  const [step, setStep] = useState(0) // Start at 0 for Name input
   const [platform, setPlatform] = useState<Platform>("linux")
-  const [apiKey] = useState("mc_sk_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6")
+  const [connectorName, setConnectorName] = useState("")
+  const [apiKey, setApiKey] = useState("")
+  const [isCreating, setIsCreating] = useState(false)
 
   if (!open) return null
 
   function handleCopy(text: string) {
     navigator.clipboard.writeText(text)
     toast.success("Copied to clipboard")
+  }
+
+  async function handleCreate() {
+    if (!connectorName.trim()) {
+      toast.error("Please enter a connector name")
+      return
+    }
+
+    setIsCreating(true)
+    try {
+      const resultAction = await dispatch(createConnector({
+        name: connectorName,
+        type: CreateConnectorDtoTypeEnum.Mini,
+        networkAccess: CreateConnectorDtoNetworkAccessEnum.Local,
+        supportedAggregators: []
+      }))
+
+      if (createConnector.fulfilled.match(resultAction)) {
+        const newConnector = resultAction.payload
+        // API returns apiKey only on creation
+        if (newConnector.apiKey) {
+          setApiKey(newConnector.apiKey)
+          setStep(1)
+        } else {
+          toast.error("API Key not received")
+        }
+      } else {
+        toast.error("Failed to create connector: " + (resultAction.payload as string))
+      }
+    } catch (err) {
+      toast.error("An unexpected error occurred")
+    } finally {
+      setIsCreating(false)
+    }
   }
 
   return (
@@ -49,7 +92,7 @@ export function DownloadModal({ open, onClose }: DownloadModalProps) {
 
         {/* Steps indicator */}
         <div className="flex items-center gap-2 border-b border-border px-6 py-3">
-          {[1, 2, 3].map((s) => (
+          {[0, 1, 2, 3].map((s) => (
             <div key={s} className="flex items-center gap-2">
               <div
                 className={cn(
@@ -69,6 +112,7 @@ export function DownloadModal({ open, onClose }: DownloadModalProps) {
                   s === step ? "text-card-foreground" : "text-muted-foreground"
                 )}
               >
+                {s === 0 && "Name"}
                 {s === 1 && "API Key"}
                 {s === 2 && "Download"}
                 {s === 3 && "Setup"}
@@ -82,6 +126,29 @@ export function DownloadModal({ open, onClose }: DownloadModalProps) {
 
         {/* Content */}
         <div className="px-6 py-6">
+          {step === 0 && (
+            <div>
+              <div className="mb-4 flex items-center gap-2">
+                <Server className="h-5 w-5 text-primary" />
+                <h3 className="text-sm font-semibold text-card-foreground">
+                  Name Your Connector
+                </h3>
+              </div>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Give your local connector a recognizable name (e.g., "Office Server", "Backup Laptop").
+              </p>
+              <input
+                type="text"
+                value={connectorName}
+                onChange={(e) => setConnectorName(e.target.value)}
+                placeholder="e.g. My Local Connector"
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+                autoFocus
+              />
+            </div>
+          )}
+
           {step === 1 && (
             <div>
               <div className="mb-4 flex items-center gap-2">
@@ -202,17 +269,29 @@ export function DownloadModal({ open, onClose }: DownloadModalProps) {
 
         {/* Footer */}
         <div className="flex items-center justify-between border-t border-border bg-muted/30 px-6 py-4">
-          {step > 1 ? (
+          {step > 0 ? (
             <button
               onClick={() => setStep(step - 1)}
-              className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+              disabled={step === 1} // Can't go back to creation once created
+              className={cn(
+                "rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent",
+                step === 1 && "invisible"
+              )}
             >
               Back
             </button>
           ) : (
             <div />
           )}
-          {step < 3 ? (
+          {step === 0 ? (
+            <button
+              onClick={handleCreate}
+              disabled={isCreating || !connectorName.trim()}
+              className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+            >
+              {isCreating ? "Creating..." : "Create & Get Key"}
+            </button>
+          ) : step < 3 ? (
             <button
               onClick={() => setStep(step + 1)}
               className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 active:scale-[0.98]"

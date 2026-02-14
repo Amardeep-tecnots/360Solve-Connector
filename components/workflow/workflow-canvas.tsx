@@ -16,6 +16,8 @@ import {
   Store,
   Webhook,
   GripVertical,
+  Activity,
+  Zap,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { NodeType, CanvasNode, CanvasConnection } from "@/lib/types"
@@ -33,29 +35,33 @@ const iconMap: Record<string, React.ElementType> = {
   FileSpreadsheet,
   Store,
   Webhook,
+  Workflow: Zap,
 }
 
 const typeAccents: Record<
   NodeType,
-  { border: string; bg: string; dot: string; label: string }
+  { border: string; bg: string; dot: string; label: string; glow: string }
 > = {
   source: {
     border: "border-l-primary",
     bg: "bg-primary/5",
     dot: "bg-primary",
     label: "Source",
+    glow: "shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]",
   },
   transform: {
     border: "border-l-warning",
     bg: "bg-warning/5",
     dot: "bg-warning",
     label: "Transform",
+    glow: "shadow-[0_0_15px_rgba(var(--warning-rgb),0.15)]",
   },
   destination: {
     border: "border-l-success",
     bg: "bg-success/5",
     dot: "bg-success",
     label: "Destination",
+    glow: "shadow-[0_0_15px_rgba(var(--success-rgb),0.15)]",
   },
 }
 
@@ -223,13 +229,14 @@ export function WorkflowCanvas({
     <div
       ref={canvasRef}
       className={cn(
-        "relative flex-1 overflow-auto",
+        "relative flex-1 overflow-auto bg-background",
         connectingFrom && "cursor-crosshair"
       )}
       style={{
-        backgroundImage:
-          "radial-gradient(circle, hsl(var(--border)) 1px, transparent 1px)",
-        backgroundSize: "20px 20px",
+        backgroundImage: `
+          radial-gradient(circle at 2px 2px, hsl(var(--muted-foreground) / 0.1) 1px, transparent 0)
+        `,
+        backgroundSize: "24px 24px",
       }}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
@@ -237,8 +244,17 @@ export function WorkflowCanvas({
       role="application"
       aria-label="Workflow canvas"
     >
+      {/* Premium Glow Gradient Overlays */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.03),transparent_70%)]" />
+
       {/* Connections SVG */}
-      <svg className="pointer-events-none absolute inset-0 h-full w-full">
+      <svg className="pointer-events-none absolute inset-0 h-full w-full overflow-visible">
+        <defs>
+          <filter id="connection-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="2" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
         {connections.map((conn, i) => {
           const from = getNodeCenter(conn.from, true)
           const to = getNodeCenter(conn.to, false)
@@ -250,15 +266,27 @@ export function WorkflowCanvas({
                 fill="none"
                 stroke="hsl(var(--primary))"
                 strokeWidth="2"
-                opacity="0.4"
+                strokeOpacity="0.5"
+                filter="url(#connection-glow)"
+                className="transition-all duration-300"
               />
-              {/* Arrow */}
+              {/* Animated Dash Path for "active" flow feel */}
+              <path
+                d={`M ${from.x} ${from.y} C ${midX} ${from.y}, ${midX} ${to.y}, ${to.x} ${to.y}`}
+                fill="none"
+                stroke="white"
+                strokeWidth="1"
+                strokeDasharray="4 12"
+                strokeOpacity="0.2"
+                className="animate-[dash_20s_linear_infinite]"
+              />
+              {/* Arrow/Dot terminal */}
               <circle
                 cx={to.x}
                 cy={to.y}
                 r="3"
                 fill="hsl(var(--primary))"
-                opacity="0.6"
+                className="drop-shadow-[0_0_3px_hsl(var(--primary))]"
               />
             </g>
           )
@@ -275,11 +303,10 @@ export function WorkflowCanvas({
           <div
             key={node.id}
             className={cn(
-              "absolute flex w-[184px] cursor-move items-center rounded-lg border border-l-[3px] bg-card shadow-sm transition-shadow",
-              accents.border,
+              "absolute flex w-[184px] cursor-move items-center rounded-xl border border-border bg-card/90 backdrop-blur-md transition-all duration-200 shadow-sm",
               isSelected
-                ? "ring-2 ring-primary shadow-md"
-                : "hover:shadow-md"
+                ? cn("ring-2 ring-primary/20", accents.glow)
+                : "hover:border-primary/20 hover:bg-accent/50"
             )}
             style={{ left: node.x, top: node.y }}
             onMouseDown={(e) => handleNodeMouseDown(e, node.id)}
@@ -293,10 +320,10 @@ export function WorkflowCanvas({
               <button
                 data-connector
                 className={cn(
-                  "absolute -left-2 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-card transition-colors",
+                  "absolute -left-2 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-card shadow-sm transition-all",
                   connectingFrom
-                    ? "bg-primary ring-2 ring-primary/20"
-                    : "bg-border hover:bg-primary"
+                    ? "bg-primary scale-110 ring-4 ring-primary/10"
+                    : "bg-muted hover:bg-primary hover:scale-110"
                 )}
                 onClick={(e) => {
                   e.stopPropagation()
@@ -307,22 +334,32 @@ export function WorkflowCanvas({
             )}
 
             {/* Node content */}
-            <div className="flex flex-1 items-center gap-2 px-3 py-2.5">
+            <div className="flex flex-1 items-center gap-2.5 px-3 py-3">
               <div
                 className={cn(
-                  "flex h-7 w-7 shrink-0 items-center justify-center rounded",
-                  accents.bg
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-gradient-to-br",
+                  node.type === "source" ? "from-primary/10 to-transparent" :
+                    node.type === "transform" ? "from-warning/10 to-transparent" :
+                      "from-success/10 to-transparent"
                 )}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <Icon className={cn(
+                  "h-4 w-4",
+                  node.type === "source" ? "text-primary" :
+                    node.type === "transform" ? "text-warning" :
+                      "text-success"
+                )} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-medium text-card-foreground">
+                <p className="truncate text-[13px] font-semibold text-foreground">
                   {node.label}
                 </p>
-                <p className="truncate text-[10px] text-muted-foreground">
-                  {accents.label}
-                </p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <div className={cn("h-1 w-1 rounded-full", accents.dot)} />
+                  <p className="truncate text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                    {accents.label}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -331,10 +368,10 @@ export function WorkflowCanvas({
               <button
                 data-connector
                 className={cn(
-                  "absolute -right-2 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-card transition-colors",
+                  "absolute -right-2 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-card shadow-sm transition-all",
                   connectingFrom === node.id
-                    ? "bg-primary ring-2 ring-primary/20"
-                    : "bg-border hover:bg-primary"
+                    ? "bg-primary scale-110 ring-4 ring-primary/10"
+                    : "bg-muted hover:bg-primary hover:scale-110"
                 )}
                 onClick={(e) => {
                   e.stopPropagation()
@@ -344,40 +381,65 @@ export function WorkflowCanvas({
               />
             )}
 
-            {/* Delete button */}
+            {/* Delete button (Glassmorphism) */}
             {isSelected && (
               <button
-                className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-sm transition-transform hover:scale-110"
+                className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-destructive/10 text-destructive border border-destructive/20 backdrop-blur-md shadow-lg transition-transform hover:scale-110 active:scale-95"
                 onClick={(e) => {
                   e.stopPropagation()
                   handleDeleteNode(node.id)
                 }}
                 aria-label={`Delete ${node.label}`}
               >
-                <X className="h-3 w-3" />
+                <X className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
         )
       })}
 
-      {/* Empty state */}
+      {/* Empty state (Redesigned for Premium look) */}
       {nodes.length === 0 && (
         <div className="flex h-full items-center justify-center">
-          <div className="text-center max-w-xs">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-              <GripVertical className="h-6 w-6 text-primary/40" />
+          <div className="text-center max-w-sm px-6">
+            <div className="relative mx-auto mb-6 flex h-20 w-20 items-center justify-center">
+              <div className="absolute inset-0 animate-pulse rounded-full bg-primary/5 blur-xl" />
+              <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-card shadow-xl">
+                <Activity className="h-8 w-8 text-primary/30" />
+              </div>
             </div>
-            <p className="text-sm font-medium text-foreground">
-              Build your data pipeline
+            <h3 className="text-lg font-bold text-foreground mb-2">
+              Start Building Your Pipeline
+            </h3>
+            <p className="text-sm text-muted-foreground leading-relaxed balance">
+              Drag tools from the palette or ask the assistant to generate a workflow.
+              Connect nodes to define your data flow architecture.
             </p>
-            <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-              Drag Source, Transform, and Destination nodes from the palette, or
-              use the AI assistant to generate a workflow from a description.
-            </p>
+            <div className="mt-8 flex justify-center gap-2">
+              <div className="flex items-center gap-2 rounded-full border border-border bg-accent/50 px-3 py-1.5">
+                <span className="flex h-1.5 w-1.5 rounded-full bg-primary" />
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Connectors</span>
+              </div>
+              <div className="flex items-center gap-2 rounded-full border border-border bg-accent/50 px-3 py-1.5">
+                <span className="flex h-1.5 w-1.5 rounded-full bg-warning" />
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Logic</span>
+              </div>
+              <div className="flex items-center gap-2 rounded-full border border-border bg-accent/50 px-3 py-1.5">
+                <span className="flex h-1.5 w-1.5 rounded-full bg-success" />
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Storage</span>
+              </div>
+            </div>
           </div>
         </div>
       )}
+
+      <style jsx global>{`
+        @keyframes dash {
+          to {
+            stroke-dashoffset: -1000;
+          }
+        }
+      `}</style>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useMemo } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Save, Play, Undo, Sparkles, Loader2, ArrowLeft } from "lucide-react"
 import { useDispatch, useSelector } from "react-redux"
@@ -22,16 +22,19 @@ import {
   fetchWorkflow,
   createWorkflow,
   updateWorkflow,
+  fetchWorkflows,
   validateWorkflow,
   clearErrors,
   clearSelected,
 } from "@/lib/store/slices/workflows-slice"
+import { fetchInstalled } from "@/lib/store/slices/aggregators-slice"
+import { fetchConnectors } from "@/lib/store/slices/connector-slice"
 import { NodePalette } from "@/components/workflow/node-palette"
 import { WorkflowCanvas } from "@/components/workflow/workflow-canvas"
 import { PropertiesPanel } from "@/components/workflow/properties-panel"
 import { AIChatPanel } from "@/components/workflow/ai-chat-panel"
 import { paletteNodes } from "@/lib/mock-data"
-import type { CanvasNode, CanvasConnection } from "@/lib/types"
+import type { CanvasNode, CanvasConnection, NodeType, ConnectionMethod } from "@/lib/types"
 import { toast } from "sonner"
 
 export default function WorkflowsPage() {
@@ -56,7 +59,12 @@ export default function WorkflowsPage() {
     isUpdating,
     isValidating,
     operationError,
+    workflows: allWorkflows,
   } = useSelector((state: RootState) => state.workflows)
+
+  const {
+    installed: installedAggregators
+  } = useSelector((state: RootState) => state.aggregators)
 
   const [aiPanelOpen, setAiPanelOpen] = useState(false)
   const [isLoadingWorkflow, setIsLoadingWorkflow] = useState(false)
@@ -71,6 +79,11 @@ export default function WorkflowsPage() {
       dispatch(resetWorkflow())
       dispatch(clearSelected())
     }
+
+    // Fetch resources for palette
+    dispatch(fetchInstalled())
+    dispatch(fetchWorkflows("all"))
+    dispatch(fetchConnectors())
 
     return () => {
       dispatch(clearErrors())
@@ -88,8 +101,8 @@ export default function WorkflowsPage() {
             activity.type === "extract"
               ? "source"
               : activity.type === "load"
-              ? "destination"
-              : "transform",
+                ? "destination"
+                : "transform",
           label: activity.name,
           description: "",
           icon: activity.config?.ui_metadata?.icon || "Database",
@@ -140,8 +153,8 @@ export default function WorkflowsPage() {
           type: (n.type === "source"
             ? "extract"
             : n.type === "destination"
-            ? "load"
-            : "transform") as any,
+              ? "load"
+              : "transform") as any,
           name: n.label,
           config: {
             ...n.connectionConfig,
@@ -198,8 +211,8 @@ export default function WorkflowsPage() {
           type: (n.type === "source"
             ? "extract"
             : n.type === "destination"
-            ? "load"
-            : "transform") as any,
+              ? "load"
+              : "transform") as any,
           name: n.label,
           config: {
             ...n.connectionConfig,
@@ -250,6 +263,29 @@ export default function WorkflowsPage() {
 
   const isSaving = isCreating || isUpdating || isLoadingWorkflow
 
+  const enrichedPaletteNodes = useMemo(() => ({
+    ...paletteNodes,
+    marketplace: installedAggregators.map(agg => ({
+      id: `agg-${agg.id}`,
+      type: "source" as NodeType,
+      label: agg.name,
+      description: agg.category,
+      icon: "Store",
+      connectionMethod: "aggregator" as ConnectionMethod,
+      aggregatorId: agg.id
+    })),
+    workflows: allWorkflows
+      .filter(wf => wf.id !== workflowId) // Don't allow calling self
+      .map(wf => ({
+        id: `wf-${wf.id}`,
+        type: "transform" as NodeType,
+        label: wf.name,
+        description: "Sub-workflow",
+        icon: "Workflow",
+        workflowId: wf.id
+      }))
+  }), [installedAggregators, allWorkflows, workflowId])
+
   return (
     <div className="-m-6 lg:-m-8 flex h-[calc(100vh-4rem)] flex-col">
       {/* Toolbar */}
@@ -271,9 +307,9 @@ export default function WorkflowsPage() {
             onChange={(e) => dispatch(setWorkflowName(e.target.value))}
             placeholder="Untitled Workflow"
           />
-          <span className="hidden sm:inline-flex text-[10px] text-muted-foreground">
+          {/* <span className="hidden sm:inline-flex text-[10px] text-muted-foreground">
             Source {"->"} Transform {"->"} Destination
-          </span>
+          </span> */}
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -325,7 +361,7 @@ export default function WorkflowsPage() {
 
       {/* 3/4-Column Layout */}
       <div className="flex flex-1 overflow-hidden">
-        <NodePalette nodes={paletteNodes} />
+        <NodePalette nodes={enrichedPaletteNodes} />
         <WorkflowCanvas
           nodes={nodes}
           connections={connections}
