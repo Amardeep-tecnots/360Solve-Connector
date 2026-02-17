@@ -60,6 +60,9 @@ Class | Method | HTTP request | Description
 *ConnectorsApi* | [**connectorsControllerCreate**](docs/ConnectorsApi.md#connectorscontrollercreate) | **POST** /api/connectors | 
 *ConnectorsApi* | [**connectorsControllerFindAll**](docs/ConnectorsApi.md#connectorscontrollerfindall) | **GET** /api/connectors | 
 *ConnectorsApi* | [**connectorsControllerFindOne**](docs/ConnectorsApi.md#connectorscontrollerfindone) | **GET** /api/connectors/{id} | 
+*ConnectorsApi* | [**connectorsControllerGetMiniColumns**](docs/ConnectorsApi.md#connectorscontrollergetminicolumns) | **GET** /api/connectors/mini/{id}/columns | 
+*ConnectorsApi* | [**connectorsControllerGetMiniDatabases**](docs/ConnectorsApi.md#connectorscontrollergetminidatabases) | **GET** /api/connectors/mini/{id}/databases | 
+*ConnectorsApi* | [**connectorsControllerGetMiniTables**](docs/ConnectorsApi.md#connectorscontrollergetminitables) | **GET** /api/connectors/mini/{id}/tables | 
 *ConnectorsApi* | [**connectorsControllerHeartbeat**](docs/ConnectorsApi.md#connectorscontrollerheartbeat) | **POST** /api/connectors/{id}/heartbeat | 
 *ConnectorsApi* | [**connectorsControllerRemove**](docs/ConnectorsApi.md#connectorscontrollerremove) | **DELETE** /api/connectors/{id} | 
 *ConnectorsApi* | [**connectorsControllerUpdate**](docs/ConnectorsApi.md#connectorscontrollerupdate) | **PUT** /api/connectors/{id} | 

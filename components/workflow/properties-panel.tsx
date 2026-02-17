@@ -14,7 +14,9 @@ import {
   AlertCircle,
   Loader2,
   ArrowRight,
-  Layers
+  Layers,
+  Server,
+  Cloud
 } from "lucide-react"
 import { useDispatch, useSelector } from "react-redux"
 import { toast } from "sonner"
@@ -22,6 +24,7 @@ import type { RootState, AppDispatch } from "@/lib/store"
 import { updateNode } from "@/lib/store/slices/workflow-slice"
 import type { NodeType, ConnectionMethod, CanvasNode, ConnectionConfig } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { apiClient } from "@/lib/api/api-client"
 
 interface PropertiesPanelProps {
   node: CanvasNode | null
@@ -63,6 +66,18 @@ const connectionMethods: Array<{
       icon: Globe,
       description: "Your own REST/GraphQL endpoint",
     },
+    {
+      value: "mini_connector",
+      label: "Mini Connector",
+      icon: Server,
+      description: "Connect to local agent database",
+    },
+    {
+      value: "cloud_connector",
+      label: "Cloud Connector",
+      icon: Cloud,
+      description: "Connect to cloud service",
+    },
   ]
 
 const dbTypes = [
@@ -81,6 +96,10 @@ export function PropertiesPanel({ node }: PropertiesPanelProps) {
   const { connectors: miniConnectors } = useSelector((state: RootState) => state.connector)
 
   const [connectionMethod, setConnectionMethod] = useState<ConnectionMethod>("credentials")
+  const [databases, setDatabases] = useState<string[]>([])
+  const [tables, setTables] = useState<string[]>([])
+  const [columns, setColumns] = useState<any[]>([])
+  const [isLoadingMetadata, setIsLoadingMetadata] = useState(false)
 
   // Sync local state with node config
   useEffect(() => {
@@ -88,6 +107,67 @@ export function PropertiesPanel({ node }: PropertiesPanelProps) {
       setConnectionMethod(node.connectionConfig.method)
     }
   }, [node])
+
+  // Effect to fetch databases when connectorId changes
+  useEffect(() => {
+    if (connectionMethod === 'mini_connector' && node?.connectionConfig?.connectorId) {
+      const fetchDatabases = async () => {
+        setIsLoadingMetadata(true)
+        try {
+          const dbs = await apiClient.getMiniDatabases(node.connectionConfig!.connectorId!)
+          setDatabases(dbs)
+        } catch (error) {
+          console.error("Failed to fetch databases", error)
+          toast.error("Failed to fetch databases")
+        } finally {
+          setIsLoadingMetadata(false)
+        }
+      }
+      fetchDatabases()
+    }
+  }, [connectionMethod, node?.connectionConfig?.connectorId])
+
+  // Effect to fetch tables when database changes
+  useEffect(() => {
+    if (connectionMethod === 'mini_connector' && node?.connectionConfig?.connectorId && node?.connectionConfig?.database) {
+      const fetchTables = async () => {
+        setIsLoadingMetadata(true)
+        try {
+          const tbls = await apiClient.getMiniTables(node.connectionConfig!.connectorId!, node.connectionConfig!.database!)
+          setTables(tbls)
+        } catch (error) {
+          console.error("Failed to fetch tables", error)
+          toast.error("Failed to fetch tables")
+        } finally {
+          setIsLoadingMetadata(false)
+        }
+      }
+      fetchTables()
+    } else {
+        setTables([])
+    }
+  }, [connectionMethod, node?.connectionConfig?.connectorId, node?.connectionConfig?.database])
+
+  // Effect to fetch columns when table changes
+  useEffect(() => {
+    if (connectionMethod === 'mini_connector' && node?.connectionConfig?.connectorId && node?.connectionConfig?.database && node?.connectionConfig?.table) {
+      const fetchColumns = async () => {
+        setIsLoadingMetadata(true)
+        try {
+          const cols = await apiClient.getMiniColumns(node.connectionConfig!.connectorId!, node.connectionConfig!.database!, node.connectionConfig!.table!)
+          setColumns(cols)
+        } catch (error) {
+           console.error("Failed to fetch columns", error)
+           toast.error("Failed to fetch columns")
+        } finally {
+          setIsLoadingMetadata(false)
+        }
+      }
+      fetchColumns()
+    } else {
+        setColumns([])
+    }
+  }, [connectionMethod, node?.connectionConfig?.connectorId, node?.connectionConfig?.database, node?.connectionConfig?.table])
 
   if (!node) {
     return (
@@ -359,6 +439,98 @@ export function PropertiesPanel({ node }: PropertiesPanelProps) {
                         />
                       </div>
                     </div>
+                  )}
+                </div>
+              )}
+
+              {connectionMethod === "mini_connector" && (
+                <div className="space-y-5">
+                   {/* Select Mini Connector */}
+                   <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-muted-foreground px-1">Local Agent</label>
+                    <select
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-[12px] text-foreground outline-none focus:border-primary/30 appearance-none"
+                      value={node.connectionConfig?.connectorId || ""}
+                      onChange={e => updateConfig({ connectorId: e.target.value, database: undefined, table: undefined, columns: [] })}
+                    >
+                      <option value="" className="bg-card">Select an agent...</option>
+                      {miniConnectors.map(mc => (
+                        <option key={mc.id} value={mc.id} className="bg-card">
+                          {mc.name} ({mc.status})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {node.connectionConfig?.connectorId && (
+                     <>
+                        {/* Select Database */}
+                        <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold text-muted-foreground px-1">Database</label>
+                            <select
+                                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-[12px] text-foreground outline-none focus:border-primary/30 appearance-none"
+                                value={node.connectionConfig?.database || ""}
+                                onChange={e => updateConfig({ database: e.target.value, table: undefined, columns: [] })}
+                                disabled={isLoadingMetadata}
+                            >
+                                <option value="" className="bg-card">Select a database...</option>
+                                {databases.map(db => (
+                                    <option key={db} value={db} className="bg-card">{db}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Select Table */}
+                        {node.connectionConfig?.database && (
+                             <div className="space-y-1.5">
+                                <label className="text-[11px] font-bold text-muted-foreground px-1">Table</label>
+                                <select
+                                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-[12px] text-foreground outline-none focus:border-primary/30 appearance-none"
+                                    value={node.connectionConfig?.table || ""}
+                                    onChange={e => updateConfig({ table: e.target.value, columns: [] })}
+                                    disabled={isLoadingMetadata}
+                                >
+                                    <option value="" className="bg-card">Select a table...</option>
+                                    {tables.map(tbl => (
+                                        <option key={tbl} value={tbl} className="bg-card">{tbl}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        {/* Select Columns */}
+                        {node.connectionConfig?.table && (
+                            <div className="space-y-1.5">
+                                <label className="text-[11px] font-bold text-muted-foreground px-1">Columns</label>
+                                <div className="max-h-40 overflow-y-auto rounded-lg border border-border bg-background p-2 custom-scrollbar">
+                                    {isLoadingMetadata ? (
+                                        <div className="flex items-center justify-center py-4">
+                                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                                        </div>
+                                    ) : (
+                                        columns.map((col: any) => (
+                                            <label key={col.name} className="flex items-center gap-2 px-2 py-1.5 hover:bg-accent/50 rounded cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={node.connectionConfig?.columns?.includes(col.name) || false}
+                                                    onChange={(e) => {
+                                                        const currentColumns = node.connectionConfig?.columns || []
+                                                        const newColumns = e.target.checked
+                                                            ? [...currentColumns, col.name]
+                                                            : currentColumns.filter(c => c !== col.name)
+                                                        updateConfig({ columns: newColumns })
+                                                    }}
+                                                    className="rounded border-border text-primary focus:ring-primary/30"
+                                                />
+                                                <span className="text-[11px] font-medium text-foreground">{col.name}</span>
+                                                <span className="ml-auto text-[9px] text-muted-foreground uppercase">{col.type}</span>
+                                            </label>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                     </>
                   )}
                 </div>
               )}

@@ -7,6 +7,9 @@ All URIs are relative to *http://localhost*
 |[**connectorsControllerCreate**](#connectorscontrollercreate) | **POST** /api/connectors | |
 |[**connectorsControllerFindAll**](#connectorscontrollerfindall) | **GET** /api/connectors | |
 |[**connectorsControllerFindOne**](#connectorscontrollerfindone) | **GET** /api/connectors/{id} | |
+|[**connectorsControllerGetMiniColumns**](#connectorscontrollergetminicolumns) | **GET** /api/connectors/mini/{id}/columns | |
+|[**connectorsControllerGetMiniDatabases**](#connectorscontrollergetminidatabases) | **GET** /api/connectors/mini/{id}/databases | |
+|[**connectorsControllerGetMiniTables**](#connectorscontrollergetminitables) | **GET** /api/connectors/mini/{id}/tables | |
 |[**connectorsControllerHeartbeat**](#connectorscontrollerheartbeat) | **POST** /api/connectors/{id}/heartbeat | |
 |[**connectorsControllerRemove**](#connectorscontrollerremove) | **DELETE** /api/connectors/{id} | |
 |[**connectorsControllerUpdate**](#connectorscontrollerupdate) | **PUT** /api/connectors/{id} | |
@@ -159,6 +162,165 @@ const { status, data } = await apiInstance.connectorsControllerFindOne(
 
  - **Content-Type**: Not defined
  - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **connectorsControllerGetMiniColumns**
+> connectorsControllerGetMiniColumns()
+
+
+### Example
+
+```typescript
+import {
+    ConnectorsApi,
+    Configuration
+} from '360solve-api-client';
+
+const configuration = new Configuration();
+const apiInstance = new ConnectorsApi(configuration);
+
+let id: string; // (default to undefined)
+let database: string; // (default to undefined)
+let table: string; // (default to undefined)
+
+const { status, data } = await apiInstance.connectorsControllerGetMiniColumns(
+    id,
+    database,
+    table
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+| **database** | [**string**] |  | defaults to undefined|
+| **table** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **connectorsControllerGetMiniDatabases**
+> connectorsControllerGetMiniDatabases()
+
+
+### Example
+
+```typescript
+import {
+    ConnectorsApi,
+    Configuration
+} from '360solve-api-client';
+
+const configuration = new Configuration();
+const apiInstance = new ConnectorsApi(configuration);
+
+let id: string; // (default to undefined)
+
+const { status, data } = await apiInstance.connectorsControllerGetMiniDatabases(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **connectorsControllerGetMiniTables**
+> connectorsControllerGetMiniTables()
+
+
+### Example
+
+```typescript
+import {
+    ConnectorsApi,
+    Configuration
+} from '360solve-api-client';
+
+const configuration = new Configuration();
+const apiInstance = new ConnectorsApi(configuration);
+
+let id: string; // (default to undefined)
+let database: string; // (default to undefined)
+
+const { status, data } = await apiInstance.connectorsControllerGetMiniTables(
+    id,
+    database
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+| **database** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
 
 
 ### HTTP response details

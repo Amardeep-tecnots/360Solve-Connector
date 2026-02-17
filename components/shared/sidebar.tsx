@@ -90,10 +90,10 @@ export function Sidebar() {
         {!collapsed && (
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-foreground leading-tight">
-              360Solve
+              Nia Connect
             </span>
             <span className="text-[11px] text-muted-foreground leading-tight">
-              Connector
+              Platform
             </span>
           </div>
         )}

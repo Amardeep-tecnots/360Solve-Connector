@@ -107,6 +107,9 @@ export function WorkflowCanvas({
         icon: nodeData.icon,
         x: e.clientX - rect.left - 80 + (canvasRef.current?.scrollLeft || 0),
         y: e.clientY - rect.top - 30 + (canvasRef.current?.scrollTop || 0),
+        connectionConfig: {
+          method: nodeData.connectionMethod || "credentials",
+        },
       }
 
       onNodesChange([...nodes, newNode])

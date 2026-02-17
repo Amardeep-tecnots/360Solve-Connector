@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { CheckCircle, XCircle, Loader2, Database, RefreshCw, AlertCircle, Table } from "lucide-react"
-import { useAppDispatch } from "@/lib/store/hooks"
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks"
 import { configureAggregator, testConnection, triggerDiscovery, fetchTables, InstalledAggregator, AggregatorConfigField } from "@/lib/store/slices/aggregators-slice"
 import { toast } from "sonner"
+import { RootState } from "@/lib/store"
 
 interface ConfigureModalProps {
   aggregator: InstalledAggregator | null
@@ -15,6 +16,7 @@ interface ConfigureModalProps {
 
 export function ConfigureModal({ aggregator, open, onClose, onSuccess }: ConfigureModalProps) {
   const dispatch = useAppDispatch()
+  const isFetchingTables = useAppSelector((state: RootState) => state.aggregators.isFetchingTables)
   const [instanceName, setInstanceName] = useState("")
   const [credentials, setCredentials] = useState<Record<string, string>>({})
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null)
@@ -47,12 +49,14 @@ export function ConfigureModal({ aggregator, open, onClose, onSuccess }: Configu
       setActiveTab('config')
       setIsLocked(aggregator.configuration?.hasCredentials || false)
 
-      // Fetch schema if it's already discovered and we don't have tables yet
-      if (aggregator.schemaStatus === 'discovered' && (!Array.isArray(aggregator.schema?.tables) || aggregator.schema.tables.length === 0)) {
+      // Fetch schema if it's already discovered, we don't have tables yet, and we're not already fetching
+      if (aggregator.schemaStatus === 'discovered' && 
+          !isFetchingTables && 
+          (!Array.isArray(aggregator.schema?.tables) || aggregator.schema.tables.length === 0)) {
         dispatch(fetchTables(aggregator.id))
       }
     }
-  }, [aggregator, dispatch])
+  }, [aggregator, dispatch, isFetchingTables])
 
   if (!open || !aggregator) return null
 

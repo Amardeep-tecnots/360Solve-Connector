@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "360Solve Connector - AI-Powered Data Pipeline Builder",
+  title: "Nia Connect - AI-Powered Data Pipeline Builder",
   description:
     "Build cloud-to-cloud and on-premise data pipelines with AI assistance. Connect any database, API, or aggregator with drag-and-drop workflows.",
 }

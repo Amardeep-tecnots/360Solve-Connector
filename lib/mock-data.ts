@@ -525,6 +525,8 @@ export const executions: Execution[] = [
 // ─── Workflow Palette Nodes (Source → Transform → Destination) ─────
 export const paletteNodes = {
   source: [
+    { id: "node-mini-source", type: "source" as const, label: "Mini Connector", description: "Connect to local agent database", icon: "Server", connectionMethod: "mini_connector" as const },
+    { id: "node-cloud-source", type: "source" as const, label: "Cloud Connector", description: "Connect to cloud service", icon: "Cloud", connectionMethod: "cloud_connector" as const },
     { id: "node-db-source", type: "source" as const, label: "Database", description: "Connect with credentials or connection string", icon: "Database", connectionMethod: "credentials" as const },
     { id: "node-api-source", type: "source" as const, label: "Custom API", description: "Pull data from your own REST API", icon: "Globe", connectionMethod: "custom_api" as const },
     { id: "node-agg-source", type: "source" as const, label: "Aggregator", description: "Use a pre-built marketplace connector", icon: "Store", connectionMethod: "aggregator" as const },

@@ -27,6 +27,7 @@ import {
   clearErrors,
   clearSelected,
 } from "@/lib/store/slices/workflows-slice"
+import { triggerWorkflow } from "@/lib/store/slices/executions-slice"
 import { fetchInstalled } from "@/lib/store/slices/aggregators-slice"
 import { fetchConnectors } from "@/lib/store/slices/connector-slice"
 import { NodePalette } from "@/components/workflow/node-palette"
@@ -66,6 +67,10 @@ export default function WorkflowsPage() {
     installed: installedAggregators
   } = useSelector((state: RootState) => state.aggregators)
 
+  const {
+    operationLoading: isExecuting
+  } = useSelector((state: RootState) => state.executions)
+
   const [aiPanelOpen, setAiPanelOpen] = useState(false)
   const [isLoadingWorkflow, setIsLoadingWorkflow] = useState(false)
 
@@ -98,9 +103,12 @@ export default function WorkflowsPage() {
         (activity): CanvasNode => ({
           id: activity.id,
           type:
-            activity.type === "extract"
+            activity.type === "extract" || 
+            activity.type === "mini-connector-source" || 
+            activity.type === "cloud-connector-source"
               ? "source"
-              : activity.type === "load"
+              : activity.type === "load" || 
+                activity.type === "cloud-connector-sink"
                 ? "destination"
                 : "transform",
           label: activity.name,
@@ -113,11 +121,28 @@ export default function WorkflowsPage() {
         })
       )
 
-      const canvasConnections: CanvasConnection[] =
-        selectedWorkflow.definition.steps.map((step) => ({
-          from: step.dependsOn[0] || "",
-          to: step.activityId,
-        }))
+      const stepToActivity = new Map<string, string>()
+      selectedWorkflow.definition.steps.forEach((s) => {
+        stepToActivity.set(s.id, s.activityId)
+      })
+
+      const canvasConnections: CanvasConnection[] = []
+      selectedWorkflow.definition.steps.forEach((step) => {
+        if (step.dependsOn && step.dependsOn.length > 0) {
+          step.dependsOn.forEach((depId) => {
+            const sourceActivityId = stepToActivity.get(depId)
+            // Fallback to depId if not found (legacy support where depId might be activityId)
+            const fromId = sourceActivityId || depId
+            
+            if (fromId) {
+              canvasConnections.push({
+                from: fromId,
+                to: step.activityId,
+              })
+            }
+          })
+        }
+      })
 
       dispatch(
         loadWorkflow({
@@ -148,24 +173,36 @@ export default function WorkflowsPage() {
       // Map to API DTO
       const definition = {
         version: "1.0",
-        activities: nodes.map((n) => ({
-          id: n.id,
-          type: (n.type === "source"
-            ? "extract"
-            : n.type === "destination"
-              ? "load"
-              : "transform") as any,
-          name: n.label,
-          config: {
-            ...n.connectionConfig,
-            ...n.transformConfig,
-            ui_metadata: { x: n.x, y: n.y, icon: n.icon },
-          },
-        })),
-        steps: connections.map((c, i) => ({
-          id: `step-${i}`,
-          activityId: c.to,
-          dependsOn: [c.from],
+        activities: nodes.map((n) => {
+          let activityType = "extract"
+          if (n.type === "source") {
+            if (n.connectionConfig?.method === "mini_connector") activityType = "mini-connector-source"
+            else if (n.connectionConfig?.method === "cloud_connector") activityType = "cloud-connector-source"
+            else activityType = "extract"
+          } else if (n.type === "destination") {
+            if (n.connectionConfig?.method === "cloud_connector") activityType = "cloud-connector-sink"
+            else activityType = "load"
+          } else {
+            activityType = "transform"
+          }
+
+          return {
+            id: n.id,
+            type: activityType as any,
+            name: n.label,
+            config: {
+              ...n.connectionConfig,
+              ...n.transformConfig,
+              ui_metadata: { x: n.x, y: n.y, icon: n.icon },
+            },
+          }
+        }),
+        steps: nodes.map((n) => ({
+          id: `step-${n.id}`,
+          activityId: n.id,
+          dependsOn: connections
+            .filter((c) => c.to === n.id)
+            .map((c) => `step-${c.from}`),
         })),
       }
 
@@ -206,24 +243,36 @@ export default function WorkflowsPage() {
     try {
       const definition = {
         version: "1.0",
-        activities: nodes.map((n) => ({
-          id: n.id,
-          type: (n.type === "source"
-            ? "extract"
-            : n.type === "destination"
-              ? "load"
-              : "transform") as any,
-          name: n.label,
-          config: {
-            ...n.connectionConfig,
-            ...n.transformConfig,
-            ui_metadata: { x: n.x, y: n.y, icon: n.icon },
-          },
-        })),
-        steps: connections.map((c, i) => ({
-          id: `step-${i}`,
-          activityId: c.to,
-          dependsOn: [c.from],
+        activities: nodes.map((n) => {
+          let activityType = "extract"
+          if (n.type === "source") {
+            if (n.connectionConfig?.method === "mini_connector") activityType = "mini-connector-source"
+            else if (n.connectionConfig?.method === "cloud_connector") activityType = "cloud-connector-source"
+            else activityType = "extract"
+          } else if (n.type === "destination") {
+            if (n.connectionConfig?.method === "cloud_connector") activityType = "cloud-connector-sink"
+            else activityType = "load"
+          } else {
+            activityType = "transform"
+          }
+
+          return {
+            id: n.id,
+            type: activityType as any,
+            name: n.label,
+            config: {
+              ...n.connectionConfig,
+              ...n.transformConfig,
+              ui_metadata: { x: n.x, y: n.y, icon: n.icon },
+            },
+          }
+        }),
+        steps: nodes.map((n) => ({
+          id: `step-${n.id}`,
+          activityId: n.id,
+          dependsOn: connections
+            .filter((c) => c.to === n.id)
+            .map((c) => `step-${c.from}`),
         })),
       }
 
@@ -262,6 +311,41 @@ export default function WorkflowsPage() {
   )
 
   const isSaving = isCreating || isUpdating || isLoadingWorkflow
+
+  const handleRun = async () => {
+    if (!workflowId) {
+      toast.error("Save workflow before running")
+      return
+    }
+
+    try {
+      if (selectedWorkflow && selectedWorkflow.status !== "active") {
+        await dispatch(
+          updateWorkflow({
+            id: workflowId,
+            data: {
+              isActive: true,
+            },
+          })
+        ).unwrap()
+      }
+
+      await dispatch(
+        triggerWorkflow({
+          id: workflowId,
+          data: { immediate: true },
+        })
+      ).unwrap()
+
+      toast.success("Workflow execution started", {
+        description: "Check the Execution Monitor for progress.",
+      })
+    } catch (error: any) {
+      toast.error("Failed to start workflow", {
+        description: error.message || "An unexpected error occurred",
+      })
+    }
+  }
 
   const enrichedPaletteNodes = useMemo(() => ({
     ...paletteNodes,
@@ -346,14 +430,11 @@ export default function WorkflowsPage() {
             <span className="hidden sm:inline">Save</span>
           </button>
           <button
-            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 active:scale-[0.98]"
-            onClick={() =>
-              toast.success("Workflow execution started", {
-                description: "Check the Execution Monitor for progress.",
-              })
-            }
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50"
+            onClick={handleRun}
+            disabled={isExecuting || nodes.length === 0}
           >
-            <Play className="h-3 w-3" />
+            {isExecuting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />}
             <span className="hidden sm:inline">Run</span>
           </button>
         </div>

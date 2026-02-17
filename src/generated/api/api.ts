@@ -201,13 +201,29 @@ export interface HeartbeatDto {
      */
     'cpuUsage'?: number;
     /**
-     * Memory usage in MB
+     * Memory usage percentage (0-100)
      */
     'memoryUsage'?: number;
+    /**
+     * Connector status (online|busy|offline)
+     */
+    'status'?: string;
+    /**
+     * ISO timestamp from connector
+     */
+    'timestamp'?: string;
+    /**
+     * Supported aggregator types
+     */
+    'supportedAggregators'?: Array<string>;
     /**
      * Job capacity
      */
     'maxConcurrentJobs'?: number;
+    /**
+     * Number of active commands
+     */
+    'activeCommands'?: number;
     /**
      * OS Information
      */
@@ -1102,6 +1118,135 @@ export const ConnectorsApiAxiosParamCreator = function (configuration?: Configur
         /**
          * 
          * @param {string} id 
+         * @param {string} database 
+         * @param {string} table 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerGetMiniColumns: async (id: string, database: string, table: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('connectorsControllerGetMiniColumns', 'id', id)
+            // verify required parameter 'database' is not null or undefined
+            assertParamExists('connectorsControllerGetMiniColumns', 'database', database)
+            // verify required parameter 'table' is not null or undefined
+            assertParamExists('connectorsControllerGetMiniColumns', 'table', table)
+            const localVarPath = `/api/connectors/mini/{id}/columns`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (database !== undefined) {
+                localVarQueryParameter['database'] = database;
+            }
+
+            if (table !== undefined) {
+                localVarQueryParameter['table'] = table;
+            }
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerGetMiniDatabases: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('connectorsControllerGetMiniDatabases', 'id', id)
+            const localVarPath = `/api/connectors/mini/{id}/databases`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {string} database 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerGetMiniTables: async (id: string, database: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('connectorsControllerGetMiniTables', 'id', id)
+            // verify required parameter 'database' is not null or undefined
+            assertParamExists('connectorsControllerGetMiniTables', 'database', database)
+            const localVarPath = `/api/connectors/mini/{id}/tables`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (database !== undefined) {
+                localVarQueryParameter['database'] = database;
+            }
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
          * @param {HeartbeatDto} heartbeatDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1269,6 +1414,45 @@ export const ConnectorsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {string} id 
+         * @param {string} database 
+         * @param {string} table 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerGetMiniColumns(id: string, database: string, table: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerGetMiniColumns(id, database, table, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerGetMiniColumns']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerGetMiniDatabases(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerGetMiniDatabases(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerGetMiniDatabases']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {string} database 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerGetMiniTables(id: string, database: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerGetMiniTables(id, database, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerGetMiniTables']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
          * @param {HeartbeatDto} heartbeatDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1345,6 +1529,36 @@ export const ConnectorsApiFactory = function (configuration?: Configuration, bas
         /**
          * 
          * @param {string} id 
+         * @param {string} database 
+         * @param {string} table 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerGetMiniColumns(id: string, database: string, table: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.connectorsControllerGetMiniColumns(id, database, table, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerGetMiniDatabases(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.connectorsControllerGetMiniDatabases(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {string} database 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerGetMiniTables(id: string, database: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.connectorsControllerGetMiniTables(id, database, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
          * @param {HeartbeatDto} heartbeatDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1408,6 +1622,39 @@ export class ConnectorsApi extends BaseAPI {
      */
     public connectorsControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
         return ConnectorsApiFp(this.configuration).connectorsControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {string} database 
+     * @param {string} table 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerGetMiniColumns(id: string, database: string, table: string, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerGetMiniColumns(id, database, table, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerGetMiniDatabases(id: string, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerGetMiniDatabases(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {string} database 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerGetMiniTables(id: string, database: string, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerGetMiniTables(id, database, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

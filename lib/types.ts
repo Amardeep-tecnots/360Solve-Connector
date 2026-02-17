@@ -12,9 +12,16 @@ export type ConnectionMethod =
   | "connection_string"  // Raw connection string (postgres://..., mongodb://..., etc.)
   | "aggregator"        // Pre-built aggregator from marketplace (with auth)
   | "custom_api"        // User-created REST/GraphQL API endpoint
+  | "mini_connector"    // Add this
+  | "cloud_connector"   // Add this
 
 export interface ConnectionConfig {
   method: ConnectionMethod
+  // ... existing fields
+  // Add these:
+  connectorId?: string
+  table?: string
+  columns?: string[]
   // For credentials
   host?: string
   port?: number

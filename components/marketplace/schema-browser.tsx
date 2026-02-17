@@ -54,13 +54,17 @@ export function SchemaBrowser({ aggregatorId, initialTables = [] }: SchemaBrowse
     useEffect(() => {
         const currentTables = Array.isArray(tables) ? tables : []
         if (!hasFetched && currentTables.length === 0) {
-            setHasFetched(true)
-            dispatch(fetchTables(aggregatorId)).then((result: any) => {
-                if (result.payload) {
-                    const data = Array.isArray(result.payload) ? result.payload : (result.payload.tables || [])
-                    setTables(data)
-                }
-            })
+            dispatch(fetchTables(aggregatorId))
+                .then((result: any) => {
+                    if (result.payload) {
+                        const data = Array.isArray(result.payload) ? result.payload : (result.payload.tables || [])
+                        setTables(data)
+                    }
+                })
+                .finally(() => {
+                    // Only set hasFetched after the API call completes (success or failure)
+                    setHasFetched(true)
+                })
         }
     }, [aggregatorId, tables, hasFetched, dispatch])
 

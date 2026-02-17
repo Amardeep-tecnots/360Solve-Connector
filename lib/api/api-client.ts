@@ -416,6 +416,22 @@ export class ApiClient {
     return (response.data as any)?.data || response.data
   }
 
+  // Mini Connector Metadata
+  async getMiniDatabases(id: string) {
+    const response = await this.connectors.connectorsControllerGetMiniDatabases(id)
+    return (response.data as any)?.data || response.data
+  }
+
+  async getMiniTables(id: string, database: string) {
+    const response = await this.connectors.connectorsControllerGetMiniTables(id, database)
+    return (response.data as any)?.data || response.data
+  }
+
+  async getMiniColumns(id: string, database: string, table: string) {
+    const response = await this.connectors.connectorsControllerGetMiniColumns(id, database, table)
+    return (response.data as any)?.data || response.data
+  }
+
   // Tenant helpers
   async getCurrentTenant() {
     const response = await this.tenants.tenantsControllerGetCurrent()

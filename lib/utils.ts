@@ -18,9 +18,14 @@ export function formatDuration(ms: number): string {
   return `${(ms / 60000).toFixed(1)}m`
 }
 
-export function getRelativeTime(date: Date): string {
+export function getRelativeTime(date: Date | string | number | null | undefined): string {
+  if (!date) return "--"
+
+  const parsed = typeof date === "string" || typeof date === "number" ? new Date(date) : date
+  if (Number.isNaN(parsed?.getTime?.())) return "--"
+
   const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
+  const diffMs = now.getTime() - parsed.getTime()
   const diffMinutes = Math.floor(diffMs / 60000)
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
@@ -29,5 +34,5 @@ export function getRelativeTime(date: Date): string {
   if (diffMinutes < 60) return `${diffMinutes}m ago`
   if (diffHours < 24) return `${diffHours}h ago`
   if (diffDays < 7) return `${diffDays}d ago`
-  return date.toLocaleDateString()
+  return parsed.toLocaleDateString()
 }

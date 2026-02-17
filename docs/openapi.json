@@ -1117,6 +1117,114 @@
         ]
       }
     },
+    "/api/connectors/mini/{id}/databases": {
+      "get": {
+        "operationId": "ConnectorsController_getMiniDatabases",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Connectors"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/connectors/mini/{id}/tables": {
+      "get": {
+        "operationId": "ConnectorsController_getMiniTables",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "database",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Connectors"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/connectors/mini/{id}/columns": {
+      "get": {
+        "operationId": "ConnectorsController_getMiniColumns",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "database",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "table",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Connectors"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
     "/api/connectors": {
       "post": {
         "operationId": "ConnectorsController_create",
@@ -2602,11 +2710,30 @@
           },
           "memoryUsage": {
             "type": "number",
-            "description": "Memory usage in MB"
+            "description": "Memory usage percentage (0-100)"
+          },
+          "status": {
+            "type": "string",
+            "description": "Connector status (online|busy|offline)"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO timestamp from connector"
+          },
+          "supportedAggregators": {
+            "description": "Supported aggregator types",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "maxConcurrentJobs": {
             "type": "number",
             "description": "Job capacity"
+          },
+          "activeCommands": {
+            "type": "number",
+            "description": "Number of active commands"
           },
           "os": {
             "type": "string",

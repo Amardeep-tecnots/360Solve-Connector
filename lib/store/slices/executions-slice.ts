@@ -142,8 +142,24 @@ const executionsSlice = createSlice({
             })
             .addCase(fetchExecutions.fulfilled, (state, action: any) => {
                 state.listLoading = false
-                state.executions = action.payload.data || []
-                state.total = action.payload.total || 0
+                const payload = action.payload
+                const isArrayPayload = Array.isArray(payload)
+
+                state.executions = isArrayPayload
+                    ? payload
+                    : payload?.data || []
+
+                state.total = isArrayPayload
+                    ? payload.length
+                    : payload?.total || 0
+
+                state.limit = isArrayPayload
+                    ? state.limit
+                    : payload?.limit ?? state.limit
+
+                state.offset = isArrayPayload
+                    ? state.offset
+                    : payload?.offset ?? state.offset
             })
             .addCase(fetchExecutions.rejected, (state, action) => {
                 state.listLoading = false
