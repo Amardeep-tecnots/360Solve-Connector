@@ -5,6 +5,7 @@ api.ts
 base.ts
 common.ts
 configuration.ts
+docs/AIApi.md
 docs/ActivityDto.md
 docs/AggregatorsApi.md
 docs/AuthApi.md
@@ -14,6 +15,7 @@ docs/ConnectorResponseDto.md
 docs/ConnectorsApi.md
 docs/CreateConnectorDto.md
 docs/CreateWorkflowDto.md
+docs/DefaultApi.md
 docs/ExecuteWorkflowDto.md
 docs/ExecutionControlResponseDto.md
 docs/ExecutionDetailResponseDto.md

@@ -51,6 +51,15 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*AIApi* | [**aIControllerDownloadSDK**](docs/AIApi.md#aicontrollerdownloadsdk) | **GET** /ai/sdk/{id}/download | Download SDK source code
+*AIApi* | [**aIControllerGenerateMapping**](docs/AIApi.md#aicontrollergeneratemapping) | **POST** /ai/generate-mapping | Generate schema mapping between source and destination
+*AIApi* | [**aIControllerGenerateSDK**](docs/AIApi.md#aicontrollergeneratesdk) | **POST** /ai/generate-sdk | Generate TypeScript SDK from OpenAPI specification
+*AIApi* | [**aIControllerGenerateWorkflow**](docs/AIApi.md#aicontrollergenerateworkflow) | **POST** /ai/generate-workflow | Generate workflow from natural language description
+*AIApi* | [**aIControllerGetModels**](docs/AIApi.md#aicontrollergetmodels) | **GET** /ai/models/{provider} | Get models for a specific provider
+*AIApi* | [**aIControllerGetProviders**](docs/AIApi.md#aicontrollergetproviders) | **GET** /ai/providers | Get available AI providers and models
+*AIApi* | [**aIControllerGetSDK**](docs/AIApi.md#aicontrollergetsdk) | **GET** /ai/sdk/{id} | Get generated SDK by ID
+*AIApi* | [**aIControllerListSDKs**](docs/AIApi.md#aicontrollerlistsdks) | **GET** /ai/sdks | List all generated SDKs
+*AIApi* | [**aIControllerTestAI**](docs/AIApi.md#aicontrollertestai) | **POST** /ai/test | Test AI completion
 *AggregatorsApi* | [**aggregatorsControllerFindAll**](docs/AggregatorsApi.md#aggregatorscontrollerfindall) | **GET** /api/aggregators | 
 *AggregatorsApi* | [**aggregatorsControllerFindOne**](docs/AggregatorsApi.md#aggregatorscontrollerfindone) | **GET** /api/aggregators/{id} | 
 *AuthApi* | [**authControllerRefresh**](docs/AuthApi.md#authcontrollerrefresh) | **POST** /auth/refresh | Refresh access token
@@ -66,6 +75,9 @@ Class | Method | HTTP request | Description
 *ConnectorsApi* | [**connectorsControllerHeartbeat**](docs/ConnectorsApi.md#connectorscontrollerheartbeat) | **POST** /api/connectors/{id}/heartbeat | 
 *ConnectorsApi* | [**connectorsControllerRemove**](docs/ConnectorsApi.md#connectorscontrollerremove) | **DELETE** /api/connectors/{id} | 
 *ConnectorsApi* | [**connectorsControllerUpdate**](docs/ConnectorsApi.md#connectorscontrollerupdate) | **PUT** /api/connectors/{id} | 
+*DefaultApi* | [**activitiesControllerExecuteActivity**](docs/DefaultApi.md#activitiescontrollerexecuteactivity) | **POST** /activities/execute | 
+*DefaultApi* | [**activitiesControllerHealthCheck**](docs/DefaultApi.md#activitiescontrollerhealthcheck) | **GET** /activities/health | 
+*DefaultApi* | [**activitiesControllerValidateActivity**](docs/DefaultApi.md#activitiescontrollervalidateactivity) | **POST** /activities/validate | 
 *ExecutionsApi* | [**executionsControllerCancel**](docs/ExecutionsApi.md#executionscontrollercancel) | **POST** /api/executions/{id}/cancel | 
 *ExecutionsApi* | [**executionsControllerFindAll**](docs/ExecutionsApi.md#executionscontrollerfindall) | **GET** /api/executions | 
 *ExecutionsApi* | [**executionsControllerFindOne**](docs/ExecutionsApi.md#executionscontrollerfindone) | **GET** /api/executions/{id} | 

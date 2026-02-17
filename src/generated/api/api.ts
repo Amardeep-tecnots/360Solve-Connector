@@ -35,7 +35,13 @@ export const ActivityDtoTypeEnum = {
     Transform: 'transform',
     Load: 'load',
     Filter: 'filter',
-    Join: 'join'
+    Join: 'join',
+    MultiExtract: 'multi-extract',
+    MultiLoad: 'multi-load',
+    Sync: 'sync',
+    MiniConnectorSource: 'mini-connector-source',
+    CloudConnectorSource: 'cloud-connector-source',
+    CloudConnectorSink: 'cloud-connector-sink'
 } as const;
 
 export type ActivityDtoTypeEnum = typeof ActivityDtoTypeEnum[keyof typeof ActivityDtoTypeEnum];
@@ -489,6 +495,600 @@ export interface WorkflowValidationResponseDto {
     'success': boolean;
     'data': WorkflowValidationDataDto;
 }
+
+/**
+ * AIApi - axios parameter creator
+ */
+export const AIApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Download SDK source code
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerDownloadSDK: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('aIControllerDownloadSDK', 'id', id)
+            const localVarPath = `/ai/sdk/{id}/download`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Generate schema mapping between source and destination
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGenerateMapping: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/ai/generate-mapping`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Generate TypeScript SDK from OpenAPI specification
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGenerateSDK: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/ai/generate-sdk`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Generate workflow from natural language description
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGenerateWorkflow: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/ai/generate-workflow`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get models for a specific provider
+         * @param {string} provider 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetModels: async (provider: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'provider' is not null or undefined
+            assertParamExists('aIControllerGetModels', 'provider', provider)
+            const localVarPath = `/ai/models/{provider}`
+                .replace(`{${"provider"}}`, encodeURIComponent(String(provider)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get available AI providers and models
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetProviders: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/ai/providers`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get generated SDK by ID
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetSDK: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('aIControllerGetSDK', 'id', id)
+            const localVarPath = `/ai/sdk/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List all generated SDKs
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerListSDKs: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/ai/sdks`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Test AI completion
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerTestAI: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/ai/test`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AIApi - functional programming interface
+ */
+export const AIApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AIApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Download SDK source code
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerDownloadSDK(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerDownloadSDK(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerDownloadSDK']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Generate schema mapping between source and destination
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerGenerateMapping(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGenerateMapping(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGenerateMapping']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Generate TypeScript SDK from OpenAPI specification
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerGenerateSDK(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGenerateSDK(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGenerateSDK']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Generate workflow from natural language description
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerGenerateWorkflow(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGenerateWorkflow(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGenerateWorkflow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get models for a specific provider
+         * @param {string} provider 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerGetModels(provider: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGetModels(provider, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGetModels']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get available AI providers and models
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerGetProviders(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGetProviders(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGetProviders']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get generated SDK by ID
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerGetSDK(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGetSDK(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGetSDK']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List all generated SDKs
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerListSDKs(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerListSDKs(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerListSDKs']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Test AI completion
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerTestAI(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerTestAI(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerTestAI']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AIApi - factory interface
+ */
+export const AIApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AIApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Download SDK source code
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerDownloadSDK(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerDownloadSDK(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Generate schema mapping between source and destination
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGenerateMapping(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGenerateMapping(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Generate TypeScript SDK from OpenAPI specification
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGenerateSDK(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGenerateSDK(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Generate workflow from natural language description
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGenerateWorkflow(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGenerateWorkflow(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get models for a specific provider
+         * @param {string} provider 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetModels(provider: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGetModels(provider, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get available AI providers and models
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetProviders(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGetProviders(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get generated SDK by ID
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetSDK(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGetSDK(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List all generated SDKs
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerListSDKs(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerListSDKs(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Test AI completion
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerTestAI(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerTestAI(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AIApi - object-oriented interface
+ */
+export class AIApi extends BaseAPI {
+    /**
+     * 
+     * @summary Download SDK source code
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerDownloadSDK(id: string, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerDownloadSDK(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Generate schema mapping between source and destination
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerGenerateMapping(options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGenerateMapping(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Generate TypeScript SDK from OpenAPI specification
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerGenerateSDK(options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGenerateSDK(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Generate workflow from natural language description
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerGenerateWorkflow(options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGenerateWorkflow(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get models for a specific provider
+     * @param {string} provider 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerGetModels(provider: string, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGetModels(provider, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get available AI providers and models
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerGetProviders(options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGetProviders(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get generated SDK by ID
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerGetSDK(id: string, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGetSDK(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List all generated SDKs
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerListSDKs(options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerListSDKs(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Test AI completion
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerTestAI(options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerTestAI(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
 
 /**
  * AggregatorsApi - axios parameter creator
@@ -1703,6 +2303,207 @@ export const ConnectorsControllerFindAllTypeEnum = {
     Mini: 'MINI'
 } as const;
 export type ConnectorsControllerFindAllTypeEnum = typeof ConnectorsControllerFindAllTypeEnum[keyof typeof ConnectorsControllerFindAllTypeEnum];
+
+
+/**
+ * DefaultApi - axios parameter creator
+ */
+export const DefaultApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        activitiesControllerExecuteActivity: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/activities/execute`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        activitiesControllerHealthCheck: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/activities/health`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        activitiesControllerValidateActivity: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/activities/validate`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * DefaultApi - functional programming interface
+ */
+export const DefaultApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = DefaultApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async activitiesControllerExecuteActivity(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.activitiesControllerExecuteActivity(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.activitiesControllerExecuteActivity']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async activitiesControllerHealthCheck(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.activitiesControllerHealthCheck(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.activitiesControllerHealthCheck']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async activitiesControllerValidateActivity(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.activitiesControllerValidateActivity(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.activitiesControllerValidateActivity']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * DefaultApi - factory interface
+ */
+export const DefaultApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = DefaultApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        activitiesControllerExecuteActivity(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.activitiesControllerExecuteActivity(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        activitiesControllerHealthCheck(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.activitiesControllerHealthCheck(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        activitiesControllerValidateActivity(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.activitiesControllerValidateActivity(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * DefaultApi - object-oriented interface
+ */
+export class DefaultApi extends BaseAPI {
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public activitiesControllerExecuteActivity(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).activitiesControllerExecuteActivity(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public activitiesControllerHealthCheck(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).activitiesControllerHealthCheck(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public activitiesControllerValidateActivity(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).activitiesControllerValidateActivity(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
 
 
 /**

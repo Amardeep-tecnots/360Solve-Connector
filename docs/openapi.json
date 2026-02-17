@@ -1117,6 +1117,39 @@
         ]
       }
     },
+    "/activities/execute": {
+      "post": {
+        "operationId": "ActivitiesController_executeActivity",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/activities/validate": {
+      "post": {
+        "operationId": "ActivitiesController_validateActivity",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/activities/health": {
+      "get": {
+        "operationId": "ActivitiesController_healthCheck",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/connectors/mini/{id}/databases": {
       "get": {
         "operationId": "ConnectorsController_getMiniDatabases",
@@ -1687,6 +1720,180 @@
           }
         ]
       }
+    },
+    "/ai/providers": {
+      "get": {
+        "operationId": "AIController_getProviders",
+        "summary": "Get available AI providers and models",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of available providers"
+          }
+        },
+        "tags": [
+          "AI"
+        ]
+      }
+    },
+    "/ai/models/{provider}": {
+      "get": {
+        "operationId": "AIController_getModels",
+        "summary": "Get models for a specific provider",
+        "parameters": [
+          {
+            "name": "provider",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of models"
+          }
+        },
+        "tags": [
+          "AI"
+        ]
+      }
+    },
+    "/ai/generate-sdk": {
+      "post": {
+        "operationId": "AIController_generateSDK",
+        "summary": "Generate TypeScript SDK from OpenAPI specification",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "SDK generated successfully"
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        },
+        "tags": [
+          "AI"
+        ]
+      }
+    },
+    "/ai/sdk/{id}": {
+      "get": {
+        "operationId": "AIController_getSDK",
+        "summary": "Get generated SDK by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SDK details"
+          },
+          "404": {
+            "description": "SDK not found"
+          }
+        },
+        "tags": [
+          "AI"
+        ]
+      }
+    },
+    "/ai/sdks": {
+      "get": {
+        "operationId": "AIController_listSDKs",
+        "summary": "List all generated SDKs",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of SDKs"
+          }
+        },
+        "tags": [
+          "AI"
+        ]
+      }
+    },
+    "/ai/sdk/{id}/download": {
+      "get": {
+        "operationId": "AIController_downloadSDK",
+        "summary": "Download SDK source code",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SDK code file"
+          }
+        },
+        "tags": [
+          "AI"
+        ]
+      }
+    },
+    "/ai/generate-workflow": {
+      "post": {
+        "operationId": "AIController_generateWorkflow",
+        "summary": "Generate workflow from natural language description",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Workflow generated successfully"
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        },
+        "tags": [
+          "AI"
+        ]
+      }
+    },
+    "/ai/generate-mapping": {
+      "post": {
+        "operationId": "AIController_generateMapping",
+        "summary": "Generate schema mapping between source and destination",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Mapping generated successfully"
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        },
+        "tags": [
+          "AI"
+        ]
+      }
+    },
+    "/ai/test": {
+      "post": {
+        "operationId": "AIController_testAI",
+        "summary": "Test AI completion",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "AI response"
+          }
+        },
+        "tags": [
+          "AI"
+        ]
+      }
     }
   },
   "info": {
@@ -1965,7 +2172,13 @@
               "transform",
               "load",
               "filter",
-              "join"
+              "join",
+              "multi-extract",
+              "multi-load",
+              "sync",
+              "mini-connector-source",
+              "cloud-connector-source",
+              "cloud-connector-sink"
             ]
           },
           "name": {
