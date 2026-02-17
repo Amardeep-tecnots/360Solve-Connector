@@ -17,13 +17,10 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Next.js root layout provides <html> and <body>, so we just return the styled wrapper
   return (
-    <html lang="en" className={geist.variable}>
-      <body className="font-sans">
-        <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center p-4">
-          {children}
-        </div>
-      </body>
-    </html>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center p-4">
+      {children}
+    </div>
   )
 }

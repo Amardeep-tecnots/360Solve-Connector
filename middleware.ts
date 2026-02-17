@@ -24,6 +24,7 @@ export function middleware(request: NextRequest) {
 
   // If accessing auth routes while logged in, redirect to dashboard
   if (authRoutes.includes(pathname) && token) {
+    // Dashboard is at root "/"
     return NextResponse.redirect(new URL("/", request.url))
   }
 
