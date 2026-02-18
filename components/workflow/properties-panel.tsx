@@ -709,8 +709,8 @@ function TransformConfigWithAI({ node, updateConfig }: { node: CanvasNode; updat
           <div className="space-y-2">
             <label className="text-[11px] font-bold text-muted-foreground px-1">Field Mappings</label>
             <div className="rounded-xl border border-border bg-accent/30 p-3 max-h-40 overflow-y-auto custom-scrollbar">
-              {(node.transformConfig?.fieldMappings as Array<{ from: string; to: string; transform?: string }>)?.length > 0 ? (
-                (node.transformConfig?.fieldMappings as Array<{ from: string; to: string; transform?: string }>).map((mapping, idx) => (
+              {Array.isArray(node.transformConfig?.fieldMappings) && node.transformConfig.fieldMappings.length > 0 ? (
+                node.transformConfig.fieldMappings.map((mapping: { from: string; to: string; transform?: string }, idx: number) => (
                   <div key={idx} className="flex items-center gap-2 py-1.5 border-b border-border last:border-0">
                     <span className="text-[10px] text-muted-foreground flex-1 truncate">{mapping.from}</span>
                     <ArrowRight className="h-3 w-3 text-primary" />

@@ -28,25 +28,23 @@ export interface GeneratedSDK {
 }
 
 export interface WorkflowGenerationResult {
-  workflow: {
-    name: string
-    description: string
-    definition: {
-      version: string
-      activities: Array<{
-        id: string
-        type: string
-        name: string
-        config: Record<string, any>
-      }>
-      steps: Array<{
-        id: string
-        activityId: string
-        dependsOn: string[]
-      }>
-    }
+  name?: string
+  description?: string
+  definition: {
+    version: string
+    activities: Array<{
+      id: string
+      type: string
+      name: string
+      config: Record<string, any>
+    }>
+    steps: Array<{
+      id: string
+      activityId: string
+      dependsOn: string[]
+    }>
   }
-  explanation: string
+  explanation?: string
 }
 
 export interface MappingResult {
@@ -74,6 +72,8 @@ interface AIState {
   mappingGenerating: boolean
   sdkGenerating: boolean
   sdksLoading: boolean
+  sdkInfoLoading: boolean
+  sdkMethodExecuting: boolean
   
   // Errors
   providersError: string | null
@@ -91,6 +91,10 @@ interface AIState {
   // SDKs
   sdks: GeneratedSDK[]
   selectedSDK: GeneratedSDK | null
+  
+  // NEW: SDK Info & Execution
+  sdkInfo: any | null
+  sdkExecutionResult: any | null
 }
 
 const initialState: AIState = {
@@ -108,6 +112,8 @@ const initialState: AIState = {
   mappingGenerating: false,
   sdkGenerating: false,
   sdksLoading: false,
+  sdkInfoLoading: false,
+  sdkMethodExecuting: false,
   
   // Errors
   providersError: null,
@@ -125,6 +131,10 @@ const initialState: AIState = {
   // SDKs
   sdks: [],
   selectedSDK: null,
+  
+  // NEW: SDK Info & Execution
+  sdkInfo: null,
+  sdkExecutionResult: null,
 }
 
 // Thunks
@@ -246,6 +256,42 @@ export const downloadSDK = createAsyncThunk(
   }
 )
 
+// NEW: Get SDK Info (available methods, schema)
+export const fetchSDKInfo = createAsyncThunk(
+  'ai/fetchSDKInfo',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      return await apiClient.getSDKInfo(id)
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message)
+    }
+  }
+)
+
+// NEW: Execute SDK method
+export const executeSDKMethod = createAsyncThunk(
+  'ai/executeSDKMethod',
+  async ({ id, method, params }: { id: string; method: string; params: Record<string, any> }, { rejectWithValue }) => {
+    try {
+      return await apiClient.executeSDKMethod(id, method, params)
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message)
+    }
+  }
+)
+
+// NEW: List tenant SDKs
+export const fetchTenantSDKs = createAsyncThunk(
+  'ai/fetchTenantSDKs',
+  async (tenantId: string, { rejectWithValue }) => {
+    try {
+      return await apiClient.listTenantSDKs(tenantId)
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message)
+    }
+  }
+)
+
 const aiSlice = createSlice({
   name: 'ai',
   initialState,
@@ -277,6 +323,12 @@ const aiSlice = createSlice({
     },
     selectSDK: (state, action: PayloadAction<GeneratedSDK | null>) => {
       state.selectedSDK = action.payload
+    },
+    clearSDKExecutionResult: (state) => {
+      state.sdkExecutionResult = null
+    },
+    clearSDKInfo: (state) => {
+      state.sdkInfo = null
     },
   },
   extraReducers: (builder) => {
@@ -398,13 +450,10 @@ const aiSlice = createSlice({
     // Download SDK
     builder
       .addCase(downloadSDK.fulfilled, (state, action) => {
-        // Handle blob download - the component will manage the actual download
         const { id, blob } = action.payload as { id: string; blob: Blob }
         const idx = state.sdks.findIndex(s => s.id === id)
         if (idx !== -1) {
-          // Create a URL for the blob
           const url = URL.createObjectURL(blob)
-          // Trigger download
           const a = document.createElement('a')
           a.href = url
           a.download = `${state.sdks[idx].name}.zip`
@@ -413,6 +462,40 @@ const aiSlice = createSlice({
           document.body.removeChild(a)
           URL.revokeObjectURL(url)
         }
+      })
+
+    // Fetch SDK Info (NEW)
+    builder
+      .addCase(fetchSDKInfo.pending, (state) => {
+        state.sdkInfoLoading = true
+      })
+      .addCase(fetchSDKInfo.fulfilled, (state, action) => {
+        state.sdkInfoLoading = false
+        state.sdkInfo = action.payload
+      })
+      .addCase(fetchSDKInfo.rejected, (state, action) => {
+        state.sdkInfoLoading = false
+        state.sdkError = action.payload as string
+      })
+
+    // Execute SDK Method (NEW)
+    builder
+      .addCase(executeSDKMethod.pending, (state) => {
+        state.sdkMethodExecuting = true
+      })
+      .addCase(executeSDKMethod.fulfilled, (state, action) => {
+        state.sdkMethodExecuting = false
+        state.sdkExecutionResult = action.payload
+      })
+      .addCase(executeSDKMethod.rejected, (state, action) => {
+        state.sdkMethodExecuting = false
+        state.sdkError = action.payload as string
+      })
+
+    // Fetch Tenant SDKs (NEW)
+    builder
+      .addCase(fetchTenantSDKs.fulfilled, (state, action) => {
+        state.sdks = action.payload as GeneratedSDK[]
       })
   },
 })
@@ -424,7 +507,9 @@ export const {
   clearGeneratedMapping,
   setSelectedProvider,
   setSelectedModel,
-  selectSDK
+  selectSDK,
+  clearSDKExecutionResult,
+  clearSDKInfo
 } = aiSlice.actions
 
 export { aiSlice }

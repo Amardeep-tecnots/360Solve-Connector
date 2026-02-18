@@ -215,7 +215,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **aIControllerGenerateWorkflow**
-> aIControllerGenerateWorkflow()
+> aIControllerGenerateWorkflow(generateWorkflowRequest)
 
 
 ### Example
@@ -223,17 +223,25 @@ No authorization required
 ```typescript
 import {
     AIApi,
-    Configuration
+    Configuration,
+    GenerateWorkflowRequest
 } from '360solve-api-client';
 
 const configuration = new Configuration();
 const apiInstance = new AIApi(configuration);
 
-const { status, data } = await apiInstance.aIControllerGenerateWorkflow();
+let generateWorkflowRequest: GenerateWorkflowRequest; //
+
+const { status, data } = await apiInstance.aIControllerGenerateWorkflow(
+    generateWorkflowRequest
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **generateWorkflowRequest** | **GenerateWorkflowRequest**|  | |
 
 
 ### Return type
@@ -246,7 +254,7 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
+ - **Content-Type**: application/json
  - **Accept**: Not defined
 
 
@@ -254,7 +262,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | Workflow generated successfully |  -  |
-|**400** | Invalid request |  -  |
+|**400** | Invalid request - description is required |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

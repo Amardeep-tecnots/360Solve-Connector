@@ -129,6 +129,7 @@ Class | Method | HTTP request | Description
  - [ExecutionResponseDto](docs/ExecutionResponseDto.md)
  - [ExecutionTriggerResponseDto](docs/ExecutionTriggerResponseDto.md)
  - [GenerateSDKRequest](docs/GenerateSDKRequest.md)
+ - [GenerateWorkflowRequest](docs/GenerateWorkflowRequest.md)
  - [HeartbeatDto](docs/HeartbeatDto.md)
  - [InstallTenantAggregatorDto](docs/InstallTenantAggregatorDto.md)
  - [PauseExecutionDto](docs/PauseExecutionDto.md)

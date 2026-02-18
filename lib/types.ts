@@ -4,7 +4,7 @@ export type ExecutionStatus = "success" | "failed" | "running" | "pending" | "ca
 export type WorkflowStatus = "active" | "inactive" | "draft"
 
 // ─── Node Types (Zapier-like: Source → Transform → Destination) ────
-export type NodeType = "source" | "transform" | "destination"
+export type NodeType = "source" | "transform" | "destination" | "generated_sdk"
 
 // Connection method for Source/Destination nodes
 export type ConnectionMethod =
@@ -12,13 +12,13 @@ export type ConnectionMethod =
   | "connection_string"  // Raw connection string (postgres://..., mongodb://..., etc.)
   | "aggregator"        // Pre-built aggregator from marketplace (with auth)
   | "custom_api"        // User-created REST/GraphQL API endpoint
-  | "mini_connector"    // Add this
-  | "cloud_connector"   // Add this
+  | "mini_connector"    // Mini Connector (on-prem data source)
+  | "cloud_connector"   // Cloud Connector (cloud data source)
+  | "generated_sdk"     // AI-generated SDK (executable code from OpenAPI)
 
 export interface ConnectionConfig {
   method: ConnectionMethod
-  // ... existing fields
-  // Add these:
+  // Common fields
   connectorId?: string
   table?: string
   columns?: string[]
@@ -41,6 +41,14 @@ export interface ConnectionConfig {
   headers?: Record<string, string>
   authType?: "bearer" | "api_key" | "basic" | "none"
   authToken?: string
+  // For generated_sdk (AI-generated SDK from OpenAPI)
+  sdkId?: string
+  sdkName?: string
+  sdkMethods?: string[]
+  sdkSchema?: Record<string, any>
+  // For mini_connector / cloud_connector
+  miniConnectorId?: string
+  miniConnectorName?: string
 }
 
 // ─── Stat Card ────────────────────────────────────────

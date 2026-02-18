@@ -24,6 +24,7 @@ docs/ExecutionResponseDto.md
 docs/ExecutionTriggerResponseDto.md
 docs/ExecutionsApi.md
 docs/GenerateSDKRequest.md
+docs/GenerateWorkflowRequest.md
 docs/HeartbeatDto.md
 docs/InstallTenantAggregatorDto.md
 docs/PauseExecutionDto.md

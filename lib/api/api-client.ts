@@ -260,6 +260,27 @@ export class ApiClient {
     return response.data as any
   }
 
+  // Get SDK Info (available methods, schema) - NEW
+  async getSDKInfo(id: string) {
+    const response = await this.aiApi.aIControllerGetSDKInfo(id)
+    return (response.data as any)?.data || response.data
+  }
+
+  // Execute SDK method - NEW
+  async executeSDKMethod(id: string, method: string, params: Record<string, any>) {
+    const response = await this.aiApi.aIControllerExecuteSDKMethod(id, {
+      method,
+      params
+    } as any)
+    return (response.data as any)?.data || response.data
+  }
+
+  // List tenant SDKs - NEW
+  async listTenantSDKs(tenantId: string) {
+    const response = await this.aiApi.aIControllerListTenantSDKs(tenantId)
+    return (response.data as any)?.data || response.data
+  }
+
   // Workflow helpers
   async listWorkflows(status: string = 'all') {
     const response = await this.workflows.workflowsControllerFindAll(status)

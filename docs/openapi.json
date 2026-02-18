@@ -1859,12 +1859,22 @@
         "operationId": "AIController_generateWorkflow",
         "summary": "Generate workflow from natural language description",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateWorkflowRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Workflow generated successfully"
           },
           "400": {
-            "description": "Invalid request"
+            "description": "Invalid request - description is required"
           }
         },
         "tags": [
@@ -3196,6 +3206,61 @@
         },
         "required": [
           "openApiSpec"
+        ]
+      },
+      "GenerateWorkflowRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Natural language description of the workflow to generate",
+            "example": "Extract customer data from MySQL and sync to Salesforce contacts"
+          },
+          "source": {
+            "type": "object",
+            "description": "Source aggregator details",
+            "example": {
+              "type": "database",
+              "aggregatorId": "agg_123",
+              "table": "customers"
+            }
+          },
+          "destination": {
+            "type": "object",
+            "description": "Destination aggregator details",
+            "example": {
+              "type": "api",
+              "aggregatorId": "agg_456",
+              "table": "contacts"
+            }
+          },
+          "mappings": {
+            "description": "Field mappings between source and destination",
+            "example": [
+              {
+                "source": "name",
+                "destination": "FirstName"
+              },
+              {
+                "source": "email",
+                "destination": "Email"
+              }
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "model": {
+            "type": "string",
+            "description": "Custom AI model to use",
+            "example": "openai/gpt-4o-mini"
+          }
+        },
+        "required": [
+          "description",
+          "source",
+          "destination"
         ]
       }
     }
