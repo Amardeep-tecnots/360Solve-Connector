@@ -1765,6 +1765,16 @@
         "operationId": "AIController_generateSDK",
         "summary": "Generate TypeScript SDK from OpenAPI specification",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateSDKRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "SDK generated successfully"
@@ -1888,6 +1898,84 @@
         "responses": {
           "200": {
             "description": "AI response"
+          }
+        },
+        "tags": [
+          "AI"
+        ]
+      }
+    },
+    "/ai/sdk/{id}/info": {
+      "get": {
+        "operationId": "AIController_getSDKInfo",
+        "summary": "Get SDK information including available methods",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SDK info"
+          },
+          "404": {
+            "description": "SDK not found"
+          }
+        },
+        "tags": [
+          "AI"
+        ]
+      }
+    },
+    "/ai/sdk/{id}/execute": {
+      "post": {
+        "operationId": "AIController_executeSDKMethod",
+        "summary": "Execute an SDK method",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Execution result"
+          },
+          "400": {
+            "description": "Execution failed"
+          }
+        },
+        "tags": [
+          "AI"
+        ]
+      }
+    },
+    "/ai/sdks/tenant/{tenantId}": {
+      "get": {
+        "operationId": "AIController_listTenantSDKs",
+        "summary": "List all SDKs for a tenant",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of SDKs"
           }
         },
         "tags": [
@@ -3081,6 +3169,34 @@
             ]
           }
         }
+      },
+      "GenerateSDKRequest": {
+        "type": "object",
+        "properties": {
+          "openApiSpec": {
+            "type": "string",
+            "description": "OpenAPI spec URL or raw JSON content",
+            "example": "https://petstore.swagger.io/v2/swagger.json"
+          },
+          "model": {
+            "type": "string",
+            "description": "Custom model to use for generation",
+            "example": "openai/gpt-4o-mini"
+          },
+          "className": {
+            "type": "string",
+            "description": "SDK class name - used as the TypeScript class name in generated SDK",
+            "example": "MyAPISDK"
+          },
+          "aggregatorId": {
+            "type": "string",
+            "description": "Existing aggregator ID to link the SDK to (preserves aggregator name)",
+            "example": "agg_123abc"
+          }
+        },
+        "required": [
+          "openApiSpec"
+        ]
       }
     }
   }

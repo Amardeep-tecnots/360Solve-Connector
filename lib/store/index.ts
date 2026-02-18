@@ -6,6 +6,7 @@ import { workflowSlice } from './slices/workflow-slice'
 import { uiSlice } from './slices/ui-slice'
 import { connectorSlice } from './slices/connector-slice'
 import { aggregatorsSlice } from './slices/aggregators-slice'
+import { aiSlice } from './slices/ai-slice'
 
 import { workflowsSlice } from './slices/workflows-slice'
 import executionsReducer from './slices/executions-slice'
@@ -21,6 +22,7 @@ export const store = configureStore({
     ui: uiSlice.reducer,
     connector: connectorSlice.reducer,
     aggregators: aggregatorsSlice.reducer,
+    ai: aiSlice.reducer,
     executions: executionsReducer,
     tenant: tenantSlice.reducer,
     users: usersSlice.reducer,

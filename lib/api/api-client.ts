@@ -1,5 +1,5 @@
 import { Configuration } from '@/src/generated/api/configuration'
-import { AuthApi, AggregatorsApi, TenantAggregatorsApi, SchemaDiscoveryApi, WorkflowsApi, ExecutionsApi, ConnectorsApi, TenantsApi, UsersApi } from '@/src/generated/api/api'
+import { AuthApi, AggregatorsApi, TenantAggregatorsApi, SchemaDiscoveryApi, WorkflowsApi, ExecutionsApi, ConnectorsApi, TenantsApi, UsersApi, AIApi } from '@/src/generated/api/api'
 import type {
   SignInDto,
   SignUpDto,
@@ -17,7 +17,11 @@ import type {
   UpdateConnectorDto,
   HeartbeatDto,
   UpdateTenantDto,
-  UpdateUserDto
+  UpdateUserDto,
+  GenerateWorkflowDto,
+  GenerateMappingDto,
+  GenerateSDKRequest,
+  TestAIDto
 } from '@/src/generated/api/api'
 
 // Cookie utilities for auth tokens
@@ -81,6 +85,7 @@ export class ApiClient {
   private connectorsApi!: ConnectorsApi
   private tenantsApi!: TenantsApi
   private usersApi!: UsersApi
+  private aiApi!: AIApi
   private configuration: Configuration
 
   constructor() {
@@ -126,6 +131,7 @@ export class ApiClient {
     this.connectorsApi = new ConnectorsApi(this.configuration)
     this.tenantsApi = new TenantsApi(this.configuration)
     this.usersApi = new UsersApi(this.configuration)
+    this.aiApi = new AIApi(this.configuration)
   }
 
   // Call this after login/logout to refresh API instances with new token
@@ -169,6 +175,89 @@ export class ApiClient {
 
   get users() {
     return this.usersApi
+  }
+
+  get ai() {
+    return this.aiApi
+  }
+
+  // ==================== AI Helpers ====================
+
+  // Get available AI providers
+  async getAIProviders() {
+    const response = await this.aiApi.aIControllerGetProviders()
+    return (response.data as any)?.data || response.data
+  }
+
+  // Get models for a specific provider
+  async getAIModels(provider: string) {
+    const response = await this.aiApi.aIControllerGetModels(provider)
+    return (response.data as any)?.data || response.data
+  }
+
+  // Test AI with a prompt
+  async testAI(prompt: string, provider?: string, model?: string) {
+    const response = await this.aiApi.aIControllerTestAI({
+      prompt,
+      provider,
+      model
+    } as any)
+    return (response.data as any)?.data || response.data
+  }
+
+  // Generate workflow from natural language description
+  async generateWorkflow(description: string, provider?: string, model?: string) {
+    const response = await this.aiApi.aIControllerGenerateWorkflow({
+      description,
+      provider,
+      model
+    } as any)
+    return (response.data as any)?.data || response.data
+  }
+
+  // Generate schema mapping between source and destination
+  async generateMapping(
+    sourceSchema: Record<string, any>,
+    destinationSchema: Record<string, any>,
+    provider?: string,
+    model?: string
+  ) {
+    const response = await this.aiApi.aIControllerGenerateMapping({
+      sourceSchema,
+      destinationSchema,
+      provider,
+      model
+    } as any)
+    return (response.data as any)?.data || response.data
+  }
+
+  // Generate SDK from OpenAPI specification
+  async generateSDK(openApiSpec: string | Record<string, any>, className: string, model?: string) {
+    const request: GenerateSDKRequest = {
+      openApiSpec: typeof openApiSpec === 'string' ? openApiSpec : JSON.stringify(openApiSpec),
+      className,
+      model,
+    }
+    const response = await this.aiApi.aIControllerGenerateSDK(request)
+    return (response.data as any)?.data || response.data
+  }
+
+  // List all generated SDKs
+  async listSDKs() {
+    const response = await this.aiApi.aIControllerListSDKs()
+    return (response.data as any)?.data || response.data
+  }
+
+  // Get generated SDK by ID
+  async getSDK(id: string) {
+    const response = await this.aiApi.aIControllerGetSDK(id)
+    return (response.data as any)?.data || response.data
+  }
+
+  // Download SDK source code
+  async downloadSDK(id: string): Promise<Blob> {
+    const response = await this.aiApi.aIControllerDownloadSDK(id)
+    return response.data as any
   }
 
   // Workflow helpers

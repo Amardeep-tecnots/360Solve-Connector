@@ -1,10 +1,13 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Sparkles, Send, X, Loader2, Wand2 } from "lucide-react"
+import { Sparkles, Send, X, Loader2, Wand2, AlertCircle } from "lucide-react"
+import { useDispatch, useSelector } from "react-redux"
 import { cn } from "@/lib/utils"
 import { aiPresetMessages } from "@/lib/mock-data"
 import type { AIChatMessage, CanvasNode } from "@/lib/types"
+import type { RootState, AppDispatch } from "@/lib/store"
+import { generateWorkflow, clearGeneratedWorkflow } from "@/lib/store/slices/ai-slice"
 
 interface AIChatPanelProps {
   open: boolean
@@ -12,42 +15,45 @@ interface AIChatPanelProps {
   onAddNodes: (nodes: CanvasNode[]) => void
 }
 
-const mockResponses: Record<string, { text: string; nodes: CanvasNode[] }> = {
-  default: {
-    text: "I can help you build that workflow. Let me set up the nodes for you. I've added a Source, Transform, and Destination node to the canvas -- now you can configure each one with your connection details.",
-    nodes: [
-      {
-        id: `ai-src-${Date.now()}`,
-        type: "source",
-        label: "PostgreSQL Source",
-        description: "Database source with credentials",
-        icon: "Database",
-        x: 80,
-        y: 150,
-      },
-      {
-        id: `ai-xfm-${Date.now() + 1}`,
-        type: "transform",
-        label: "AI Transform",
-        description: "AI-assisted field mapping",
-        icon: "Sparkles",
-        x: 340,
-        y: 150,
-      },
-      {
-        id: `ai-dst-${Date.now() + 2}`,
-        type: "destination",
-        label: "Snowflake Dest",
-        description: "Cloud data warehouse",
-        icon: "Database",
-        x: 600,
-        y: 150,
-      },
-    ],
-  },
+// Helper to convert AI workflow response to canvas nodes
+function convertWorkflowToCanvasNodes(workflow: any, baseTimestamp: number): CanvasNode[] {
+  const nodes: CanvasNode[] = []
+  
+  if (!workflow?.definition?.activities) {
+    return nodes
+  }
+
+  const activities = workflow.definition.activities
+  
+  activities.forEach((activity: any, index: number) => {
+    let nodeType: "source" | "transform" | "destination" = "transform"
+    
+    if (activity.type === "extract" || activity.type === "mini-connector-source" || activity.type === "cloud-connector-source") {
+      nodeType = "source"
+    } else if (activity.type === "load" || activity.type === "cloud-connector-sink") {
+      nodeType = "destination"
+    }
+
+    nodes.push({
+      id: `ai-${activity.id}-${baseTimestamp}-${index}`,
+      type: nodeType,
+      label: activity.name || activity.config?.label || "Unnamed Node",
+      description: activity.config?.description || "",
+      icon: activity.config?.ui_metadata?.icon || (nodeType === "source" ? "Database" : nodeType === "destination" ? "Database" : "Sparkles"),
+      x: 80 + (index * 260),
+      y: 150,
+      connectionConfig: activity.config?.connectionConfig || {},
+      transformConfig: activity.config?.transformConfig || {},
+    })
+  })
+
+  return nodes
 }
 
 export function AIChatPanel({ open, onClose, onAddNodes }: AIChatPanelProps) {
+  const dispatch = useDispatch<AppDispatch>()
+  const { lastGeneratedWorkflow, workflowGenerating, workflowError } = useSelector((state: RootState) => state.ai)
+
   const [messages, setMessages] = useState<AIChatMessage[]>([
     {
       id: "system-1",
@@ -74,7 +80,47 @@ export function AIChatPanel({ open, onClose, onAddNodes }: AIChatPanelProps) {
     }
   }, [messages])
 
-  function handleSend(text?: string) {
+  // Handle workflow generation result
+  useEffect(() => {
+    if (lastGeneratedWorkflow && isTyping) {
+      const timestamp = Date.now()
+      const canvasNodes = convertWorkflowToCanvasNodes(lastGeneratedWorkflow.workflow, timestamp)
+      
+      const aiMessage: AIChatMessage = {
+        id: `msg-${timestamp}`,
+        role: "assistant",
+        content: lastGeneratedWorkflow.explanation || "I've generated a workflow based on your description. You can review it and apply it to the canvas.",
+        timestamp: new Date(),
+        action: {
+          type: "suggest_workflow",
+          payload: { 
+            nodes: canvasNodes,
+            workflow: lastGeneratedWorkflow.workflow
+          },
+        },
+      }
+      
+      setMessages((prev) => [...prev, aiMessage])
+      setIsTyping(false)
+      dispatch(clearGeneratedWorkflow())
+    }
+  }, [lastGeneratedWorkflow, isTyping, dispatch])
+
+  // Handle errors
+  useEffect(() => {
+    if (workflowError && isTyping) {
+      const aiMessage: AIChatMessage = {
+        id: `msg-${Date.now()}`,
+        role: "assistant",
+        content: `Sorry, I encountered an error: ${workflowError}. Please try again or describe your workflow differently.`,
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, aiMessage])
+      setIsTyping(false)
+    }
+  }, [workflowError, isTyping])
+
+  async function handleSend(text?: string) {
     const msg = text || input.trim()
     if (!msg) return
 
@@ -88,28 +134,15 @@ export function AIChatPanel({ open, onClose, onAddNodes }: AIChatPanelProps) {
     setInput("")
     setIsTyping(true)
 
-    // Simulate AI response
-    setTimeout(() => {
-      const response = mockResponses.default
-      const aiTimestamp = Date.now()
-      const aiNodes = response.nodes.map((n, i) => ({
-        ...n,
-        id: `ai-${n.type}-${aiTimestamp}-${i}`,
-      }))
-
-      const aiMessage: AIChatMessage = {
-        id: `msg-${aiTimestamp}`,
-        role: "assistant",
-        content: response.text,
-        timestamp: new Date(),
-        action: {
-          type: "suggest_workflow",
-          payload: { nodes: aiNodes },
-        },
-      }
-      setMessages((prev) => [...prev, aiMessage])
-      setIsTyping(false)
-    }, 1500)
+    // Call the AI API to generate workflow
+    try {
+      await dispatch(generateWorkflow({ 
+        description: msg 
+      })).unwrap()
+    } catch (error) {
+      // Error is handled by the useEffect
+      console.error("Workflow generation failed:", error)
+    }
   }
 
   function handleApplyNodes(msg: AIChatMessage) {
@@ -184,14 +217,14 @@ export function AIChatPanel({ open, onClose, onAddNodes }: AIChatPanelProps) {
           {isTyping && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Loader2 className="h-3 w-3 animate-spin" />
-              <span>Thinking...</span>
+              <span>Generating workflow...</span>
             </div>
           )}
         </div>
       </div>
 
       {/* Preset suggestions */}
-      {messages.length <= 1 && (
+      {messages.length <= 1 && !isTyping && (
         <div className="border-t border-border px-4 py-3">
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             Try asking
@@ -202,6 +235,7 @@ export function AIChatPanel({ open, onClose, onAddNodes }: AIChatPanelProps) {
                 key={preset}
                 onClick={() => handleSend(preset)}
                 className="rounded-md border border-border px-2.5 py-2 text-left text-[11px] text-muted-foreground transition-colors hover:border-primary/30 hover:bg-primary/5 hover:text-foreground"
+                disabled={isTyping}
               >
                 {preset}
               </button>
@@ -235,7 +269,11 @@ export function AIChatPanel({ open, onClose, onAddNodes }: AIChatPanelProps) {
             className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed"
             aria-label="Send message"
           >
-            <Send className="h-3 w-3" />
+            {workflowGenerating ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Send className="h-3 w-3" />
+            )}
           </button>
         </div>
       </div>

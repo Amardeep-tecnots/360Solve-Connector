@@ -52,13 +52,16 @@ All URIs are relative to *http://localhost*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *AIApi* | [**aIControllerDownloadSDK**](docs/AIApi.md#aicontrollerdownloadsdk) | **GET** /ai/sdk/{id}/download | Download SDK source code
+*AIApi* | [**aIControllerExecuteSDKMethod**](docs/AIApi.md#aicontrollerexecutesdkmethod) | **POST** /ai/sdk/{id}/execute | Execute an SDK method
 *AIApi* | [**aIControllerGenerateMapping**](docs/AIApi.md#aicontrollergeneratemapping) | **POST** /ai/generate-mapping | Generate schema mapping between source and destination
 *AIApi* | [**aIControllerGenerateSDK**](docs/AIApi.md#aicontrollergeneratesdk) | **POST** /ai/generate-sdk | Generate TypeScript SDK from OpenAPI specification
 *AIApi* | [**aIControllerGenerateWorkflow**](docs/AIApi.md#aicontrollergenerateworkflow) | **POST** /ai/generate-workflow | Generate workflow from natural language description
 *AIApi* | [**aIControllerGetModels**](docs/AIApi.md#aicontrollergetmodels) | **GET** /ai/models/{provider} | Get models for a specific provider
 *AIApi* | [**aIControllerGetProviders**](docs/AIApi.md#aicontrollergetproviders) | **GET** /ai/providers | Get available AI providers and models
 *AIApi* | [**aIControllerGetSDK**](docs/AIApi.md#aicontrollergetsdk) | **GET** /ai/sdk/{id} | Get generated SDK by ID
+*AIApi* | [**aIControllerGetSDKInfo**](docs/AIApi.md#aicontrollergetsdkinfo) | **GET** /ai/sdk/{id}/info | Get SDK information including available methods
 *AIApi* | [**aIControllerListSDKs**](docs/AIApi.md#aicontrollerlistsdks) | **GET** /ai/sdks | List all generated SDKs
+*AIApi* | [**aIControllerListTenantSDKs**](docs/AIApi.md#aicontrollerlisttenantsdks) | **GET** /ai/sdks/tenant/{tenantId} | List all SDKs for a tenant
 *AIApi* | [**aIControllerTestAI**](docs/AIApi.md#aicontrollertestai) | **POST** /ai/test | Test AI completion
 *AggregatorsApi* | [**aggregatorsControllerFindAll**](docs/AggregatorsApi.md#aggregatorscontrollerfindall) | **GET** /api/aggregators | 
 *AggregatorsApi* | [**aggregatorsControllerFindOne**](docs/AggregatorsApi.md#aggregatorscontrollerfindone) | **GET** /api/aggregators/{id} | 
@@ -125,6 +128,7 @@ Class | Method | HTTP request | Description
  - [ExecutionListResponseDto](docs/ExecutionListResponseDto.md)
  - [ExecutionResponseDto](docs/ExecutionResponseDto.md)
  - [ExecutionTriggerResponseDto](docs/ExecutionTriggerResponseDto.md)
+ - [GenerateSDKRequest](docs/GenerateSDKRequest.md)
  - [HeartbeatDto](docs/HeartbeatDto.md)
  - [InstallTenantAggregatorDto](docs/InstallTenantAggregatorDto.md)
  - [PauseExecutionDto](docs/PauseExecutionDto.md)

@@ -5,13 +5,16 @@ All URIs are relative to *http://localhost*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**aIControllerDownloadSDK**](#aicontrollerdownloadsdk) | **GET** /ai/sdk/{id}/download | Download SDK source code|
+|[**aIControllerExecuteSDKMethod**](#aicontrollerexecutesdkmethod) | **POST** /ai/sdk/{id}/execute | Execute an SDK method|
 |[**aIControllerGenerateMapping**](#aicontrollergeneratemapping) | **POST** /ai/generate-mapping | Generate schema mapping between source and destination|
 |[**aIControllerGenerateSDK**](#aicontrollergeneratesdk) | **POST** /ai/generate-sdk | Generate TypeScript SDK from OpenAPI specification|
 |[**aIControllerGenerateWorkflow**](#aicontrollergenerateworkflow) | **POST** /ai/generate-workflow | Generate workflow from natural language description|
 |[**aIControllerGetModels**](#aicontrollergetmodels) | **GET** /ai/models/{provider} | Get models for a specific provider|
 |[**aIControllerGetProviders**](#aicontrollergetproviders) | **GET** /ai/providers | Get available AI providers and models|
 |[**aIControllerGetSDK**](#aicontrollergetsdk) | **GET** /ai/sdk/{id} | Get generated SDK by ID|
+|[**aIControllerGetSDKInfo**](#aicontrollergetsdkinfo) | **GET** /ai/sdk/{id}/info | Get SDK information including available methods|
 |[**aIControllerListSDKs**](#aicontrollerlistsdks) | **GET** /ai/sdks | List all generated SDKs|
+|[**aIControllerListTenantSDKs**](#aicontrollerlisttenantsdks) | **GET** /ai/sdks/tenant/{tenantId} | List all SDKs for a tenant|
 |[**aIControllerTestAI**](#aicontrollertestai) | **POST** /ai/test | Test AI completion|
 
 # **aIControllerDownloadSDK**
@@ -64,6 +67,57 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **aIControllerExecuteSDKMethod**
+> aIControllerExecuteSDKMethod()
+
+
+### Example
+
+```typescript
+import {
+    AIApi,
+    Configuration
+} from '360solve-api-client';
+
+const configuration = new Configuration();
+const apiInstance = new AIApi(configuration);
+
+let id: string; // (default to undefined)
+
+const { status, data } = await apiInstance.aIControllerExecuteSDKMethod(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Execution result |  -  |
+|**400** | Execution failed |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **aIControllerGenerateMapping**
 > aIControllerGenerateMapping()
 
@@ -109,7 +163,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **aIControllerGenerateSDK**
-> aIControllerGenerateSDK()
+> aIControllerGenerateSDK(generateSDKRequest)
 
 
 ### Example
@@ -117,17 +171,25 @@ No authorization required
 ```typescript
 import {
     AIApi,
-    Configuration
+    Configuration,
+    GenerateSDKRequest
 } from '360solve-api-client';
 
 const configuration = new Configuration();
 const apiInstance = new AIApi(configuration);
 
-const { status, data } = await apiInstance.aIControllerGenerateSDK();
+let generateSDKRequest: GenerateSDKRequest; //
+
+const { status, data } = await apiInstance.aIControllerGenerateSDK(
+    generateSDKRequest
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **generateSDKRequest** | **GenerateSDKRequest**|  | |
 
 
 ### Return type
@@ -140,7 +202,7 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
+ - **Content-Type**: application/json
  - **Accept**: Not defined
 
 
@@ -340,6 +402,57 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **aIControllerGetSDKInfo**
+> aIControllerGetSDKInfo()
+
+
+### Example
+
+```typescript
+import {
+    AIApi,
+    Configuration
+} from '360solve-api-client';
+
+const configuration = new Configuration();
+const apiInstance = new AIApi(configuration);
+
+let id: string; // (default to undefined)
+
+const { status, data } = await apiInstance.aIControllerGetSDKInfo(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | SDK info |  -  |
+|**404** | SDK not found |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **aIControllerListSDKs**
 > aIControllerListSDKs()
 
@@ -360,6 +473,56 @@ const { status, data } = await apiInstance.aIControllerListSDKs();
 
 ### Parameters
 This endpoint does not have any parameters.
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of SDKs |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **aIControllerListTenantSDKs**
+> aIControllerListTenantSDKs()
+
+
+### Example
+
+```typescript
+import {
+    AIApi,
+    Configuration
+} from '360solve-api-client';
+
+const configuration = new Configuration();
+const apiInstance = new AIApi(configuration);
+
+let tenantId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.aIControllerListTenantSDKs(
+    tenantId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **tenantId** | [**string**] |  | defaults to undefined|
 
 
 ### Return type

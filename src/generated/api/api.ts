@@ -197,6 +197,24 @@ export interface ExecutionTriggerResponseDto {
     'success': boolean;
     'data': object;
 }
+export interface GenerateSDKRequest {
+    /**
+     * OpenAPI spec URL or raw JSON content
+     */
+    'openApiSpec': string;
+    /**
+     * Custom model to use for generation
+     */
+    'model'?: string;
+    /**
+     * SDK class name - used as the TypeScript class name in generated SDK
+     */
+    'className'?: string;
+    /**
+     * Existing aggregator ID to link the SDK to (preserves aggregator name)
+     */
+    'aggregatorId'?: string;
+}
 export interface HeartbeatDto {
     /**
      * Connector version
@@ -536,6 +554,39 @@ export const AIApiAxiosParamCreator = function (configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Execute an SDK method
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerExecuteSDKMethod: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('aIControllerExecuteSDKMethod', 'id', id)
+            const localVarPath = `/ai/sdk/{id}/execute`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Generate schema mapping between source and destination
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -566,10 +617,13 @@ export const AIApiAxiosParamCreator = function (configuration?: Configuration) {
         /**
          * 
          * @summary Generate TypeScript SDK from OpenAPI specification
+         * @param {GenerateSDKRequest} generateSDKRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        aIControllerGenerateSDK: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        aIControllerGenerateSDK: async (generateSDKRequest: GenerateSDKRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'generateSDKRequest' is not null or undefined
+            assertParamExists('aIControllerGenerateSDK', 'generateSDKRequest', generateSDKRequest)
             const localVarPath = `/ai/generate-sdk`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -582,10 +636,12 @@ export const AIApiAxiosParamCreator = function (configuration?: Configuration) {
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(generateSDKRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -718,12 +774,78 @@ export const AIApiAxiosParamCreator = function (configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Get SDK information including available methods
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetSDKInfo: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('aIControllerGetSDKInfo', 'id', id)
+            const localVarPath = `/ai/sdk/{id}/info`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary List all generated SDKs
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         aIControllerListSDKs: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/ai/sdks`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List all SDKs for a tenant
+         * @param {string} tenantId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerListTenantSDKs: async (tenantId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'tenantId' is not null or undefined
+            assertParamExists('aIControllerListTenantSDKs', 'tenantId', tenantId)
+            const localVarPath = `/ai/sdks/tenant/{tenantId}`
+                .replace(`{${"tenantId"}}`, encodeURIComponent(String(tenantId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -798,6 +920,19 @@ export const AIApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Execute an SDK method
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerExecuteSDKMethod(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerExecuteSDKMethod(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerExecuteSDKMethod']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Generate schema mapping between source and destination
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -811,11 +946,12 @@ export const AIApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Generate TypeScript SDK from OpenAPI specification
+         * @param {GenerateSDKRequest} generateSDKRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async aIControllerGenerateSDK(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGenerateSDK(options);
+        async aIControllerGenerateSDK(generateSDKRequest: GenerateSDKRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGenerateSDK(generateSDKRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGenerateSDK']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -872,6 +1008,19 @@ export const AIApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Get SDK information including available methods
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerGetSDKInfo(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGetSDKInfo(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGetSDKInfo']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary List all generated SDKs
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -880,6 +1029,19 @@ export const AIApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerListSDKs(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerListSDKs']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List all SDKs for a tenant
+         * @param {string} tenantId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerListTenantSDKs(tenantId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerListTenantSDKs(tenantId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerListTenantSDKs']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -915,6 +1077,16 @@ export const AIApiFactory = function (configuration?: Configuration, basePath?: 
         },
         /**
          * 
+         * @summary Execute an SDK method
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerExecuteSDKMethod(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerExecuteSDKMethod(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Generate schema mapping between source and destination
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -925,11 +1097,12 @@ export const AIApiFactory = function (configuration?: Configuration, basePath?: 
         /**
          * 
          * @summary Generate TypeScript SDK from OpenAPI specification
+         * @param {GenerateSDKRequest} generateSDKRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        aIControllerGenerateSDK(options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.aIControllerGenerateSDK(options).then((request) => request(axios, basePath));
+        aIControllerGenerateSDK(generateSDKRequest: GenerateSDKRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGenerateSDK(generateSDKRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -971,12 +1144,32 @@ export const AIApiFactory = function (configuration?: Configuration, basePath?: 
         },
         /**
          * 
+         * @summary Get SDK information including available methods
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetSDKInfo(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGetSDKInfo(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary List all generated SDKs
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         aIControllerListSDKs(options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.aIControllerListSDKs(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List all SDKs for a tenant
+         * @param {string} tenantId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerListTenantSDKs(tenantId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerListTenantSDKs(tenantId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1007,6 +1200,17 @@ export class AIApi extends BaseAPI {
 
     /**
      * 
+     * @summary Execute an SDK method
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerExecuteSDKMethod(id: string, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerExecuteSDKMethod(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Generate schema mapping between source and destination
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -1018,11 +1222,12 @@ export class AIApi extends BaseAPI {
     /**
      * 
      * @summary Generate TypeScript SDK from OpenAPI specification
+     * @param {GenerateSDKRequest} generateSDKRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public aIControllerGenerateSDK(options?: RawAxiosRequestConfig) {
-        return AIApiFp(this.configuration).aIControllerGenerateSDK(options).then((request) => request(this.axios, this.basePath));
+    public aIControllerGenerateSDK(generateSDKRequest: GenerateSDKRequest, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGenerateSDK(generateSDKRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1069,12 +1274,34 @@ export class AIApi extends BaseAPI {
 
     /**
      * 
+     * @summary Get SDK information including available methods
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerGetSDKInfo(id: string, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGetSDKInfo(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary List all generated SDKs
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     public aIControllerListSDKs(options?: RawAxiosRequestConfig) {
         return AIApiFp(this.configuration).aIControllerListSDKs(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List all SDKs for a tenant
+     * @param {string} tenantId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerListTenantSDKs(tenantId: string, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerListTenantSDKs(tenantId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
