@@ -522,32 +522,6 @@ export const executions: Execution[] = [
   },
 ]
 
-// ─── Workflow Palette Nodes (Source → Transform → Destination) ─────
-export const paletteNodes = {
-  source: [
-    { id: "node-mini-source", type: "source" as const, label: "Mini Connector", description: "Connect to local agent database", icon: "Server", connectionMethod: "mini_connector" as const },
-    { id: "node-cloud-source", type: "source" as const, label: "Cloud Connector", description: "Connect to cloud service", icon: "Cloud", connectionMethod: "cloud_connector" as const },
-    { id: "node-db-source", type: "source" as const, label: "Database", description: "Connect with credentials or connection string", icon: "Database", connectionMethod: "credentials" as const },
-    { id: "node-api-source", type: "source" as const, label: "Custom API", description: "Pull data from your own REST API", icon: "Globe", connectionMethod: "custom_api" as const },
-    { id: "node-agg-source", type: "source" as const, label: "Aggregator", description: "Use a pre-built marketplace connector", icon: "Store", connectionMethod: "aggregator" as const },
-    { id: "node-connstr-source", type: "source" as const, label: "Connection String", description: "Direct connection string to any database", icon: "Link", connectionMethod: "connection_string" as const },
-    { id: "node-csv-source", type: "source" as const, label: "File / CSV", description: "Upload or stream from files", icon: "FileSpreadsheet", connectionMethod: "custom_api" as const },
-  ],
-  transform: [
-    { id: "node-ai-transform", type: "transform" as const, label: "AI Transform", description: "AI-assisted data mapping & conversion", icon: "Sparkles" },
-    { id: "node-map", type: "transform" as const, label: "Field Mapper", description: "Map fields between schemas", icon: "ArrowLeftRight" },
-    { id: "node-filter", type: "transform" as const, label: "Filter", description: "Filter records by condition", icon: "Filter" },
-    { id: "node-aggregate", type: "transform" as const, label: "Aggregate", description: "Group and aggregate data", icon: "Layers" },
-    { id: "node-script", type: "transform" as const, label: "Custom Script", description: "Run custom TypeScript logic", icon: "Code" },
-  ],
-  destination: [
-    { id: "node-db-dest", type: "destination" as const, label: "Database", description: "Write to any database with credentials", icon: "Database", connectionMethod: "credentials" as const },
-    { id: "node-api-dest", type: "destination" as const, label: "Custom API", description: "Push data to your own REST API", icon: "Globe", connectionMethod: "custom_api" as const },
-    { id: "node-agg-dest", type: "destination" as const, label: "Aggregator", description: "Use a pre-built marketplace connector", icon: "Store", connectionMethod: "aggregator" as const },
-    { id: "node-connstr-dest", type: "destination" as const, label: "Connection String", description: "Direct connection string to any database", icon: "Link", connectionMethod: "connection_string" as const },
-    { id: "node-webhook-dest", type: "destination" as const, label: "Webhook", description: "POST data to a webhook URL", icon: "Webhook", connectionMethod: "custom_api" as const },
-  ],
-}
 
 // ─── AI Assistant preset messages ────────────────────
 export const aiPresetMessages = [

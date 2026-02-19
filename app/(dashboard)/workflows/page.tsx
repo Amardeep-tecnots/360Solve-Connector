@@ -34,9 +34,9 @@ import { NodePalette } from "@/components/workflow/node-palette"
 import { WorkflowCanvas } from "@/components/workflow/workflow-canvas"
 import { PropertiesPanel } from "@/components/workflow/properties-panel"
 import { AIChatPanel } from "@/components/workflow/ai-chat-panel"
-import { paletteNodes } from "@/lib/mock-data"
-import type { CanvasNode, CanvasConnection, NodeType, ConnectionMethod } from "@/lib/types"
+import type { CanvasNode, CanvasConnection, NodeType, ConnectionMethod, PaletteNode } from "@/lib/types"
 import { toast } from "sonner"
+import { apiClient } from "@/lib/api/api-client"
 
 export default function WorkflowsPage() {
   const router = useRouter()
@@ -68,11 +68,34 @@ export default function WorkflowsPage() {
   } = useSelector((state: RootState) => state.aggregators)
 
   const {
+    connectors: miniConnectors
+  } = useSelector((state: RootState) => state.connector)
+
+  const {
     operationLoading: isExecuting
   } = useSelector((state: RootState) => state.executions)
 
   const [aiPanelOpen, setAiPanelOpen] = useState(false)
   const [isLoadingWorkflow, setIsLoadingWorkflow] = useState(false)
+  const [sdks, setSdks] = useState<any[]>([])
+  const [sdksLoading, setSdksLoading] = useState(false)
+
+  // Fetch SDKs for palette
+  useEffect(() => {
+    const fetchSdks = async () => {
+      setSdksLoading(true)
+      try {
+        const sdkList = await apiClient.listSDKs()
+        setSdks(sdkList || [])
+      } catch (error) {
+        console.error("Failed to fetch SDKs:", error)
+        setSdks([])
+      } finally {
+        setSdksLoading(false)
+      }
+    }
+    fetchSdks()
+  }, [])
 
   // Load workflow from query param
   useEffect(() => {
@@ -347,9 +370,143 @@ export default function WorkflowsPage() {
     }
   }
 
-  const enrichedPaletteNodes = useMemo(() => ({
-    ...paletteNodes,
-    marketplace: installedAggregators.map(agg => ({
+  // Build palette nodes from backend data only - no mock data
+  const enrichedPaletteNodes = useMemo(() => {
+    // Source nodes from installed aggregators, mini connectors, and SDKs
+    const sourceNodes: PaletteNode[] = [
+      // Mini Connectors as source nodes
+      ...miniConnectors.map(mc => ({
+        id: `mc-source-${mc.id}`,
+        type: "source" as NodeType,
+        label: mc.name,
+        description: `${mc.status} - ${mc.ipAddress || 'No IP'}`,
+        icon: "Server",
+        connectionMethod: "mini_connector" as ConnectionMethod,
+        connectorId: mc.id
+      })),
+      // Installed aggregators as source nodes
+      ...installedAggregators.map(agg => ({
+        id: `agg-source-${agg.id}`,
+        type: "source" as NodeType,
+        label: agg.name,
+        description: agg.description || agg.category,
+        icon: "Store",
+        connectionMethod: "aggregator" as ConnectionMethod,
+        aggregatorId: agg.id
+      })),
+      // Generated SDKs as source nodes
+      ...(sdks || []).map((sdk: any) => ({
+        id: `sdk-source-${sdk.id}`,
+        type: "source" as NodeType,
+        label: sdk.className || sdk.name || "Generated SDK",
+        description: "AI-generated TypeScript SDK",
+        icon: "Code",
+        connectionMethod: "generated_sdk" as ConnectionMethod,
+        sdkId: sdk.id
+      }))
+    ]
+
+    // Transform nodes from sub-workflows and SDKs
+    const transformNodes: PaletteNode[] = [
+      // AI Transform node
+      {
+        id: "node-ai-transform",
+        type: "transform" as NodeType,
+        label: "AI Transform",
+        description: "AI-assisted data mapping & conversion",
+        icon: "Sparkles"
+      },
+      // Field Mapper
+      {
+        id: "node-map",
+        type: "transform" as NodeType,
+        label: "Field Mapper",
+        description: "Map fields between schemas",
+        icon: "ArrowLeftRight"
+      },
+      // Filter
+      {
+        id: "node-filter",
+        type: "transform" as NodeType,
+        label: "Filter",
+        description: "Filter records by condition",
+        icon: "Filter"
+      },
+      // Aggregate
+      {
+        id: "node-aggregate",
+        type: "transform" as NodeType,
+        label: "Aggregate",
+        description: "Group and aggregate data",
+        icon: "Layers"
+      },
+      // Custom Script
+      {
+        id: "node-script",
+        type: "transform" as NodeType,
+        label: "Custom Script",
+        description: "Run custom TypeScript logic",
+        icon: "Code"
+      },
+      // Sub-workflows
+      ...allWorkflows
+        .filter(wf => wf.id !== workflowId)
+        .map(wf => ({
+          id: `wf-${wf.id}`,
+          type: "transform" as NodeType,
+          label: wf.name,
+          description: wf.description || "Sub-workflow",
+          icon: "Workflow" as any,
+          workflowId: wf.id
+        })),
+      // Generated SDKs as transform nodes
+      ...(sdks || []).map((sdk: any) => ({
+        id: `sdk-transform-${sdk.id}`,
+        type: "transform" as NodeType,
+        label: sdk.className || sdk.name || "Generated SDK",
+        description: "AI-generated TypeScript SDK",
+        icon: "Code",
+        connectionMethod: "generated_sdk" as ConnectionMethod,
+        sdkId: sdk.id
+      }))
+    ]
+
+    // Destination nodes from installed aggregators, mini connectors, and SDKs
+    const destinationNodes: PaletteNode[] = [
+      // Mini Connectors as destination nodes
+      ...miniConnectors.map(mc => ({
+        id: `mc-dest-${mc.id}`,
+        type: "destination" as NodeType,
+        label: mc.name,
+        description: `${mc.status} - ${mc.ipAddress || 'No IP'}`,
+        icon: "Server",
+        connectionMethod: "mini_connector" as ConnectionMethod,
+        connectorId: mc.id
+      })),
+      // Installed aggregators as destination nodes
+      ...installedAggregators.map(agg => ({
+        id: `agg-dest-${agg.id}`,
+        type: "destination" as NodeType,
+        label: agg.name,
+        description: agg.description || agg.category,
+        icon: "Store",
+        connectionMethod: "aggregator" as ConnectionMethod,
+        aggregatorId: agg.id
+      })),
+      // Generated SDKs as destination nodes
+      ...(sdks || []).map((sdk: any) => ({
+        id: `sdk-dest-${sdk.id}`,
+        type: "destination" as NodeType,
+        label: sdk.className || sdk.name || "Generated SDK",
+        description: "AI-generated TypeScript SDK",
+        icon: "Code",
+        connectionMethod: "generated_sdk" as ConnectionMethod,
+        sdkId: sdk.id
+      }))
+    ]
+
+    // Marketplace category - installed aggregators
+    const marketplaceNodes: PaletteNode[] = installedAggregators.map(agg => ({
       id: `agg-${agg.id}`,
       type: "source" as NodeType,
       label: agg.name,
@@ -357,9 +514,22 @@ export default function WorkflowsPage() {
       icon: "Store",
       connectionMethod: "aggregator" as ConnectionMethod,
       aggregatorId: agg.id
-    })),
-    workflows: allWorkflows
-      .filter(wf => wf.id !== workflowId) // Don't allow calling self
+    }))
+
+    // SDKs category
+    const sdkNodes: PaletteNode[] = (sdks || []).map((sdk: any) => ({
+      id: `sdk-${sdk.id}`,
+      type: "source" as NodeType,
+      label: sdk.className || sdk.name || "Generated SDK",
+      description: "AI-generated TypeScript SDK",
+      icon: "Code",
+      connectionMethod: "generated_sdk" as ConnectionMethod,
+      sdkId: sdk.id
+    }))
+
+    // Workflows category - sub-workflows
+    const workflowNodes: PaletteNode[] = allWorkflows
+      .filter(wf => wf.id !== workflowId)
       .map(wf => ({
         id: `wf-${wf.id}`,
         type: "transform" as NodeType,
@@ -368,7 +538,16 @@ export default function WorkflowsPage() {
         icon: "Workflow",
         workflowId: wf.id
       }))
-  }), [installedAggregators, allWorkflows, workflowId])
+
+    return {
+      source: sourceNodes,
+      transform: transformNodes,
+      destination: destinationNodes,
+      marketplace: marketplaceNodes,
+      sdks: sdkNodes,
+      workflows: workflowNodes
+    }
+  }, [installedAggregators, miniConnectors, allWorkflows, sdks, workflowId])
 
   return (
     <div className="-m-6 lg:-m-8 flex h-[calc(100vh-4rem)] flex-col">

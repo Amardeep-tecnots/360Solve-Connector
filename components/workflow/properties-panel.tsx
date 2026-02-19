@@ -18,7 +18,8 @@ import {
   Server,
   Cloud,
   ArrowLeftRight,
-  Wand2
+  Wand2,
+  Code
 } from "lucide-react"
 import { useDispatch, useSelector } from "react-redux"
 import { toast } from "sonner"
@@ -52,22 +53,10 @@ const connectionMethods: Array<{
       description: "Host, port, username, password",
     },
     {
-      value: "connection_string",
-      label: "Connection String",
-      icon: Link,
-      description: "postgres://, mongodb://, etc.",
-    },
-    {
       value: "aggregator",
       label: "Marketplace Aggregator",
       icon: Store,
       description: "Use a pre-built connector",
-    },
-    {
-      value: "custom_api",
-      label: "Custom API",
-      icon: Globe,
-      description: "Your own REST/GraphQL endpoint",
     },
     {
       value: "mini_connector",
@@ -76,10 +65,10 @@ const connectionMethods: Array<{
       description: "Connect to local agent database",
     },
     {
-      value: "cloud_connector",
-      label: "Cloud Connector",
-      icon: Cloud,
-      description: "Connect to cloud service",
+      value: "generated_sdk",
+      label: "Generated SDK",
+      icon: Code,
+      description: "Use AI-generated TypeScript SDK",
     },
   ]
 
@@ -103,6 +92,46 @@ export function PropertiesPanel({ node }: PropertiesPanelProps) {
   const [tables, setTables] = useState<string[]>([])
   const [columns, setColumns] = useState<any[]>([])
   const [isLoadingMetadata, setIsLoadingMetadata] = useState(false)
+  const [sdks, setSdks] = useState<any[]>([])
+  const [sdksLoading, setSdksLoading] = useState(false)
+  const [sdkInfo, setSdkInfo] = useState<any>(null)
+
+  // Fetch SDKs when generated_sdk method is selected
+  useEffect(() => {
+    if (connectionMethod === 'generated_sdk') {
+      const fetchSdks = async () => {
+        setSdksLoading(true)
+        try {
+          const sdkList = await apiClient.listSDKs()
+          setSdks(sdkList || [])
+        } catch (error) {
+          console.error("Failed to fetch SDKs:", error)
+          setSdks([])
+        } finally {
+          setSdksLoading(false)
+        }
+      }
+      fetchSdks()
+    }
+  }, [connectionMethod])
+
+  // Fetch SDK info when SDK is selected
+  useEffect(() => {
+    if (connectionMethod === 'generated_sdk' && node?.connectionConfig?.sdkId) {
+      const fetchSdkInfo = async () => {
+        try {
+          const info = await apiClient.getSDKInfo(node.connectionConfig!.sdkId!)
+          setSdkInfo(info)
+        } catch (error) {
+          console.error("Failed to fetch SDK info:", error)
+          setSdkInfo(null)
+        }
+      }
+      fetchSdkInfo()
+    } else {
+      setSdkInfo(null)
+    }
+  }, [connectionMethod, node?.connectionConfig?.sdkId])
 
   // Sync local state with node config
   useEffect(() => {
@@ -534,6 +563,86 @@ export function PropertiesPanel({ node }: PropertiesPanelProps) {
                             </div>
                         )}
                      </>
+                  )}
+                </div>
+              )}
+
+              {connectionMethod === "generated_sdk" && (
+                <div className="space-y-5">
+                  <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Code className="h-4 w-4 text-primary" />
+                      <span className="text-[11px] font-bold text-primary uppercase">AI-Generated SDK</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">
+                      Use a TypeScript SDK generated from your OpenAPI specification. 
+                      The SDK provides type-safe methods for interacting with your API.
+                    </p>
+                  </div>
+
+                  {/* Select SDK */}
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-muted-foreground px-1">Generated SDK</label>
+                    {sdksLoading ? (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : (
+                      <select
+                        className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-[12px] text-foreground outline-none focus:border-primary/30 appearance-none"
+                        value={node.connectionConfig?.sdkId || ""}
+                        onChange={e => updateConfig({ sdkId: e.target.value, sdkName: sdks.find(s => s.id === e.target.value)?.className })}
+                      >
+                        <option value="" className="bg-card">Select an SDK...</option>
+                        {sdks.map(sdk => (
+                          <option key={sdk.id} value={sdk.id} className="bg-card">
+                            {sdk.className || sdk.name || sdk.id}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    {sdks.length === 0 && !sdksLoading && (
+                      <p className="text-[10px] text-muted-foreground px-1">
+                        No SDKs generated yet. Generate an SDK from the AI page.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Show SDK Info */}
+                  {sdkInfo && (
+                    <div className="rounded-xl border border-border bg-accent/30 p-3 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-foreground">Available Methods</span>
+                        <span className="text-[9px] text-muted-foreground">
+                          {sdkInfo.methods?.length || 0} methods
+                        </span>
+                      </div>
+                      <div className="max-h-32 overflow-y-auto space-y-1">
+                        {(sdkInfo.methods || []).map((method: string, idx: number) => (
+                          <div key={idx} className="flex items-center gap-2 px-2 py-1 rounded bg-background/50">
+                            <Code className="h-3 w-3 text-primary" />
+                            <span className="text-[10px] font-mono text-foreground">{method}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Select Method */}
+                  {sdkInfo?.methods?.length > 0 && (
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-muted-foreground px-1">SDK Method</label>
+                      <select
+                        className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-[12px] text-foreground outline-none focus:border-primary/30 appearance-none"
+                        value={node.connectionConfig?.sdkMethods?.[0] || ""}
+                        onChange={e => updateConfig({ sdkMethods: [e.target.value] })}
+                      >
+                        <option value="" className="bg-card">Select a method...</option>
+                        {sdkInfo.methods.map((method: string) => (
+                          <option key={method} value={method} className="bg-card">{method}</option>
+                        ))}
+                      </select>
+                    </div>
                   )}
                 </div>
               )}
