@@ -333,6 +333,82 @@ export default function WorkflowsPage() {
     [dispatch]
   )
 
+  // Build source and destination connectors for AI Chat Panel mapping
+  const { sourceConnector, destinationConnector } = useMemo(() => {
+    // Find source nodes (nodes with no incoming connections)
+    const sourceNode = nodes.find(n => 
+      n.type === 'source' && !connections.some(c => c.to === n.id)
+    )
+    
+    // Find destination nodes (nodes with no outgoing connections)
+    const destinationNode = nodes.find(n => 
+      n.type === 'destination' && !connections.some(c => c.from === n.id)
+    )
+
+    // Helper to build schema from node config
+    const buildSchemaFromNode = (node: CanvasNode | undefined): Record<string, any> | undefined => {
+      if (!node || !node.connectionConfig) return undefined
+
+      const config = node.connectionConfig
+
+      if (config.method === 'mini_connector' && config.columns?.length) {
+        return {
+          tables: [{
+            name: config.table || 'unknown_table',
+            columns: config.columns
+          }],
+          connectorId: config.connectorId,
+          database: config.database
+        }
+      }
+
+      if (config.method === 'aggregator' && config.aggregatorId) {
+        const aggregator = installedAggregators.find(a => a.id === config.aggregatorId)
+        return {
+          tables: aggregator?.configSchema?.fields?.map((f: any) => f.name) || [],
+          aggregatorId: config.aggregatorId,
+          aggregatorName: aggregator?.name
+        }
+      }
+
+      if (config.method === 'credentials') {
+        return {
+          tables: [{
+            name: config.table || config.database || 'unknown_table',
+            columns: []
+          }],
+          host: config.host,
+          port: config.port,
+          database: config.database,
+          dbType: config.dbType
+        }
+      }
+
+      if (config.method === 'generated_sdk' && config.sdkId) {
+        return {
+          sdkId: config.sdkId,
+          sdkName: config.sdkName,
+          methods: config.sdkMethods || []
+        }
+      }
+
+      return undefined
+    }
+
+    return {
+      sourceConnector: sourceNode ? {
+        id: sourceNode.id,
+        name: sourceNode.label,
+        schema: buildSchemaFromNode(sourceNode)
+      } : undefined,
+      destinationConnector: destinationNode ? {
+        id: destinationNode.id,
+        name: destinationNode.label,
+        schema: buildSchemaFromNode(destinationNode)
+      } : undefined
+    }
+  }, [nodes, connections, installedAggregators])
+
   const isSaving = isCreating || isUpdating || isLoadingWorkflow
 
   const handleRun = async () => {
@@ -570,9 +646,6 @@ export default function WorkflowsPage() {
             onChange={(e) => dispatch(setWorkflowName(e.target.value))}
             placeholder="Untitled Workflow"
           />
-          {/* <span className="hidden sm:inline-flex text-[10px] text-muted-foreground">
-            Source {"->"} Transform {"->"} Destination
-          </span> */}
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -629,12 +702,14 @@ export default function WorkflowsPage() {
           onConnectionsChange={(newConns) => dispatch(setConnections(newConns))}
           onNodeSelect={(node) => dispatch(selectNode(node?.id || null))}
         />
-        {!aiPanelOpen && <PropertiesPanel node={selectedNode} />}
+        {!aiPanelOpen && <PropertiesPanel node={selectedNode} nodes={nodes} connections={connections} />}
         {aiPanelOpen && (
           <AIChatPanel
             open={aiPanelOpen}
             onClose={() => setAiPanelOpen(false)}
             onAddNodes={handleAddNodesFromAI}
+            sourceConnector={sourceConnector}
+            destinationConnector={destinationConnector}
           />
         )}
       </div>

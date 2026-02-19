@@ -149,16 +149,18 @@ export function AIChatPanel({
   useEffect(() => {
     if (lastGeneratedMapping && isTyping) {
       const timestamp = Date.now()
+      const mappings = lastGeneratedMapping.mappings || []
+      const suggestions = lastGeneratedMapping.suggestions || []
       
       const aiMessage: AIChatMessage = {
         id: `msg-${timestamp}`,
         role: "assistant",
-        content: `I've analyzed the schemas and generated field mappings with ${lastGeneratedMapping.mappings.length} mappings. ${lastGeneratedMapping.suggestions.length > 0 ? `\n\nSuggestions: ${lastGeneratedMapping.suggestions.join(", ")}` : ""}`,
+        content: `I've analyzed the schemas and generated field mappings with ${mappings.length} mappings. ${suggestions.length > 0 ? `\n\nSuggestions: ${suggestions.join(", ")}` : ""}`,
         timestamp: new Date(),
         action: {
           type: "configure_node",
           payload: { 
-            mappings: lastGeneratedMapping.mappings,
+            mappings: mappings,
             sourceConnector,
             destinationConnector
           },

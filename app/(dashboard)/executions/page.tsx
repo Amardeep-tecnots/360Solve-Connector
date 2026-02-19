@@ -73,7 +73,7 @@ export default function ExecutionsPage() {
   }, [workflows])
 
   useEffect(() => {
-    dispatch(fetchWorkflows())
+    dispatch(fetchWorkflows("all"))
   }, [dispatch])
 
   useEffect(() => {

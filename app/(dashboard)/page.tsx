@@ -60,7 +60,7 @@ export default function DashboardPage() {
     const totalExecutions = executions.length
 
     // Records processed (sum from completed executions)
-    const recordsProcessed = completedExecutions.reduce((sum, e) => sum + (e.recordsProcessed || 0), 0)
+    const recordsProcessed = completedExecutions.reduce((sum, e) => sum + ((e as any).recordsProcessed || 0), 0)
 
     // Online connectors
     const onlineCount = connectors.filter(c => c.status === 'online').length
@@ -93,12 +93,12 @@ export default function DashboardPage() {
       .map(exec => ({
         id: exec.id,
         workflowName: exec.workflowId,
-        status: exec.status === 'COMPLETED' ? 'success' : exec.status === 'FAILED' ? 'failed' : exec.status === 'RUNNING' ? 'running' : 'pending',
+        status: (exec.status === 'COMPLETED' ? 'success' : exec.status === 'FAILED' ? 'failed' : exec.status === 'RUNNING' ? 'running' : 'pending') as any,
         startedAt: new Date(exec.startedAt),
         duration: exec.startedAt && (exec as any).completedAt 
           ? new Date((exec as any).completedAt).getTime() - new Date(exec.startedAt).getTime()
           : 0,
-        recordsProcessed: exec.recordsProcessed || 0,
+        recordsProcessed: (exec as any).recordsProcessed || 0,
         source: 'Source',
         destination: 'Destination',
       }))

@@ -78,7 +78,7 @@ export default function MarketplacePage() {
 
     try {
       await dispatch(generateSDK({
-        name: sdkName,
+        className: sdkName,
         openApiSpec: openApiSpec
       })).unwrap()
       

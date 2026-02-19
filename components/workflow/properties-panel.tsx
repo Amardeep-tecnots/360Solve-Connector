@@ -26,12 +26,14 @@ import { toast } from "sonner"
 import type { RootState, AppDispatch } from "@/lib/store"
 import { updateNode } from "@/lib/store/slices/workflow-slice"
 import { generateMapping, clearGeneratedMapping } from "@/lib/store/slices/ai-slice"
-import type { NodeType, ConnectionMethod, CanvasNode, ConnectionConfig } from "@/lib/types"
+import type { NodeType, ConnectionMethod, CanvasNode, CanvasConnection, ConnectionConfig } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { apiClient } from "@/lib/api/api-client"
 
 interface PropertiesPanelProps {
   node: CanvasNode | null
+  nodes: CanvasNode[]
+  connections: CanvasConnection[]
 }
 
 const typeLabels: Record<NodeType, string> = {
@@ -82,7 +84,7 @@ const dbTypes = [
   "bigquery",
 ]
 
-export function PropertiesPanel({ node }: PropertiesPanelProps) {
+export function PropertiesPanel({ node, nodes, connections }: PropertiesPanelProps) {
   const dispatch = useDispatch<AppDispatch>()
   const { installed: aggregators } = useSelector((state: RootState) => state.aggregators)
   const { connectors: miniConnectors } = useSelector((state: RootState) => state.connector)
@@ -95,6 +97,8 @@ export function PropertiesPanel({ node }: PropertiesPanelProps) {
   const [sdks, setSdks] = useState<any[]>([])
   const [sdksLoading, setSdksLoading] = useState(false)
   const [sdkInfo, setSdkInfo] = useState<any>(null)
+  const [isTestingConnection, setIsTestingConnection] = useState(false)
+  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
   // Fetch SDKs when generated_sdk method is selected
   useEffect(() => {
@@ -402,6 +406,28 @@ export function PropertiesPanel({ node }: PropertiesPanelProps) {
                       onChange={(e) => updateConfig({ database: e.target.value })}
                     />
                   </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-muted-foreground px-1">Username</label>
+                      <input
+                        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[12px] text-foreground outline-none focus:border-primary/30"
+                        placeholder="db_user"
+                        value={node.connectionConfig?.username || ""}
+                        onChange={(e) => updateConfig({ username: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-muted-foreground px-1">Password</label>
+                      <input
+                        type="password"
+                        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[12px] text-foreground outline-none focus:border-primary/30"
+                        placeholder="••••••••"
+                        value={node.connectionConfig?.password || ""}
+                        onChange={(e) => updateConfig({ password: e.target.value })}
+                      />
+                    </div>
+                  </div>
                 </>
               )}
 
@@ -618,10 +644,10 @@ export function PropertiesPanel({ node }: PropertiesPanelProps) {
                         </span>
                       </div>
                       <div className="max-h-32 overflow-y-auto space-y-1">
-                        {(sdkInfo.methods || []).map((method: string, idx: number) => (
+                        {(sdkInfo.methods || []).map((method: any, idx: number) => (
                           <div key={idx} className="flex items-center gap-2 px-2 py-1 rounded bg-background/50">
                             <Code className="h-3 w-3 text-primary" />
-                            <span className="text-[10px] font-mono text-foreground">{method}</span>
+                            <span className="text-[10px] font-mono text-foreground">{method.name || method}</span>
                           </div>
                         ))}
                       </div>
@@ -638,8 +664,10 @@ export function PropertiesPanel({ node }: PropertiesPanelProps) {
                         onChange={e => updateConfig({ sdkMethods: [e.target.value] })}
                       >
                         <option value="" className="bg-card">Select a method...</option>
-                        {sdkInfo.methods.map((method: string) => (
-                          <option key={method} value={method} className="bg-card">{method}</option>
+                        {sdkInfo.methods.map((method: any) => (
+                          <option key={method.name || method} value={method.name || method} className="bg-card">
+                            {method.name || method}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -649,14 +677,77 @@ export function PropertiesPanel({ node }: PropertiesPanelProps) {
 
               {/* Common Actions */}
               <div className="pt-4 flex flex-col gap-2">
-                <button className="w-full rounded-lg bg-primary/10 border border-primary/20 py-2.5 text-xs font-bold text-primary hover:bg-primary/20 transition-all flex items-center justify-center gap-2">
-                  <Globe className="h-3.5 w-3.5" />
-                  Test Connection
+                <button 
+                  onClick={async () => {
+                    setIsTestingConnection(true)
+                    setConnectionStatus('idle')
+                    try {
+                      if (connectionMethod === 'aggregator' && node.connectionConfig?.aggregatorId) {
+                        const result = await apiClient.testAggregatorConnection(node.connectionConfig.aggregatorId)
+                        setConnectionStatus('success')
+                        toast.success("Connection successful", { description: "The aggregator connection test passed." })
+                      } else if (connectionMethod === 'mini_connector' && node.connectionConfig?.connectorId) {
+                        // Mini connector test - check if connector is online
+                        const connector = miniConnectors.find(mc => mc.id === node.connectionConfig?.connectorId)
+                        if (connector && connector.status === 'online') {
+                          setConnectionStatus('success')
+                          toast.success("Connection successful", { description: "Mini connector is online and reachable." })
+                        } else {
+                          setConnectionStatus('error')
+                          toast.error("Connection failed", { description: "Mini connector is offline or unreachable." })
+                        }
+                      } else if (connectionMethod === 'credentials') {
+                        // Credentials - no backend endpoint yet
+                        toast.info("Test Connection", { description: "Database credential testing requires backend support. Please ensure your credentials are correct." })
+                      } else if (connectionMethod === 'generated_sdk' && node.connectionConfig?.sdkId) {
+                        // SDK test - check if SDK exists
+                        try {
+                          const info = await apiClient.getSDKInfo(node.connectionConfig.sdkId)
+                          if (info) {
+                            setConnectionStatus('success')
+                            toast.success("SDK verified", { description: `SDK loaded with ${info.methods?.length || 0} available methods.` })
+                          }
+                        } catch {
+                          setConnectionStatus('error')
+                          toast.error("SDK verification failed", { description: "Could not load SDK information." })
+                        }
+                      } else {
+                        toast.info("Test Connection", { description: "Please configure the connection first." })
+                      }
+                    } catch (error: any) {
+                      setConnectionStatus('error')
+                      toast.error("Connection failed", { description: error.message || "An error occurred while testing the connection." })
+                    } finally {
+                      setIsTestingConnection(false)
+                    }
+                  }}
+                  disabled={isTestingConnection}
+                  className="w-full rounded-lg bg-primary/10 border border-primary/20 py-2.5 text-xs font-bold text-primary hover:bg-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {isTestingConnection ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      Testing...
+                    </>
+                  ) : (
+                    <>
+                      <Globe className="h-3.5 w-3.5" />
+                      Test Connection
+                    </>
+                  )}
                 </button>
-                <div className="flex items-center gap-2 px-1 text-[10px] text-muted-foreground">
-                  <CheckCircle2 className="h-3 w-3 text-success" />
-                  <span>System verified: Salesforce API v52.0</span>
-                </div>
+                {connectionStatus === 'success' && (
+                  <div className="flex items-center gap-2 px-1 text-[10px] text-success">
+                    <CheckCircle2 className="h-3 w-3" />
+                    <span>Connection verified successfully</span>
+                  </div>
+                )}
+                {connectionStatus === 'error' && (
+                  <div className="flex items-center gap-2 px-1 text-[10px] text-destructive">
+                    <AlertCircle className="h-3 w-3" />
+                    <span>Connection test failed</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -664,7 +755,13 @@ export function PropertiesPanel({ node }: PropertiesPanelProps) {
 
         {/* ── Transform Configuration ── */}
         {node.type === "transform" && (
-          <TransformConfigWithAI node={node} updateConfig={updateConfig} />
+          <TransformConfigWithAI 
+            node={node} 
+            updateConfig={updateConfig} 
+            nodes={nodes}
+            connections={connections}
+            aggregators={aggregators}
+          />
         )}
       </div>
 
@@ -698,12 +795,42 @@ export function PropertiesPanel({ node }: PropertiesPanelProps) {
 }
 
 // Transform node configuration with AI Field Mapping
-function TransformConfigWithAI({ node, updateConfig }: { node: CanvasNode; updateConfig: (updates: Partial<ConnectionConfig>) => void }) {
+interface TransformConfigWithAIProps {
+  node: CanvasNode
+  updateConfig: (updates: Partial<ConnectionConfig>) => void
+  nodes: CanvasNode[]
+  connections: CanvasConnection[]
+  aggregators: any[]
+}
+
+function TransformConfigWithAI({ node, updateConfig, nodes, connections, aggregators }: TransformConfigWithAIProps) {
   const dispatch = useDispatch<AppDispatch>()
   const { mappingGenerating, lastGeneratedMapping, mappingError } = useSelector((state: RootState) => state.ai)
-  const { installed: aggregators } = useSelector((state: RootState) => state.aggregators)
   
   const [showMapping, setShowMapping] = useState(false)
+  const [sourceNode, setSourceNode] = useState<CanvasNode | null>(null)
+  const [destinationNode, setDestinationNode] = useState<CanvasNode | null>(null)
+
+  // Find connected source and destination nodes
+  useEffect(() => {
+    // Find source node (node that connects TO this transform)
+    const incomingConnection = connections.find(c => c.to === node.id)
+    if (incomingConnection) {
+      const src = nodes.find(n => n.id === incomingConnection.from)
+      setSourceNode(src || null)
+    } else {
+      setSourceNode(null)
+    }
+
+    // Find destination node (node that this transform connects TO)
+    const outgoingConnection = connections.find(c => c.from === node.id)
+    if (outgoingConnection) {
+      const dest = nodes.find(n => n.id === outgoingConnection.to)
+      setDestinationNode(dest || null)
+    } else {
+      setDestinationNode(null)
+    }
+  }, [node.id, nodes, connections])
 
   // Handle mapping generation result
   useEffect(() => {
@@ -730,15 +857,90 @@ function TransformConfigWithAI({ node, updateConfig }: { node: CanvasNode; updat
     }
   }, [mappingError, showMapping])
 
-  const handleGenerateMapping = async () => {
-    // Get source and destination configurations from workflow nodes
-    // This is a simplified implementation - in a real app you'd get this from the Redux store
-    const sourceSchema = {
-      tables: [{ name: "orders", columns: ["id", "customer_name", "total", "status", "created_at"] }]
+  // Build schema from node configuration
+  const buildSchemaFromNode = (node: CanvasNode | null): Record<string, any> => {
+    if (!node || !node.connectionConfig) {
+      return { tables: [] }
     }
-    
-    const destinationSchema = {
-      tables: [{ name: "sales", columns: ["order_id", "customer", "amount", "order_status", "date"] }]
+
+    const config = node.connectionConfig
+
+    // For mini connector - use the selected columns
+    if (config.method === 'mini_connector' && config.columns && config.columns.length > 0) {
+      return {
+        tables: [{
+          name: config.table || 'unknown_table',
+          columns: config.columns
+        }],
+        connectorId: config.connectorId,
+        database: config.database
+      }
+    }
+
+    // For aggregator - try to get schema from aggregator config
+    if (config.method === 'aggregator' && config.aggregatorId) {
+      const aggregator = aggregators.find(a => a.id === config.aggregatorId)
+      return {
+        tables: aggregator?.configSchema?.fields?.map((f: any) => f.name) || [],
+        aggregatorId: config.aggregatorId,
+        aggregatorName: aggregator?.name
+      }
+    }
+
+    // For credentials - use database/table info
+    if (config.method === 'credentials') {
+      return {
+        tables: [{
+          name: config.table || config.database || 'unknown_table',
+          columns: [] // Would need backend to discover columns
+        }],
+        host: config.host,
+        port: config.port,
+        database: config.database,
+        dbType: config.dbType
+      }
+    }
+
+    // For generated SDK - use SDK methods/schema
+    if (config.method === 'generated_sdk' && config.sdkId) {
+      return {
+        sdkId: config.sdkId,
+        sdkName: config.sdkName,
+        methods: config.sdkMethods || []
+      }
+    }
+
+    return { tables: [] }
+  }
+
+  const handleGenerateMapping = async () => {
+    if (!sourceNode) {
+      toast.error("No source node connected", { description: "Connect a source node to this transform to generate mappings." })
+      return
+    }
+
+    if (!destinationNode) {
+      toast.error("No destination node connected", { description: "Connect a destination node to this transform to generate mappings." })
+      return
+    }
+
+    const sourceSchema = buildSchemaFromNode(sourceNode)
+    const destinationSchema = buildSchemaFromNode(destinationNode)
+
+    // Check if we have meaningful schema data
+    const hasSourceColumns = sourceSchema.tables?.some((t: any) => t.columns && t.columns.length > 0)
+    const hasDestColumns = destinationSchema.tables?.some((t: any) => t.columns && t.columns.length > 0)
+
+    if (!hasSourceColumns && !sourceSchema.methods?.length) {
+      toast.warning("Limited source schema", { 
+        description: "The source node has no column data. Configure the source connection with specific columns for better mappings, or the AI will make its best guess." 
+      })
+    }
+
+    if (!hasDestColumns && !destinationSchema.methods?.length) {
+      toast.warning("Limited destination schema", { 
+        description: "The destination node has no column data. Configure the destination connection for better mappings." 
+      })
     }
 
     setShowMapping(true)
