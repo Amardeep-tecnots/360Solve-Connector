@@ -182,21 +182,36 @@ export const generateWorkflow = createAsyncThunk(
   }
 )
 
+// Type for schema config matching GenerateSchemaConfigDto
+export interface SchemaConfig {
+  instanceId?: string
+  type: 'database' | 'sdk' | 'aggregator' | 'mini-connector'
+  connectorId?: string
+  name: string
+  fields?: Array<{ name: string; type: string; nullable?: boolean; description?: string }>
+  schema?: Record<string, any>
+  description?: string
+}
+
 export const generateMapping = createAsyncThunk(
   'ai/generateMapping',
   async ({
-    sourceSchema,
-    destinationSchema,
-    provider,
-    model
+    source,
+    destination,
+    options
   }: {
-    sourceSchema: Record<string, any>
-    destinationSchema: Record<string, any>
-    provider?: string
-    model?: string
+    source: SchemaConfig
+    destination: SchemaConfig
+    options?: {
+      name?: string
+      description?: string
+      mappingHint?: string
+      model?: string
+      saveMapping?: boolean
+    }
   }, { rejectWithValue }) => {
     try {
-      return await apiClient.generateMapping(sourceSchema, destinationSchema, provider, model)
+      return await apiClient.generateMapping(source, destination, options)
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message)
     }

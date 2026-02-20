@@ -1887,6 +1887,16 @@
         "operationId": "AIController_generateMapping",
         "summary": "Generate schema mapping between source and destination",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateSchemaMappingRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Mapping generated successfully"
@@ -1990,6 +2000,434 @@
         },
         "tags": [
           "AI"
+        ]
+      }
+    },
+    "/mappings": {
+      "post": {
+        "operationId": "MappingsController_create",
+        "summary": "Create a new field mapping",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMappingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Mapping created successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "409": {
+            "description": "Mapping with this name already exists"
+          }
+        },
+        "tags": [
+          "Field Mappings"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "MappingsController_findAll",
+        "summary": "List all field mappings",
+        "parameters": [
+          {
+            "name": "sourceInstanceId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by source instance ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "destinationInstanceId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by destination instance ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Filter by mapping type",
+            "schema": {
+              "enum": [
+                "COLUMN",
+                "FIELD",
+                "TRANSFORM",
+                "AGGREGATOR",
+                "MINI_CONNECTOR",
+                "HYBRID"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "sourceType",
+            "required": false,
+            "in": "query",
+            "description": "Filter by source type",
+            "schema": {
+              "enum": [
+                "database",
+                "sdk",
+                "aggregator",
+                "mini-connector"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "destinationType",
+            "required": false,
+            "in": "query",
+            "description": "Filter by destination type",
+            "schema": {
+              "enum": [
+                "database",
+                "sdk",
+                "aggregator",
+                "mini-connector"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "description": "Filter by active status",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of mappings"
+          }
+        },
+        "tags": [
+          "Field Mappings"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/mappings/{id}": {
+      "get": {
+        "operationId": "MappingsController_findOne",
+        "summary": "Get a field mapping by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Mapping ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mapping details"
+          },
+          "404": {
+            "description": "Mapping not found"
+          }
+        },
+        "tags": [
+          "Field Mappings"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "MappingsController_update",
+        "summary": "Update a field mapping",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Mapping ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMappingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mapping updated successfully"
+          },
+          "404": {
+            "description": "Mapping not found"
+          },
+          "409": {
+            "description": "Mapping name already exists"
+          }
+        },
+        "tags": [
+          "Field Mappings"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "MappingsController_delete",
+        "summary": "Delete a field mapping",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Mapping ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Mapping deleted successfully"
+          },
+          "404": {
+            "description": "Mapping not found"
+          }
+        },
+        "tags": [
+          "Field Mappings"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/mappings/generate": {
+      "post": {
+        "operationId": "MappingsController_generateMapping",
+        "summary": "Generate field mapping using AI",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateMappingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mapping generated successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          }
+        },
+        "tags": [
+          "Field Mappings"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/mappings/generate/quick": {
+      "post": {
+        "operationId": "MappingsController_quickGenerateMapping",
+        "summary": "Quick generate mapping from existing instances",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuickGenerateMappingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mapping generated successfully"
+          },
+          "404": {
+            "description": "Source or destination instance not found"
+          }
+        },
+        "tags": [
+          "Field Mappings"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/mappings/apply": {
+      "post": {
+        "operationId": "MappingsController_applyMapping",
+        "summary": "Apply a mapping to data",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyMappingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mapping applied successfully"
+          },
+          "404": {
+            "description": "Mapping not found"
+          }
+        },
+        "tags": [
+          "Field Mappings"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/mappings/validate": {
+      "post": {
+        "operationId": "MappingsController_validateMapping",
+        "summary": "Validate a mapping",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateMappingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation result"
+          },
+          "404": {
+            "description": "Mapping not found"
+          }
+        },
+        "tags": [
+          "Field Mappings"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/mappings/instance/{instanceId}/available": {
+      "get": {
+        "operationId": "MappingsController_getAvailableMappings",
+        "summary": "Get available mappings for an instance",
+        "parameters": [
+          {
+            "name": "instanceId",
+            "required": true,
+            "in": "path",
+            "description": "Aggregator instance ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of available mappings"
+          }
+        },
+        "tags": [
+          "Field Mappings"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
         ]
       }
     }
@@ -3298,6 +3736,550 @@
           "source",
           "destination"
         ]
+      },
+      "SchemaColumnDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Column name",
+            "example": "user_id"
+          },
+          "type": {
+            "type": "string",
+            "description": "Column data type",
+            "example": "varchar(255)"
+          },
+          "nullable": {
+            "type": "boolean",
+            "description": "Whether column is nullable",
+            "example": false
+          }
+        },
+        "required": [
+          "name",
+          "type"
+        ]
+      },
+      "TableSchemaDto": {
+        "type": "object",
+        "properties": {
+          "tableName": {
+            "type": "string",
+            "description": "Table name",
+            "example": "users"
+          },
+          "columns": {
+            "description": "Table columns",
+            "example": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "varchar(255)"
+              }
+            ],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SchemaColumnDto"
+            }
+          }
+        },
+        "required": [
+          "tableName",
+          "columns"
+        ]
+      },
+      "GenerateSchemaMappingRequest": {
+        "type": "object",
+        "properties": {
+          "sourceSchema": {
+            "description": "Source schema",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TableSchemaDto"
+              }
+            ]
+          },
+          "destinationSchema": {
+            "description": "Destination schema",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TableSchemaDto"
+              }
+            ]
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional description of transformation"
+          },
+          "model": {
+            "type": "string",
+            "description": "Custom model to use",
+            "example": "openai/gpt-4o-mini"
+          }
+        },
+        "required": [
+          "sourceSchema",
+          "destinationSchema"
+        ]
+      },
+      "MappingRuleDto": {
+        "type": "object",
+        "properties": {
+          "sourceField": {
+            "type": "string",
+            "description": "Source field path (supports nested paths like \"user.address.city\")"
+          },
+          "destinationField": {
+            "type": "string",
+            "description": "Destination field path"
+          },
+          "transform": {
+            "type": "string",
+            "description": "Transformation type: direct, uppercase, lowercase, date-format, number-format, custom"
+          },
+          "transformConfig": {
+            "type": "object",
+            "description": "Transformation configuration (e.g., format string for dates)"
+          },
+          "nullable": {
+            "type": "boolean",
+            "description": "Whether the source field can be null"
+          },
+          "dataType": {
+            "type": "string",
+            "description": "Data type of the field"
+          },
+          "defaultValue": {
+            "type": "object",
+            "description": "Default value if source is null"
+          }
+        },
+        "required": [
+          "sourceField",
+          "destinationField"
+        ]
+      },
+      "CreateMappingDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Mapping name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Mapping description"
+          },
+          "type": {
+            "type": "string",
+            "description": "Mapping type",
+            "enum": [
+              "COLUMN",
+              "FIELD",
+              "TRANSFORM",
+              "AGGREGATOR",
+              "MINI_CONNECTOR",
+              "HYBRID"
+            ],
+            "default": "COLUMN"
+          },
+          "sourceInstanceId": {
+            "type": "string",
+            "description": "Source aggregator instance ID"
+          },
+          "sourceType": {
+            "type": "string",
+            "description": "Source type",
+            "enum": [
+              "database",
+              "sdk",
+              "aggregator",
+              "mini-connector"
+            ]
+          },
+          "sourceConnectorId": {
+            "type": "string",
+            "description": "Source connector ID (for mini-connector sources)"
+          },
+          "sourceName": {
+            "type": "string",
+            "description": "Source table, endpoint, or object name"
+          },
+          "sourceSchema": {
+            "type": "object",
+            "description": "Source schema definition"
+          },
+          "destinationInstanceId": {
+            "type": "string",
+            "description": "Destination aggregator instance ID"
+          },
+          "destinationType": {
+            "type": "string",
+            "description": "Destination type",
+            "enum": [
+              "database",
+              "sdk",
+              "aggregator",
+              "mini-connector"
+            ]
+          },
+          "destinationConnectorId": {
+            "type": "string",
+            "description": "Destination connector ID (for mini-connector destinations)"
+          },
+          "destinationName": {
+            "type": "string",
+            "description": "Destination table, endpoint, or object name"
+          },
+          "destinationSchema": {
+            "type": "object",
+            "description": "Destination schema definition"
+          },
+          "mappingRules": {
+            "description": "Mapping rules",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MappingRuleDto"
+            }
+          },
+          "transformCode": {
+            "type": "string",
+            "description": "Custom transformation code (JavaScript function)"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the mapping is active",
+            "default": true
+          }
+        },
+        "required": [
+          "name",
+          "sourceType",
+          "sourceName",
+          "sourceSchema",
+          "destinationType",
+          "destinationName",
+          "destinationSchema",
+          "mappingRules"
+        ]
+      },
+      "UpdateMappingDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Mapping name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Mapping description"
+          },
+          "type": {
+            "type": "string",
+            "description": "Mapping type",
+            "enum": [
+              "COLUMN",
+              "FIELD",
+              "TRANSFORM",
+              "AGGREGATOR",
+              "MINI_CONNECTOR",
+              "HYBRID"
+            ]
+          },
+          "sourceInstanceId": {
+            "type": "string",
+            "description": "Source aggregator instance ID"
+          },
+          "sourceType": {
+            "type": "string",
+            "description": "Source type",
+            "enum": [
+              "database",
+              "sdk",
+              "aggregator",
+              "mini-connector"
+            ]
+          },
+          "sourceConnectorId": {
+            "type": "string",
+            "description": "Source connector ID"
+          },
+          "sourceName": {
+            "type": "string",
+            "description": "Source name"
+          },
+          "sourceSchema": {
+            "type": "object",
+            "description": "Source schema"
+          },
+          "destinationInstanceId": {
+            "type": "string",
+            "description": "Destination aggregator instance ID"
+          },
+          "destinationType": {
+            "type": "string",
+            "description": "Destination type",
+            "enum": [
+              "database",
+              "sdk",
+              "aggregator",
+              "mini-connector"
+            ]
+          },
+          "destinationConnectorId": {
+            "type": "string",
+            "description": "Destination connector ID"
+          },
+          "destinationName": {
+            "type": "string",
+            "description": "Destination name"
+          },
+          "destinationSchema": {
+            "type": "object",
+            "description": "Destination schema"
+          },
+          "mappingRules": {
+            "description": "Mapping rules",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MappingRuleDto"
+            }
+          },
+          "transformCode": {
+            "type": "string",
+            "description": "Transformation code"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the mapping is active"
+          }
+        }
+      },
+      "GenerateSchemaFieldDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Field name"
+          },
+          "type": {
+            "type": "string",
+            "description": "Field data type"
+          },
+          "nullable": {
+            "type": "boolean",
+            "description": "Whether the field can be null"
+          },
+          "sampleValue": {
+            "type": "object",
+            "description": "Sample value for AI context"
+          },
+          "description": {
+            "type": "string",
+            "description": "Field description"
+          },
+          "nested": {
+            "description": "Nested fields for object/array types",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GenerateSchemaFieldDto"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "type"
+        ]
+      },
+      "GenerateSchemaConfigDto": {
+        "type": "object",
+        "properties": {
+          "instanceId": {
+            "type": "string",
+            "description": "Aggregator instance ID (if using existing instance)"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of data source",
+            "enum": [
+              "database",
+              "sdk",
+              "aggregator",
+              "mini-connector"
+            ]
+          },
+          "connectorId": {
+            "type": "string",
+            "description": "Connector ID (for mini-connector sources)"
+          },
+          "name": {
+            "type": "string",
+            "description": "Table name, endpoint name, or object name"
+          },
+          "fields": {
+            "description": "Fields in the schema",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GenerateSchemaFieldDto"
+            }
+          },
+          "schema": {
+            "type": "object",
+            "description": "Full schema object (alternative to fields array)"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the data source for AI context"
+          }
+        },
+        "required": [
+          "type",
+          "name"
+        ]
+      },
+      "GenerateMappingDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name for the generated mapping"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description for the generated mapping"
+          },
+          "source": {
+            "description": "Source schema configuration",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GenerateSchemaConfigDto"
+              }
+            ]
+          },
+          "destination": {
+            "description": "Destination schema configuration",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GenerateSchemaConfigDto"
+              }
+            ]
+          },
+          "mappingHint": {
+            "type": "string",
+            "description": "Natural language description of the desired mapping"
+          },
+          "model": {
+            "type": "string",
+            "description": "Custom AI model to use"
+          },
+          "saveMapping": {
+            "type": "boolean",
+            "description": "Save the generated mapping automatically",
+            "default": false
+          }
+        },
+        "required": [
+          "source",
+          "destination"
+        ]
+      },
+      "QuickGenerateMappingDto": {
+        "type": "object",
+        "properties": {
+          "sourceInstanceId": {
+            "type": "string",
+            "description": "Source aggregator instance ID"
+          },
+          "destinationInstanceId": {
+            "type": "string",
+            "description": "Destination aggregator instance ID"
+          },
+          "sourceName": {
+            "type": "string",
+            "description": "Source table/object name (auto-discovered if not provided)"
+          },
+          "destinationName": {
+            "type": "string",
+            "description": "Destination table/object name (auto-discovered if not provided)"
+          },
+          "name": {
+            "type": "string",
+            "description": "Mapping name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Mapping description"
+          },
+          "mappingHint": {
+            "type": "string",
+            "description": "Natural language hint for mapping generation"
+          },
+          "saveMapping": {
+            "type": "boolean",
+            "description": "Save mapping after generation",
+            "default": true
+          }
+        },
+        "required": [
+          "sourceInstanceId",
+          "destinationInstanceId"
+        ]
+      },
+      "ApplyMappingDto": {
+        "type": "object",
+        "properties": {
+          "mappingId": {
+            "type": "string",
+            "description": "Mapping ID to apply"
+          },
+          "data": {
+            "type": "object",
+            "description": "Data to apply mapping to"
+          },
+          "fields": {
+            "description": "Apply only specific fields",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "mappingId",
+          "data"
+        ]
+      },
+      "ValidateMappingDto": {
+        "type": "object",
+        "properties": {
+          "mappingId": {
+            "type": "string",
+            "description": "Mapping ID to validate (if updating existing)"
+          },
+          "sourceSchema": {
+            "type": "object",
+            "description": "Source schema to validate against"
+          },
+          "destinationSchema": {
+            "type": "object",
+            "description": "Destination schema to validate against"
+          },
+          "mappingRules": {
+            "description": "Mapping rules to validate",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "sampleData": {
+            "type": "object",
+            "description": "Sample data to test mapping"
+          }
+        }
       }
     }
   }

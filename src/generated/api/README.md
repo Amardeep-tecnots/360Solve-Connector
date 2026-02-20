@@ -87,6 +87,16 @@ Class | Method | HTTP request | Description
 *ExecutionsApi* | [**executionsControllerPause**](docs/ExecutionsApi.md#executionscontrollerpause) | **POST** /api/executions/{id}/pause | 
 *ExecutionsApi* | [**executionsControllerResume**](docs/ExecutionsApi.md#executionscontrollerresume) | **POST** /api/executions/{id}/resume | 
 *ExecutionsApi* | [**executionsControllerTriggerWorkflow**](docs/ExecutionsApi.md#executionscontrollertriggerworkflow) | **POST** /api/workflows/{id}/execute | 
+*FieldMappingsApi* | [**mappingsControllerApplyMapping**](docs/FieldMappingsApi.md#mappingscontrollerapplymapping) | **POST** /mappings/apply | Apply a mapping to data
+*FieldMappingsApi* | [**mappingsControllerCreate**](docs/FieldMappingsApi.md#mappingscontrollercreate) | **POST** /mappings | Create a new field mapping
+*FieldMappingsApi* | [**mappingsControllerDelete**](docs/FieldMappingsApi.md#mappingscontrollerdelete) | **DELETE** /mappings/{id} | Delete a field mapping
+*FieldMappingsApi* | [**mappingsControllerFindAll**](docs/FieldMappingsApi.md#mappingscontrollerfindall) | **GET** /mappings | List all field mappings
+*FieldMappingsApi* | [**mappingsControllerFindOne**](docs/FieldMappingsApi.md#mappingscontrollerfindone) | **GET** /mappings/{id} | Get a field mapping by ID
+*FieldMappingsApi* | [**mappingsControllerGenerateMapping**](docs/FieldMappingsApi.md#mappingscontrollergeneratemapping) | **POST** /mappings/generate | Generate field mapping using AI
+*FieldMappingsApi* | [**mappingsControllerGetAvailableMappings**](docs/FieldMappingsApi.md#mappingscontrollergetavailablemappings) | **GET** /mappings/instance/{instanceId}/available | Get available mappings for an instance
+*FieldMappingsApi* | [**mappingsControllerQuickGenerateMapping**](docs/FieldMappingsApi.md#mappingscontrollerquickgeneratemapping) | **POST** /mappings/generate/quick | Quick generate mapping from existing instances
+*FieldMappingsApi* | [**mappingsControllerUpdate**](docs/FieldMappingsApi.md#mappingscontrollerupdate) | **PUT** /mappings/{id} | Update a field mapping
+*FieldMappingsApi* | [**mappingsControllerValidateMapping**](docs/FieldMappingsApi.md#mappingscontrollervalidatemapping) | **POST** /mappings/validate | Validate a mapping
 *PublicConnectorsApi* | [**publicConnectorsControllerValidateApiKey**](docs/PublicConnectorsApi.md#publicconnectorscontrollervalidateapikey) | **POST** /api/public/connectors/validate-api-key | 
 *SchemaDiscoveryApi* | [**schemaDiscoveryControllerDiscover**](docs/SchemaDiscoveryApi.md#schemadiscoverycontrollerdiscover) | **POST** /api/tenant-aggregators/{id}/discover | 
 *SchemaDiscoveryApi* | [**schemaDiscoveryControllerGetRelationships**](docs/SchemaDiscoveryApi.md#schemadiscoverycontrollergetrelationships) | **GET** /api/tenant-aggregators/{id}/schema/relationships | 
@@ -117,10 +127,12 @@ Class | Method | HTTP request | Description
 ### Documentation For Models
 
  - [ActivityDto](docs/ActivityDto.md)
+ - [ApplyMappingDto](docs/ApplyMappingDto.md)
  - [CancelExecutionDto](docs/CancelExecutionDto.md)
  - [ConnectorListResponseDto](docs/ConnectorListResponseDto.md)
  - [ConnectorResponseDto](docs/ConnectorResponseDto.md)
  - [CreateConnectorDto](docs/CreateConnectorDto.md)
+ - [CreateMappingDto](docs/CreateMappingDto.md)
  - [CreateWorkflowDto](docs/CreateWorkflowDto.md)
  - [ExecuteWorkflowDto](docs/ExecuteWorkflowDto.md)
  - [ExecutionControlResponseDto](docs/ExecutionControlResponseDto.md)
@@ -128,28 +140,38 @@ Class | Method | HTTP request | Description
  - [ExecutionListResponseDto](docs/ExecutionListResponseDto.md)
  - [ExecutionResponseDto](docs/ExecutionResponseDto.md)
  - [ExecutionTriggerResponseDto](docs/ExecutionTriggerResponseDto.md)
+ - [GenerateMappingDto](docs/GenerateMappingDto.md)
  - [GenerateSDKRequest](docs/GenerateSDKRequest.md)
+ - [GenerateSchemaConfigDto](docs/GenerateSchemaConfigDto.md)
+ - [GenerateSchemaFieldDto](docs/GenerateSchemaFieldDto.md)
+ - [GenerateSchemaMappingRequest](docs/GenerateSchemaMappingRequest.md)
  - [GenerateWorkflowRequest](docs/GenerateWorkflowRequest.md)
  - [HeartbeatDto](docs/HeartbeatDto.md)
  - [InstallTenantAggregatorDto](docs/InstallTenantAggregatorDto.md)
+ - [MappingRuleDto](docs/MappingRuleDto.md)
  - [PauseExecutionDto](docs/PauseExecutionDto.md)
  - [PreviewTableDto](docs/PreviewTableDto.md)
+ - [QuickGenerateMappingDto](docs/QuickGenerateMappingDto.md)
  - [RefreshTokenDto](docs/RefreshTokenDto.md)
  - [ResumeExecutionDto](docs/ResumeExecutionDto.md)
  - [SDKCredentialsDto](docs/SDKCredentialsDto.md)
+ - [SchemaColumnDto](docs/SchemaColumnDto.md)
  - [SchemaDiscoveryResponseDto](docs/SchemaDiscoveryResponseDto.md)
  - [SignInDto](docs/SignInDto.md)
  - [SignUpDto](docs/SignUpDto.md)
+ - [TableSchemaDto](docs/TableSchemaDto.md)
  - [TenantAggregatorDetailResponseDto](docs/TenantAggregatorDetailResponseDto.md)
  - [TenantAggregatorListResponseDto](docs/TenantAggregatorListResponseDto.md)
  - [TenantAggregatorResponseDto](docs/TenantAggregatorResponseDto.md)
  - [TenantResponseDto](docs/TenantResponseDto.md)
  - [UpdateConnectorDto](docs/UpdateConnectorDto.md)
+ - [UpdateMappingDto](docs/UpdateMappingDto.md)
  - [UpdateTenantAggregatorDto](docs/UpdateTenantAggregatorDto.md)
  - [UpdateTenantDto](docs/UpdateTenantDto.md)
  - [UpdateUserDto](docs/UpdateUserDto.md)
  - [UpdateWorkflowDto](docs/UpdateWorkflowDto.md)
  - [UserResponseDto](docs/UserResponseDto.md)
+ - [ValidateMappingDto](docs/ValidateMappingDto.md)
  - [ValidationErrorDto](docs/ValidationErrorDto.md)
  - [WorkflowActivityResponseDto](docs/WorkflowActivityResponseDto.md)
  - [WorkflowDefinitionDto](docs/WorkflowDefinitionDto.md)

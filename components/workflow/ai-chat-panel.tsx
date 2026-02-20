@@ -12,7 +12,8 @@ import {
   generateMapping,
   generateSDK,
   clearGeneratedWorkflow, 
-  clearGeneratedMapping 
+  clearGeneratedMapping,
+  SchemaConfig
 } from "@/lib/store/slices/ai-slice"
 
 // AI Capability types
@@ -221,11 +222,42 @@ export function AIChatPanel({
           description: msg 
         })).unwrap()
       } else if (activeCapability === "mapping") {
-        // Generate mapping
+        // Generate mapping - convert schema to new format
         if (sourceConnector?.schema && destinationConnector?.schema) {
+          // Convert old schema format to new SchemaConfig format
+          const sourceSchema = sourceConnector.schema
+          const destinationSchema = destinationConnector.schema
+          
+          const source: SchemaConfig = {
+            type: sourceSchema.type || 'database',
+            name: sourceSchema.tableName || sourceSchema.name || sourceConnector.name,
+            instanceId: sourceSchema.instanceId,
+            connectorId: sourceSchema.connectorId,
+            fields: (sourceSchema.columns || sourceSchema.fields || []).map((f: any) => ({
+              name: typeof f === 'string' ? f : f.name,
+              type: typeof f === 'string' ? 'string' : (f.type || 'string')
+            })),
+            description: `Source: ${sourceConnector.name}`
+          }
+          
+          const destination: SchemaConfig = {
+            type: destinationSchema.type || 'database',
+            name: destinationSchema.tableName || destinationSchema.name || destinationConnector.name,
+            instanceId: destinationSchema.instanceId,
+            connectorId: destinationSchema.connectorId,
+            fields: (destinationSchema.columns || destinationSchema.fields || []).map((f: any) => ({
+              name: typeof f === 'string' ? f : f.name,
+              type: typeof f === 'string' ? 'string' : (f.type || 'string')
+            })),
+            description: `Destination: ${destinationConnector.name}`
+          }
+          
           await dispatch(generateMapping({
-            sourceSchema: sourceConnector.schema,
-            destinationSchema: destinationConnector.schema
+            source,
+            destination,
+            options: {
+              mappingHint: msg
+            }
           })).unwrap()
         } else {
           setIsTyping(false)

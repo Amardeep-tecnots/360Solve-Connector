@@ -46,6 +46,20 @@ export const ActivityDtoTypeEnum = {
 
 export type ActivityDtoTypeEnum = typeof ActivityDtoTypeEnum[keyof typeof ActivityDtoTypeEnum];
 
+export interface ApplyMappingDto {
+    /**
+     * Mapping ID to apply
+     */
+    'mappingId': string;
+    /**
+     * Data to apply mapping to
+     */
+    'data': object;
+    /**
+     * Apply only specific fields
+     */
+    'fields'?: Array<string>;
+}
 export interface CancelExecutionDto {
     /**
      * Reason for cancellation
@@ -128,6 +142,100 @@ export const CreateConnectorDtoNetworkAccessEnum = {
 
 export type CreateConnectorDtoNetworkAccessEnum = typeof CreateConnectorDtoNetworkAccessEnum[keyof typeof CreateConnectorDtoNetworkAccessEnum];
 
+export interface CreateMappingDto {
+    /**
+     * Mapping name
+     */
+    'name': string;
+    /**
+     * Mapping description
+     */
+    'description'?: string;
+    /**
+     * Mapping type
+     */
+    'type'?: CreateMappingDtoTypeEnum;
+    /**
+     * Source aggregator instance ID
+     */
+    'sourceInstanceId'?: string;
+    /**
+     * Source type
+     */
+    'sourceType': CreateMappingDtoSourceTypeEnum;
+    /**
+     * Source connector ID (for mini-connector sources)
+     */
+    'sourceConnectorId'?: string;
+    /**
+     * Source table, endpoint, or object name
+     */
+    'sourceName': string;
+    /**
+     * Source schema definition
+     */
+    'sourceSchema': object;
+    /**
+     * Destination aggregator instance ID
+     */
+    'destinationInstanceId'?: string;
+    /**
+     * Destination type
+     */
+    'destinationType': CreateMappingDtoDestinationTypeEnum;
+    /**
+     * Destination connector ID (for mini-connector destinations)
+     */
+    'destinationConnectorId'?: string;
+    /**
+     * Destination table, endpoint, or object name
+     */
+    'destinationName': string;
+    /**
+     * Destination schema definition
+     */
+    'destinationSchema': object;
+    /**
+     * Mapping rules
+     */
+    'mappingRules': Array<MappingRuleDto>;
+    /**
+     * Custom transformation code (JavaScript function)
+     */
+    'transformCode'?: string;
+    /**
+     * Whether the mapping is active
+     */
+    'isActive'?: boolean;
+}
+
+export const CreateMappingDtoTypeEnum = {
+    Column: 'COLUMN',
+    Field: 'FIELD',
+    Transform: 'TRANSFORM',
+    Aggregator: 'AGGREGATOR',
+    MiniConnector: 'MINI_CONNECTOR',
+    Hybrid: 'HYBRID'
+} as const;
+
+export type CreateMappingDtoTypeEnum = typeof CreateMappingDtoTypeEnum[keyof typeof CreateMappingDtoTypeEnum];
+export const CreateMappingDtoSourceTypeEnum = {
+    Database: 'database',
+    Sdk: 'sdk',
+    Aggregator: 'aggregator',
+    MiniConnector: 'mini-connector'
+} as const;
+
+export type CreateMappingDtoSourceTypeEnum = typeof CreateMappingDtoSourceTypeEnum[keyof typeof CreateMappingDtoSourceTypeEnum];
+export const CreateMappingDtoDestinationTypeEnum = {
+    Database: 'database',
+    Sdk: 'sdk',
+    Aggregator: 'aggregator',
+    MiniConnector: 'mini-connector'
+} as const;
+
+export type CreateMappingDtoDestinationTypeEnum = typeof CreateMappingDtoDestinationTypeEnum[keyof typeof CreateMappingDtoDestinationTypeEnum];
+
 export interface CreateWorkflowDto {
     /**
      * Workflow name
@@ -197,6 +305,36 @@ export interface ExecutionTriggerResponseDto {
     'success': boolean;
     'data': object;
 }
+export interface GenerateMappingDto {
+    /**
+     * Name for the generated mapping
+     */
+    'name'?: string;
+    /**
+     * Description for the generated mapping
+     */
+    'description'?: string;
+    /**
+     * Source schema configuration
+     */
+    'source': GenerateSchemaConfigDto;
+    /**
+     * Destination schema configuration
+     */
+    'destination': GenerateSchemaConfigDto;
+    /**
+     * Natural language description of the desired mapping
+     */
+    'mappingHint'?: string;
+    /**
+     * Custom AI model to use
+     */
+    'model'?: string;
+    /**
+     * Save the generated mapping automatically
+     */
+    'saveMapping'?: boolean;
+}
 export interface GenerateSDKRequest {
     /**
      * OpenAPI spec URL or raw JSON content
@@ -218,6 +356,90 @@ export interface GenerateSDKRequest {
      * API credentials to store for this SDK (used when executing SDK methods)
      */
     'credentials'?: SDKCredentialsDto;
+}
+export interface GenerateSchemaConfigDto {
+    /**
+     * Aggregator instance ID (if using existing instance)
+     */
+    'instanceId'?: string;
+    /**
+     * Type of data source
+     */
+    'type': GenerateSchemaConfigDtoTypeEnum;
+    /**
+     * Connector ID (for mini-connector sources)
+     */
+    'connectorId'?: string;
+    /**
+     * Table name, endpoint name, or object name
+     */
+    'name': string;
+    /**
+     * Fields in the schema
+     */
+    'fields'?: Array<GenerateSchemaFieldDto>;
+    /**
+     * Full schema object (alternative to fields array)
+     */
+    'schema'?: object;
+    /**
+     * Description of the data source for AI context
+     */
+    'description'?: string;
+}
+
+export const GenerateSchemaConfigDtoTypeEnum = {
+    Database: 'database',
+    Sdk: 'sdk',
+    Aggregator: 'aggregator',
+    MiniConnector: 'mini-connector'
+} as const;
+
+export type GenerateSchemaConfigDtoTypeEnum = typeof GenerateSchemaConfigDtoTypeEnum[keyof typeof GenerateSchemaConfigDtoTypeEnum];
+
+export interface GenerateSchemaFieldDto {
+    /**
+     * Field name
+     */
+    'name': string;
+    /**
+     * Field data type
+     */
+    'type': string;
+    /**
+     * Whether the field can be null
+     */
+    'nullable'?: boolean;
+    /**
+     * Sample value for AI context
+     */
+    'sampleValue'?: object;
+    /**
+     * Field description
+     */
+    'description'?: string;
+    /**
+     * Nested fields for object/array types
+     */
+    'nested'?: Array<GenerateSchemaFieldDto>;
+}
+export interface GenerateSchemaMappingRequest {
+    /**
+     * Source schema
+     */
+    'sourceSchema': TableSchemaDto;
+    /**
+     * Destination schema
+     */
+    'destinationSchema': TableSchemaDto;
+    /**
+     * Optional description of transformation
+     */
+    'description'?: string;
+    /**
+     * Custom model to use
+     */
+    'model'?: string;
 }
 export interface GenerateWorkflowRequest {
     /**
@@ -297,6 +519,36 @@ export interface InstallTenantAggregatorDto {
     'connectorId'?: string;
     'testConnection'?: boolean;
 }
+export interface MappingRuleDto {
+    /**
+     * Source field path (supports nested paths like \"user.address.city\")
+     */
+    'sourceField': string;
+    /**
+     * Destination field path
+     */
+    'destinationField': string;
+    /**
+     * Transformation type: direct, uppercase, lowercase, date-format, number-format, custom
+     */
+    'transform'?: string;
+    /**
+     * Transformation configuration (e.g., format string for dates)
+     */
+    'transformConfig'?: object;
+    /**
+     * Whether the source field can be null
+     */
+    'nullable'?: boolean;
+    /**
+     * Data type of the field
+     */
+    'dataType'?: string;
+    /**
+     * Default value if source is null
+     */
+    'defaultValue'?: object;
+}
 export interface PauseExecutionDto {
     /**
      * Reason for pausing
@@ -305,6 +557,40 @@ export interface PauseExecutionDto {
 }
 export interface PreviewTableDto {
     'limit'?: number;
+}
+export interface QuickGenerateMappingDto {
+    /**
+     * Source aggregator instance ID
+     */
+    'sourceInstanceId': string;
+    /**
+     * Destination aggregator instance ID
+     */
+    'destinationInstanceId': string;
+    /**
+     * Source table/object name (auto-discovered if not provided)
+     */
+    'sourceName'?: string;
+    /**
+     * Destination table/object name (auto-discovered if not provided)
+     */
+    'destinationName'?: string;
+    /**
+     * Mapping name
+     */
+    'name'?: string;
+    /**
+     * Mapping description
+     */
+    'description'?: string;
+    /**
+     * Natural language hint for mapping generation
+     */
+    'mappingHint'?: string;
+    /**
+     * Save mapping after generation
+     */
+    'saveMapping'?: boolean;
 }
 export interface RefreshTokenDto {
     'refreshToken': string;
@@ -333,6 +619,20 @@ export interface SDKCredentialsDto {
      */
     'timeout'?: number;
 }
+export interface SchemaColumnDto {
+    /**
+     * Column name
+     */
+    'name': string;
+    /**
+     * Column data type
+     */
+    'type': string;
+    /**
+     * Whether column is nullable
+     */
+    'nullable'?: boolean;
+}
 export interface SchemaDiscoveryResponseDto {
     'success': boolean;
     'data': object;
@@ -358,6 +658,16 @@ export const SignUpDtoTierEnum = {
 
 export type SignUpDtoTierEnum = typeof SignUpDtoTierEnum[keyof typeof SignUpDtoTierEnum];
 
+export interface TableSchemaDto {
+    /**
+     * Table name
+     */
+    'tableName': string;
+    /**
+     * Table columns
+     */
+    'columns': Array<SchemaColumnDto>;
+}
 export interface TenantAggregatorDetailResponseDto {
     'success': boolean;
     'data': TenantAggregatorResponseDto;
@@ -445,6 +755,100 @@ export const UpdateConnectorDtoNetworkAccessEnum = {
 
 export type UpdateConnectorDtoNetworkAccessEnum = typeof UpdateConnectorDtoNetworkAccessEnum[keyof typeof UpdateConnectorDtoNetworkAccessEnum];
 
+export interface UpdateMappingDto {
+    /**
+     * Mapping name
+     */
+    'name'?: string;
+    /**
+     * Mapping description
+     */
+    'description'?: string;
+    /**
+     * Mapping type
+     */
+    'type'?: UpdateMappingDtoTypeEnum;
+    /**
+     * Source aggregator instance ID
+     */
+    'sourceInstanceId'?: string;
+    /**
+     * Source type
+     */
+    'sourceType'?: UpdateMappingDtoSourceTypeEnum;
+    /**
+     * Source connector ID
+     */
+    'sourceConnectorId'?: string;
+    /**
+     * Source name
+     */
+    'sourceName'?: string;
+    /**
+     * Source schema
+     */
+    'sourceSchema'?: object;
+    /**
+     * Destination aggregator instance ID
+     */
+    'destinationInstanceId'?: string;
+    /**
+     * Destination type
+     */
+    'destinationType'?: UpdateMappingDtoDestinationTypeEnum;
+    /**
+     * Destination connector ID
+     */
+    'destinationConnectorId'?: string;
+    /**
+     * Destination name
+     */
+    'destinationName'?: string;
+    /**
+     * Destination schema
+     */
+    'destinationSchema'?: object;
+    /**
+     * Mapping rules
+     */
+    'mappingRules'?: Array<MappingRuleDto>;
+    /**
+     * Transformation code
+     */
+    'transformCode'?: string;
+    /**
+     * Whether the mapping is active
+     */
+    'isActive'?: boolean;
+}
+
+export const UpdateMappingDtoTypeEnum = {
+    Column: 'COLUMN',
+    Field: 'FIELD',
+    Transform: 'TRANSFORM',
+    Aggregator: 'AGGREGATOR',
+    MiniConnector: 'MINI_CONNECTOR',
+    Hybrid: 'HYBRID'
+} as const;
+
+export type UpdateMappingDtoTypeEnum = typeof UpdateMappingDtoTypeEnum[keyof typeof UpdateMappingDtoTypeEnum];
+export const UpdateMappingDtoSourceTypeEnum = {
+    Database: 'database',
+    Sdk: 'sdk',
+    Aggregator: 'aggregator',
+    MiniConnector: 'mini-connector'
+} as const;
+
+export type UpdateMappingDtoSourceTypeEnum = typeof UpdateMappingDtoSourceTypeEnum[keyof typeof UpdateMappingDtoSourceTypeEnum];
+export const UpdateMappingDtoDestinationTypeEnum = {
+    Database: 'database',
+    Sdk: 'sdk',
+    Aggregator: 'aggregator',
+    MiniConnector: 'mini-connector'
+} as const;
+
+export type UpdateMappingDtoDestinationTypeEnum = typeof UpdateMappingDtoDestinationTypeEnum[keyof typeof UpdateMappingDtoDestinationTypeEnum];
+
 export interface UpdateTenantAggregatorDto {
     'name': string;
     'config'?: object;
@@ -490,6 +894,28 @@ export const UserResponseDtoRoleEnum = {
 
 export type UserResponseDtoRoleEnum = typeof UserResponseDtoRoleEnum[keyof typeof UserResponseDtoRoleEnum];
 
+export interface ValidateMappingDto {
+    /**
+     * Mapping ID to validate (if updating existing)
+     */
+    'mappingId'?: string;
+    /**
+     * Source schema to validate against
+     */
+    'sourceSchema'?: object;
+    /**
+     * Destination schema to validate against
+     */
+    'destinationSchema'?: object;
+    /**
+     * Mapping rules to validate
+     */
+    'mappingRules'?: Array<object>;
+    /**
+     * Sample data to test mapping
+     */
+    'sampleData'?: object;
+}
 export interface ValidationErrorDto {
     'field': string;
     'message': string;
@@ -632,10 +1058,13 @@ export const AIApiAxiosParamCreator = function (configuration?: Configuration) {
         /**
          * 
          * @summary Generate schema mapping between source and destination
+         * @param {GenerateSchemaMappingRequest} generateSchemaMappingRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        aIControllerGenerateMapping: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        aIControllerGenerateMapping: async (generateSchemaMappingRequest: GenerateSchemaMappingRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'generateSchemaMappingRequest' is not null or undefined
+            assertParamExists('aIControllerGenerateMapping', 'generateSchemaMappingRequest', generateSchemaMappingRequest)
             const localVarPath = `/ai/generate-mapping`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -648,10 +1077,12 @@ export const AIApiAxiosParamCreator = function (configuration?: Configuration) {
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(generateSchemaMappingRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -983,11 +1414,12 @@ export const AIApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Generate schema mapping between source and destination
+         * @param {GenerateSchemaMappingRequest} generateSchemaMappingRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async aIControllerGenerateMapping(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGenerateMapping(options);
+        async aIControllerGenerateMapping(generateSchemaMappingRequest: GenerateSchemaMappingRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGenerateMapping(generateSchemaMappingRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGenerateMapping']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1138,11 +1570,12 @@ export const AIApiFactory = function (configuration?: Configuration, basePath?: 
         /**
          * 
          * @summary Generate schema mapping between source and destination
+         * @param {GenerateSchemaMappingRequest} generateSchemaMappingRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        aIControllerGenerateMapping(options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.aIControllerGenerateMapping(options).then((request) => request(axios, basePath));
+        aIControllerGenerateMapping(generateSchemaMappingRequest: GenerateSchemaMappingRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGenerateMapping(generateSchemaMappingRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1263,11 +1696,12 @@ export class AIApi extends BaseAPI {
     /**
      * 
      * @summary Generate schema mapping between source and destination
+     * @param {GenerateSchemaMappingRequest} generateSchemaMappingRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public aIControllerGenerateMapping(options?: RawAxiosRequestConfig) {
-        return AIApiFp(this.configuration).aIControllerGenerateMapping(options).then((request) => request(this.axios, this.basePath));
+    public aIControllerGenerateMapping(generateSchemaMappingRequest: GenerateSchemaMappingRequest, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGenerateMapping(generateSchemaMappingRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3306,6 +3740,850 @@ export const ExecutionsControllerFindAllStatusEnum = {
     Cancelled: 'CANCELLED'
 } as const;
 export type ExecutionsControllerFindAllStatusEnum = typeof ExecutionsControllerFindAllStatusEnum[keyof typeof ExecutionsControllerFindAllStatusEnum];
+
+
+/**
+ * FieldMappingsApi - axios parameter creator
+ */
+export const FieldMappingsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Apply a mapping to data
+         * @param {ApplyMappingDto} applyMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerApplyMapping: async (applyMappingDto: ApplyMappingDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'applyMappingDto' is not null or undefined
+            assertParamExists('mappingsControllerApplyMapping', 'applyMappingDto', applyMappingDto)
+            const localVarPath = `/mappings/apply`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(applyMappingDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Create a new field mapping
+         * @param {CreateMappingDto} createMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerCreate: async (createMappingDto: CreateMappingDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createMappingDto' is not null or undefined
+            assertParamExists('mappingsControllerCreate', 'createMappingDto', createMappingDto)
+            const localVarPath = `/mappings`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createMappingDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete a field mapping
+         * @param {string} id Mapping ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerDelete: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('mappingsControllerDelete', 'id', id)
+            const localVarPath = `/mappings/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List all field mappings
+         * @param {string} [sourceInstanceId] Filter by source instance ID
+         * @param {string} [destinationInstanceId] Filter by destination instance ID
+         * @param {MappingsControllerFindAllTypeEnum} [type] Filter by mapping type
+         * @param {MappingsControllerFindAllSourceTypeEnum} [sourceType] Filter by source type
+         * @param {MappingsControllerFindAllDestinationTypeEnum} [destinationType] Filter by destination type
+         * @param {boolean} [isActive] Filter by active status
+         * @param {string} [search] Search by name
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerFindAll: async (sourceInstanceId?: string, destinationInstanceId?: string, type?: MappingsControllerFindAllTypeEnum, sourceType?: MappingsControllerFindAllSourceTypeEnum, destinationType?: MappingsControllerFindAllDestinationTypeEnum, isActive?: boolean, search?: string, page?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/mappings`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (sourceInstanceId !== undefined) {
+                localVarQueryParameter['sourceInstanceId'] = sourceInstanceId;
+            }
+
+            if (destinationInstanceId !== undefined) {
+                localVarQueryParameter['destinationInstanceId'] = destinationInstanceId;
+            }
+
+            if (type !== undefined) {
+                localVarQueryParameter['type'] = type;
+            }
+
+            if (sourceType !== undefined) {
+                localVarQueryParameter['sourceType'] = sourceType;
+            }
+
+            if (destinationType !== undefined) {
+                localVarQueryParameter['destinationType'] = destinationType;
+            }
+
+            if (isActive !== undefined) {
+                localVarQueryParameter['isActive'] = isActive;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get a field mapping by ID
+         * @param {string} id Mapping ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('mappingsControllerFindOne', 'id', id)
+            const localVarPath = `/mappings/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Generate field mapping using AI
+         * @param {GenerateMappingDto} generateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerGenerateMapping: async (generateMappingDto: GenerateMappingDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'generateMappingDto' is not null or undefined
+            assertParamExists('mappingsControllerGenerateMapping', 'generateMappingDto', generateMappingDto)
+            const localVarPath = `/mappings/generate`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(generateMappingDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get available mappings for an instance
+         * @param {string} instanceId Aggregator instance ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerGetAvailableMappings: async (instanceId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'instanceId' is not null or undefined
+            assertParamExists('mappingsControllerGetAvailableMappings', 'instanceId', instanceId)
+            const localVarPath = `/mappings/instance/{instanceId}/available`
+                .replace(`{${"instanceId"}}`, encodeURIComponent(String(instanceId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Quick generate mapping from existing instances
+         * @param {QuickGenerateMappingDto} quickGenerateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerQuickGenerateMapping: async (quickGenerateMappingDto: QuickGenerateMappingDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'quickGenerateMappingDto' is not null or undefined
+            assertParamExists('mappingsControllerQuickGenerateMapping', 'quickGenerateMappingDto', quickGenerateMappingDto)
+            const localVarPath = `/mappings/generate/quick`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(quickGenerateMappingDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update a field mapping
+         * @param {string} id Mapping ID
+         * @param {UpdateMappingDto} updateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerUpdate: async (id: string, updateMappingDto: UpdateMappingDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('mappingsControllerUpdate', 'id', id)
+            // verify required parameter 'updateMappingDto' is not null or undefined
+            assertParamExists('mappingsControllerUpdate', 'updateMappingDto', updateMappingDto)
+            const localVarPath = `/mappings/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateMappingDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Validate a mapping
+         * @param {ValidateMappingDto} validateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerValidateMapping: async (validateMappingDto: ValidateMappingDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'validateMappingDto' is not null or undefined
+            assertParamExists('mappingsControllerValidateMapping', 'validateMappingDto', validateMappingDto)
+            const localVarPath = `/mappings/validate`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(validateMappingDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * FieldMappingsApi - functional programming interface
+ */
+export const FieldMappingsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = FieldMappingsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Apply a mapping to data
+         * @param {ApplyMappingDto} applyMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerApplyMapping(applyMappingDto: ApplyMappingDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerApplyMapping(applyMappingDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerApplyMapping']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Create a new field mapping
+         * @param {CreateMappingDto} createMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerCreate(createMappingDto: CreateMappingDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerCreate(createMappingDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete a field mapping
+         * @param {string} id Mapping ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerDelete(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerDelete(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List all field mappings
+         * @param {string} [sourceInstanceId] Filter by source instance ID
+         * @param {string} [destinationInstanceId] Filter by destination instance ID
+         * @param {MappingsControllerFindAllTypeEnum} [type] Filter by mapping type
+         * @param {MappingsControllerFindAllSourceTypeEnum} [sourceType] Filter by source type
+         * @param {MappingsControllerFindAllDestinationTypeEnum} [destinationType] Filter by destination type
+         * @param {boolean} [isActive] Filter by active status
+         * @param {string} [search] Search by name
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerFindAll(sourceInstanceId?: string, destinationInstanceId?: string, type?: MappingsControllerFindAllTypeEnum, sourceType?: MappingsControllerFindAllSourceTypeEnum, destinationType?: MappingsControllerFindAllDestinationTypeEnum, isActive?: boolean, search?: string, page?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerFindAll(sourceInstanceId, destinationInstanceId, type, sourceType, destinationType, isActive, search, page, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get a field mapping by ID
+         * @param {string} id Mapping ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerFindOne(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Generate field mapping using AI
+         * @param {GenerateMappingDto} generateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerGenerateMapping(generateMappingDto: GenerateMappingDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerGenerateMapping(generateMappingDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerGenerateMapping']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get available mappings for an instance
+         * @param {string} instanceId Aggregator instance ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerGetAvailableMappings(instanceId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerGetAvailableMappings(instanceId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerGetAvailableMappings']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Quick generate mapping from existing instances
+         * @param {QuickGenerateMappingDto} quickGenerateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerQuickGenerateMapping(quickGenerateMappingDto: QuickGenerateMappingDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerQuickGenerateMapping(quickGenerateMappingDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerQuickGenerateMapping']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update a field mapping
+         * @param {string} id Mapping ID
+         * @param {UpdateMappingDto} updateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerUpdate(id: string, updateMappingDto: UpdateMappingDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerUpdate(id, updateMappingDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Validate a mapping
+         * @param {ValidateMappingDto} validateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerValidateMapping(validateMappingDto: ValidateMappingDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerValidateMapping(validateMappingDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerValidateMapping']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * FieldMappingsApi - factory interface
+ */
+export const FieldMappingsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = FieldMappingsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Apply a mapping to data
+         * @param {ApplyMappingDto} applyMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerApplyMapping(applyMappingDto: ApplyMappingDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerApplyMapping(applyMappingDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Create a new field mapping
+         * @param {CreateMappingDto} createMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerCreate(createMappingDto: CreateMappingDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerCreate(createMappingDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete a field mapping
+         * @param {string} id Mapping ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerDelete(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerDelete(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List all field mappings
+         * @param {string} [sourceInstanceId] Filter by source instance ID
+         * @param {string} [destinationInstanceId] Filter by destination instance ID
+         * @param {MappingsControllerFindAllTypeEnum} [type] Filter by mapping type
+         * @param {MappingsControllerFindAllSourceTypeEnum} [sourceType] Filter by source type
+         * @param {MappingsControllerFindAllDestinationTypeEnum} [destinationType] Filter by destination type
+         * @param {boolean} [isActive] Filter by active status
+         * @param {string} [search] Search by name
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerFindAll(sourceInstanceId?: string, destinationInstanceId?: string, type?: MappingsControllerFindAllTypeEnum, sourceType?: MappingsControllerFindAllSourceTypeEnum, destinationType?: MappingsControllerFindAllDestinationTypeEnum, isActive?: boolean, search?: string, page?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerFindAll(sourceInstanceId, destinationInstanceId, type, sourceType, destinationType, isActive, search, page, limit, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get a field mapping by ID
+         * @param {string} id Mapping ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Generate field mapping using AI
+         * @param {GenerateMappingDto} generateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerGenerateMapping(generateMappingDto: GenerateMappingDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerGenerateMapping(generateMappingDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get available mappings for an instance
+         * @param {string} instanceId Aggregator instance ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerGetAvailableMappings(instanceId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerGetAvailableMappings(instanceId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Quick generate mapping from existing instances
+         * @param {QuickGenerateMappingDto} quickGenerateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerQuickGenerateMapping(quickGenerateMappingDto: QuickGenerateMappingDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerQuickGenerateMapping(quickGenerateMappingDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update a field mapping
+         * @param {string} id Mapping ID
+         * @param {UpdateMappingDto} updateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerUpdate(id: string, updateMappingDto: UpdateMappingDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerUpdate(id, updateMappingDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Validate a mapping
+         * @param {ValidateMappingDto} validateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerValidateMapping(validateMappingDto: ValidateMappingDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerValidateMapping(validateMappingDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * FieldMappingsApi - object-oriented interface
+ */
+export class FieldMappingsApi extends BaseAPI {
+    /**
+     * 
+     * @summary Apply a mapping to data
+     * @param {ApplyMappingDto} applyMappingDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerApplyMapping(applyMappingDto: ApplyMappingDto, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerApplyMapping(applyMappingDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Create a new field mapping
+     * @param {CreateMappingDto} createMappingDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerCreate(createMappingDto: CreateMappingDto, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerCreate(createMappingDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete a field mapping
+     * @param {string} id Mapping ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerDelete(id: string, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerDelete(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List all field mappings
+     * @param {string} [sourceInstanceId] Filter by source instance ID
+     * @param {string} [destinationInstanceId] Filter by destination instance ID
+     * @param {MappingsControllerFindAllTypeEnum} [type] Filter by mapping type
+     * @param {MappingsControllerFindAllSourceTypeEnum} [sourceType] Filter by source type
+     * @param {MappingsControllerFindAllDestinationTypeEnum} [destinationType] Filter by destination type
+     * @param {boolean} [isActive] Filter by active status
+     * @param {string} [search] Search by name
+     * @param {number} [page] Page number
+     * @param {number} [limit] Items per page
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerFindAll(sourceInstanceId?: string, destinationInstanceId?: string, type?: MappingsControllerFindAllTypeEnum, sourceType?: MappingsControllerFindAllSourceTypeEnum, destinationType?: MappingsControllerFindAllDestinationTypeEnum, isActive?: boolean, search?: string, page?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerFindAll(sourceInstanceId, destinationInstanceId, type, sourceType, destinationType, isActive, search, page, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get a field mapping by ID
+     * @param {string} id Mapping ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Generate field mapping using AI
+     * @param {GenerateMappingDto} generateMappingDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerGenerateMapping(generateMappingDto: GenerateMappingDto, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerGenerateMapping(generateMappingDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get available mappings for an instance
+     * @param {string} instanceId Aggregator instance ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerGetAvailableMappings(instanceId: string, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerGetAvailableMappings(instanceId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Quick generate mapping from existing instances
+     * @param {QuickGenerateMappingDto} quickGenerateMappingDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerQuickGenerateMapping(quickGenerateMappingDto: QuickGenerateMappingDto, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerQuickGenerateMapping(quickGenerateMappingDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update a field mapping
+     * @param {string} id Mapping ID
+     * @param {UpdateMappingDto} updateMappingDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerUpdate(id: string, updateMappingDto: UpdateMappingDto, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerUpdate(id, updateMappingDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Validate a mapping
+     * @param {ValidateMappingDto} validateMappingDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerValidateMapping(validateMappingDto: ValidateMappingDto, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerValidateMapping(validateMappingDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+export const MappingsControllerFindAllTypeEnum = {
+    Column: 'COLUMN',
+    Field: 'FIELD',
+    Transform: 'TRANSFORM',
+    Aggregator: 'AGGREGATOR',
+    MiniConnector: 'MINI_CONNECTOR',
+    Hybrid: 'HYBRID'
+} as const;
+export type MappingsControllerFindAllTypeEnum = typeof MappingsControllerFindAllTypeEnum[keyof typeof MappingsControllerFindAllTypeEnum];
+export const MappingsControllerFindAllSourceTypeEnum = {
+    Database: 'database',
+    Sdk: 'sdk',
+    Aggregator: 'aggregator',
+    MiniConnector: 'mini-connector'
+} as const;
+export type MappingsControllerFindAllSourceTypeEnum = typeof MappingsControllerFindAllSourceTypeEnum[keyof typeof MappingsControllerFindAllSourceTypeEnum];
+export const MappingsControllerFindAllDestinationTypeEnum = {
+    Database: 'database',
+    Sdk: 'sdk',
+    Aggregator: 'aggregator',
+    MiniConnector: 'mini-connector'
+} as const;
+export type MappingsControllerFindAllDestinationTypeEnum = typeof MappingsControllerFindAllDestinationTypeEnum[keyof typeof MappingsControllerFindAllDestinationTypeEnum];
 
 
 /**

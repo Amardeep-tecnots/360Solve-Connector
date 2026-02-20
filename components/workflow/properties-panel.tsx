@@ -25,7 +25,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { toast } from "sonner"
 import type { RootState, AppDispatch } from "@/lib/store"
 import { updateNode } from "@/lib/store/slices/workflow-slice"
-import { generateMapping, clearGeneratedMapping } from "@/lib/store/slices/ai-slice"
+import { generateMapping, clearGeneratedMapping, SchemaConfig } from "@/lib/store/slices/ai-slice"
 import type { NodeType, ConnectionMethod, CanvasNode, CanvasConnection, ConnectionConfig } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { apiClient } from "@/lib/api/api-client"
@@ -857,59 +857,68 @@ function TransformConfigWithAI({ node, updateConfig, nodes, connections, aggrega
     }
   }, [mappingError, showMapping])
 
-  // Build schema from node configuration
-  // Returns schema in format expected by backend: { tableName, columns }
-  const buildSchemaFromNode = (node: CanvasNode | null): Record<string, any> => {
+  // Build schema config from node configuration
+  // Returns SchemaConfig in the new format expected by backend (GenerateSchemaConfigDto)
+  const buildSchemaFromNode = (node: CanvasNode | null): SchemaConfig | null => {
     if (!node || !node.connectionConfig) {
-      return { tableName: '', columns: [] }
+      return null
     }
 
     const config = node.connectionConfig
 
-    // For mini connector - use the selected columns
+    // For mini connector - use the selected columns and table
     if (config.method === 'mini_connector') {
       return {
-        tableName: config.table || config.database || 'mini_connector_table',
-        columns: config.columns || [],
+        type: 'mini-connector',
         connectorId: config.connectorId,
-        database: config.database
+        name: config.table || config.database || 'mini_connector_table',
+        fields: (config.columns || []).map((col: string) => ({
+          name: col,
+          type: 'string' // Type not available from current data, default to string
+        })),
+        description: `Mini connector table: ${config.database}.${config.table}`
       }
     }
 
-    // For aggregator - try to get schema from aggregator config
+    // For aggregator - use the aggregator instance
     if (config.method === 'aggregator' && config.aggregatorId) {
       const aggregator = aggregators.find(a => a.id === config.aggregatorId)
       return {
-        tableName: aggregator?.name || 'aggregator_table',
-        columns: aggregator?.configSchema?.fields?.map((f: any) => f.name) || [],
-        aggregatorId: config.aggregatorId,
-        aggregatorName: aggregator?.name
+        type: 'aggregator',
+        instanceId: config.aggregatorId,
+        name: aggregator?.name || 'aggregator_table',
+        fields: aggregator?.configSchema?.fields?.map((f: any) => ({
+          name: f.name,
+          type: f.type || 'string'
+        })) || [],
+        description: `Aggregator: ${aggregator?.name || 'Unknown'}`
       }
     }
 
-    // For credentials - use database/table info
+    // For credentials - direct database connection
     if (config.method === 'credentials') {
       return {
-        tableName: config.table || config.database || 'database_table',
-        columns: [], // Would need backend to discover columns
-        host: config.host,
-        port: config.port,
-        database: config.database,
-        dbType: config.dbType
+        type: 'database',
+        name: config.table || config.database || 'database_table',
+        fields: [], // Would need backend to discover columns
+        description: `Database: ${config.dbType}://${config.host}:${config.port}/${config.database}`
       }
     }
 
-    // For generated SDK - use SDK methods/schema
+    // For generated SDK - use SDK methods
     if (config.method === 'generated_sdk' && config.sdkId) {
       return {
-        tableName: 'sdk_source',
-        columns: config.sdkMethods || [],
-        sdkId: config.sdkId,
-        sdkName: config.sdkName
+        type: 'sdk',
+        name: config.sdkName || 'sdk_source',
+        fields: (config.sdkMethods || []).map((method: string) => ({
+          name: method,
+          type: 'method'
+        })),
+        description: `Generated SDK: ${config.sdkName || 'Unknown'}`
       }
     }
 
-    return { tableName: '', columns: [] }
+    return null
   }
 
   const handleGenerateMapping = async () => {
@@ -923,30 +932,40 @@ function TransformConfigWithAI({ node, updateConfig, nodes, connections, aggrega
       return
     }
 
-    const sourceSchema = buildSchemaFromNode(sourceNode)
-    const destinationSchema = buildSchemaFromNode(destinationNode)
+    const source = buildSchemaFromNode(sourceNode)
+    const destination = buildSchemaFromNode(destinationNode)
+
+    if (!source) {
+      toast.error("Invalid source configuration", { description: "The source node does not have a valid connection configuration." })
+      return
+    }
+
+    if (!destination) {
+      toast.error("Invalid destination configuration", { description: "The destination node does not have a valid connection configuration." })
+      return
+    }
 
     // Check if we have meaningful schema data
-    const hasSourceColumns = sourceSchema.columns && sourceSchema.columns.length > 0
-    const hasDestColumns = destinationSchema.columns && destinationSchema.columns.length > 0
+    const hasSourceFields = source.fields && source.fields.length > 0
+    const hasDestFields = destination.fields && destination.fields.length > 0
 
-    if (!hasSourceColumns) {
+    if (!hasSourceFields) {
       toast.warning("Limited source schema", { 
-        description: "The source node has no column data. Configure the source connection with specific columns for better mappings, or the AI will make its best guess." 
+        description: "The source node has no field data. Configure the source connection with specific columns for better mappings, or the AI will make its best guess." 
       })
     }
 
-    if (!hasDestColumns) {
+    if (!hasDestFields) {
       toast.warning("Limited destination schema", { 
-        description: "The destination node has no column data. Configure the destination connection for better mappings." 
+        description: "The destination node has no field data. Configure the destination connection for better mappings." 
       })
     }
 
     setShowMapping(true)
     try {
       await dispatch(generateMapping({
-        sourceSchema,
-        destinationSchema
+        source,
+        destination
       })).unwrap()
     } catch (error) {
       // Error handled by useEffect

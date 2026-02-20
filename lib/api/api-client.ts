@@ -1,5 +1,5 @@
 import { Configuration } from '@/src/generated/api/configuration'
-import { AuthApi, AggregatorsApi, TenantAggregatorsApi, SchemaDiscoveryApi, WorkflowsApi, ExecutionsApi, ConnectorsApi, TenantsApi, UsersApi, AIApi } from '@/src/generated/api/api'
+import { AuthApi, AggregatorsApi, TenantAggregatorsApi, SchemaDiscoveryApi, WorkflowsApi, ExecutionsApi, ConnectorsApi, TenantsApi, UsersApi, AIApi, FieldMappingsApi } from '@/src/generated/api/api'
 import type {
   SignInDto,
   SignUpDto,
@@ -86,6 +86,7 @@ export class ApiClient {
   private tenantsApi!: TenantsApi
   private usersApi!: UsersApi
   private aiApi!: AIApi
+  private fieldMappingsApi!: FieldMappingsApi
   private configuration: Configuration
 
   constructor() {
@@ -132,6 +133,7 @@ export class ApiClient {
     this.tenantsApi = new TenantsApi(this.configuration)
     this.usersApi = new UsersApi(this.configuration)
     this.aiApi = new AIApi(this.configuration)
+    this.fieldMappingsApi = new FieldMappingsApi(this.configuration)
   }
 
   // Call this after login/logout to refresh API instances with new token
@@ -181,6 +183,10 @@ export class ApiClient {
     return this.aiApi
   }
 
+  get fieldMappings() {
+    return this.fieldMappingsApi
+  }
+
   // ==================== AI Helpers ====================
 
   // Get available AI providers
@@ -216,21 +222,62 @@ export class ApiClient {
   }
 
   // Generate schema mapping between source and destination
+  // Uses FieldMappingsApi with GenerateMappingDto - supports database, SDK, aggregator, and mini-connector types
   async generateMapping(
-    sourceSchema: Record<string, any>,
-    destinationSchema: Record<string, any>,
-    provider?: string,
-    model?: string
+    source: {
+      instanceId?: string
+      type: 'database' | 'sdk' | 'aggregator' | 'mini-connector'
+      connectorId?: string
+      name: string
+      fields?: Array<{ name: string; type: string; nullable?: boolean; description?: string; sampleValue?: any; nested?: any[] }>
+      schema?: Record<string, any>
+      description?: string
+    },
+    destination: {
+      instanceId?: string
+      type: 'database' | 'sdk' | 'aggregator' | 'mini-connector'
+      connectorId?: string
+      name: string
+      fields?: Array<{ name: string; type: string; nullable?: boolean; description?: string; sampleValue?: any; nested?: any[] }>
+      schema?: Record<string, any>
+      description?: string
+    },
+    options?: {
+      name?: string
+      description?: string
+      mappingHint?: string
+      model?: string
+      saveMapping?: boolean
+    }
   ) {
-    // Pass body via options.data since the generated API doesn't have a body parameter
-    const response = await this.aiApi.aIControllerGenerateMapping({
-      data: {
-        sourceSchema,
-        destinationSchema,
-        provider,
-        model
-      }
-    })
+    const request: GenerateMappingDto = {
+      name: options?.name,
+      description: options?.description,
+      source: {
+        instanceId: source.instanceId,
+        type: source.type as any,
+        connectorId: source.connectorId,
+        name: source.name,
+        fields: source.fields,
+        schema: source.schema,
+        description: source.description
+      },
+      destination: {
+        instanceId: destination.instanceId,
+        type: destination.type as any,
+        connectorId: destination.connectorId,
+        name: destination.name,
+        fields: destination.fields,
+        schema: destination.schema,
+        description: destination.description
+      },
+      mappingHint: options?.mappingHint,
+      model: options?.model,
+      saveMapping: options?.saveMapping
+    }
+    
+    // Use FieldMappingsApi which supports all source/destination types
+    const response = await this.fieldMappingsApi.mappingsControllerGenerateMapping(request)
     return (response.data as any)?.data || response.data
   }
 
@@ -553,6 +600,93 @@ export class ApiClient {
 
   async getMiniColumns(id: string, database: string, table: string) {
     const response = await this.connectors.connectorsControllerGetMiniColumns(id, database, table)
+    return (response.data as any)?.data || response.data
+  }
+
+  // Field Mappings helpers
+  async listMappings(params?: {
+    sourceInstanceId?: string
+    destinationInstanceId?: string
+    type?: string
+    sourceType?: string
+    destinationType?: string
+    isActive?: boolean
+    search?: string
+    page?: number
+    limit?: number
+  }) {
+    const response = await this.fieldMappingsApi.mappingsControllerFindAll(
+      params?.sourceInstanceId,
+      params?.destinationInstanceId,
+      params?.type as any,
+      params?.sourceType as any,
+      params?.destinationType as any,
+      params?.isActive,
+      params?.search,
+      params?.page,
+      params?.limit
+    )
+    return (response.data as any)?.data || response.data
+  }
+
+  async getMapping(id: string) {
+    const response = await this.fieldMappingsApi.mappingsControllerFindOne(id)
+    return (response.data as any)?.data || response.data
+  }
+
+  async createMapping(data: any) {
+    const response = await this.fieldMappingsApi.mappingsControllerCreate(data)
+    return (response.data as any)?.data || response.data
+  }
+
+  async updateMapping(id: string, data: any) {
+    const response = await this.fieldMappingsApi.mappingsControllerUpdate(id, data)
+    return (response.data as any)?.data || response.data
+  }
+
+  async deleteMapping(id: string) {
+    await this.fieldMappingsApi.mappingsControllerDelete(id)
+  }
+
+  async validateMapping(data: any) {
+    const response = await this.fieldMappingsApi.mappingsControllerValidateMapping(data)
+    return (response.data as any)?.data || response.data
+  }
+
+  async quickGenerateMapping(data: {
+    sourceInstanceId: string
+    destinationInstanceId: string
+    sourceName?: string
+    destinationName?: string
+    name?: string
+    description?: string
+    mappingHint?: string
+    saveMapping?: boolean
+  }) {
+    const response = await this.fieldMappingsApi.mappingsControllerQuickGenerateMapping({
+      sourceInstanceId: data.sourceInstanceId,
+      destinationInstanceId: data.destinationInstanceId,
+      sourceName: data.sourceName,
+      destinationName: data.destinationName,
+      name: data.name,
+      description: data.description,
+      mappingHint: data.mappingHint,
+      saveMapping: data.saveMapping
+    })
+    return (response.data as any)?.data || response.data
+  }
+
+  async applyMapping(mappingId: string, data: any, fields?: string[]) {
+    const response = await this.fieldMappingsApi.mappingsControllerApplyMapping({
+      mappingId,
+      data,
+      fields
+    })
+    return (response.data as any)?.data || response.data
+  }
+
+  async getAvailableMappings(instanceId: string) {
+    const response = await this.fieldMappingsApi.mappingsControllerGetAvailableMappings(instanceId)
     return (response.data as any)?.data || response.data
   }
 
