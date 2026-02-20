@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **model** | **string** | Custom model to use for generation | [optional] [default to undefined]
 **className** | **string** | SDK class name - used as the TypeScript class name in generated SDK | [optional] [default to undefined]
 **aggregatorId** | **string** | Existing aggregator ID to link the SDK to (preserves aggregator name) | [optional] [default to undefined]
+**credentials** | [**SDKCredentialsDto**](SDKCredentialsDto.md) | API credentials to store for this SDK (used when executing SDK methods) | [optional] [default to undefined]
 
 ## Example
 
@@ -20,6 +21,7 @@ const instance: GenerateSDKRequest = {
     model,
     className,
     aggregatorId,
+    credentials,
 };
 ```
 

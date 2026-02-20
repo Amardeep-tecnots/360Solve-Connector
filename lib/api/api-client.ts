@@ -222,21 +222,35 @@ export class ApiClient {
     provider?: string,
     model?: string
   ) {
+    // Pass body via options.data since the generated API doesn't have a body parameter
     const response = await this.aiApi.aIControllerGenerateMapping({
-      sourceSchema,
-      destinationSchema,
-      provider,
-      model
-    } as any)
+      data: {
+        sourceSchema,
+        destinationSchema,
+        provider,
+        model
+      }
+    })
     return (response.data as any)?.data || response.data
   }
 
   // Generate SDK from OpenAPI specification
-  async generateSDK(openApiSpec: string | Record<string, any>, className: string, model?: string) {
+  async generateSDK(
+    openApiSpec: string | Record<string, any>,
+    className: string,
+    credentials?: { baseUrl: string; apiKey?: string; bearerToken?: string; timeout?: number },
+    model?: string
+  ) {
     const request: GenerateSDKRequest = {
       openApiSpec: typeof openApiSpec === 'string' ? openApiSpec : JSON.stringify(openApiSpec),
       className,
       model,
+      credentials: credentials ? {
+        baseUrl: credentials.baseUrl,
+        apiKey: credentials.apiKey,
+        bearerToken: credentials.bearerToken,
+        timeout: credentials.timeout
+      } : undefined
     }
     const response = await this.aiApi.aIControllerGenerateSDK(request)
     return (response.data as any)?.data || response.data

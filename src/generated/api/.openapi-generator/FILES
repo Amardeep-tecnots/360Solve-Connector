@@ -32,6 +32,7 @@ docs/PreviewTableDto.md
 docs/PublicConnectorsApi.md
 docs/RefreshTokenDto.md
 docs/ResumeExecutionDto.md
+docs/SDKCredentialsDto.md
 docs/SchemaDiscoveryApi.md
 docs/SchemaDiscoveryResponseDto.md
 docs/SignInDto.md

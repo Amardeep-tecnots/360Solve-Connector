@@ -136,6 +136,7 @@ Class | Method | HTTP request | Description
  - [PreviewTableDto](docs/PreviewTableDto.md)
  - [RefreshTokenDto](docs/RefreshTokenDto.md)
  - [ResumeExecutionDto](docs/ResumeExecutionDto.md)
+ - [SDKCredentialsDto](docs/SDKCredentialsDto.md)
  - [SchemaDiscoveryResponseDto](docs/SchemaDiscoveryResponseDto.md)
  - [SignInDto](docs/SignInDto.md)
  - [SignUpDto](docs/SignUpDto.md)

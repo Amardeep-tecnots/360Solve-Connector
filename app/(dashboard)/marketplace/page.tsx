@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { Search, SlidersHorizontal, Loader2, Sparkles, Code, Download, FileCode } from "lucide-react"
+import { Search, SlidersHorizontal, Loader2, Sparkles, Code, Download, FileCode, ChevronDown, ChevronUp, Key, Lock, Clock, Globe } from "lucide-react"
 import { AggregatorCard } from "@/components/marketplace/aggregator-card"
 import { InstallDialog } from "@/components/marketplace/install-dialog"
 import { ConfigureModal } from "@/components/marketplace/configure-modal"
@@ -42,6 +42,16 @@ export default function MarketplacePage() {
   const [sdkName, setSdkName] = useState("")
   const [openApiSpec, setOpenApiSpec] = useState("")
   const [showSDKTab, setShowSDKTab] = useState(false)
+  
+  // SDK Credentials state
+  const [showCredentials, setShowCredentials] = useState(false)
+  const [credentials, setCredentials] = useState({
+    baseUrl: "",
+    apiKey: "",
+    bearerToken: "",
+    timeout: 30000,
+    authType: "apiKey" as "apiKey" | "bearerToken"
+  })
 
   // Load marketplace on mount
   useEffect(() => {
@@ -76,15 +86,35 @@ export default function MarketplacePage() {
       return
     }
 
+    // Validate credentials if shown
+    if (showCredentials && !credentials.baseUrl.trim()) {
+      toast.error("Base URL is required when credentials are enabled")
+      return
+    }
+
     try {
       await dispatch(generateSDK({
         className: sdkName,
-        openApiSpec: openApiSpec
+        openApiSpec: openApiSpec,
+        credentials: showCredentials ? {
+          baseUrl: credentials.baseUrl,
+          apiKey: credentials.authType === "apiKey" ? credentials.apiKey : undefined,
+          bearerToken: credentials.authType === "bearerToken" ? credentials.bearerToken : undefined,
+          timeout: credentials.timeout
+        } : undefined
       })).unwrap()
       
       toast.success("SDK generation started")
       setSdkName("")
       setOpenApiSpec("")
+      setShowCredentials(false)
+      setCredentials({
+        baseUrl: "",
+        apiKey: "",
+        bearerToken: "",
+        timeout: 30000,
+        authType: "apiKey"
+      })
       // Refresh SDKs list
       dispatch(fetchSDKs())
     } catch (error) {
@@ -335,6 +365,114 @@ export default function MarketplacePage() {
                   rows={10}
                   className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 font-mono"
                 />
+              </div>
+              
+              {/* API Credentials Section */}
+              <div className="border border-border rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setShowCredentials(!showCredentials)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-accent/30 hover:bg-accent/50 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <Key className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-foreground">API Credentials (Optional)</span>
+                  </div>
+                  {showCredentials ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
+                
+                {showCredentials && (
+                  <div className="p-4 space-y-4 bg-background">
+                    <p className="text-xs text-muted-foreground">
+                      Provide API credentials to be stored with the SDK. These will be used when executing SDK methods.
+                    </p>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">
+                        Base URL <span className="text-destructive">*</span>
+                      </label>
+                      <div className="relative">
+                        <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <input
+                          type="url"
+                          value={credentials.baseUrl}
+                          onChange={(e) => setCredentials({ ...credentials, baseUrl: e.target.value })}
+                          placeholder="https://api.example.com"
+                          className="w-full rounded-md border border-border bg-background pl-10 pr-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">
+                        Authentication Type
+                      </label>
+                      <select
+                        value={credentials.authType}
+                        onChange={(e) => setCredentials({ ...credentials, authType: e.target.value as "apiKey" | "bearerToken" })}
+                        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                      >
+                        <option value="apiKey">API Key</option>
+                        <option value="bearerToken">Bearer Token</option>
+                      </select>
+                    </div>
+                    
+                    {credentials.authType === "apiKey" ? (
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-1">
+                          API Key
+                        </label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <input
+                            type="password"
+                            value={credentials.apiKey}
+                            onChange={(e) => setCredentials({ ...credentials, apiKey: e.target.value })}
+                            placeholder="••••••••••••••••"
+                            className="w-full rounded-md border border-border bg-background pl-10 pr-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-1">
+                          Bearer Token
+                        </label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <input
+                            type="password"
+                            value={credentials.bearerToken}
+                            onChange={(e) => setCredentials({ ...credentials, bearerToken: e.target.value })}
+                            placeholder="••••••••••••••••"
+                            className="w-full rounded-md border border-border bg-background pl-10 pr-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">
+                        Timeout (ms)
+                      </label>
+                      <div className="relative">
+                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <input
+                          type="number"
+                          value={credentials.timeout}
+                          onChange={(e) => setCredentials({ ...credentials, timeout: parseInt(e.target.value) || 30000 })}
+                          placeholder="30000"
+                          className="w-full rounded-md border border-border bg-background pl-10 pr-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">Default: 30000ms (30 seconds)</p>
+                    </div>
+                  </div>
+                )}
               </div>
               
               <button

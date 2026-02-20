@@ -645,7 +645,7 @@ export function PropertiesPanel({ node, nodes, connections }: PropertiesPanelPro
                       </div>
                       <div className="max-h-32 overflow-y-auto space-y-1">
                         {(sdkInfo.methods || []).map((method: any, idx: number) => (
-                          <div key={idx} className="flex items-center gap-2 px-2 py-1 rounded bg-background/50">
+                          <div key={`sdk-method-${idx}-${method.name || method}`} className="flex items-center gap-2 px-2 py-1 rounded bg-background/50">
                             <Code className="h-3 w-3 text-primary" />
                             <span className="text-[10px] font-mono text-foreground">{method.name || method}</span>
                           </div>
@@ -664,8 +664,8 @@ export function PropertiesPanel({ node, nodes, connections }: PropertiesPanelPro
                         onChange={e => updateConfig({ sdkMethods: [e.target.value] })}
                       >
                         <option value="" className="bg-card">Select a method...</option>
-                        {sdkInfo.methods.map((method: any) => (
-                          <option key={method.name || method} value={method.name || method} className="bg-card">
+                        {sdkInfo.methods.map((method: any, idx: number) => (
+                          <option key={`method-opt-${idx}-${method.name || method}`} value={method.name || method} className="bg-card">
                             {method.name || method}
                           </option>
                         ))}
@@ -858,20 +858,19 @@ function TransformConfigWithAI({ node, updateConfig, nodes, connections, aggrega
   }, [mappingError, showMapping])
 
   // Build schema from node configuration
+  // Returns schema in format expected by backend: { tableName, columns }
   const buildSchemaFromNode = (node: CanvasNode | null): Record<string, any> => {
     if (!node || !node.connectionConfig) {
-      return { tables: [] }
+      return { tableName: '', columns: [] }
     }
 
     const config = node.connectionConfig
 
     // For mini connector - use the selected columns
-    if (config.method === 'mini_connector' && config.columns && config.columns.length > 0) {
+    if (config.method === 'mini_connector') {
       return {
-        tables: [{
-          name: config.table || 'unknown_table',
-          columns: config.columns
-        }],
+        tableName: config.table || config.database || 'mini_connector_table',
+        columns: config.columns || [],
         connectorId: config.connectorId,
         database: config.database
       }
@@ -881,7 +880,8 @@ function TransformConfigWithAI({ node, updateConfig, nodes, connections, aggrega
     if (config.method === 'aggregator' && config.aggregatorId) {
       const aggregator = aggregators.find(a => a.id === config.aggregatorId)
       return {
-        tables: aggregator?.configSchema?.fields?.map((f: any) => f.name) || [],
+        tableName: aggregator?.name || 'aggregator_table',
+        columns: aggregator?.configSchema?.fields?.map((f: any) => f.name) || [],
         aggregatorId: config.aggregatorId,
         aggregatorName: aggregator?.name
       }
@@ -890,10 +890,8 @@ function TransformConfigWithAI({ node, updateConfig, nodes, connections, aggrega
     // For credentials - use database/table info
     if (config.method === 'credentials') {
       return {
-        tables: [{
-          name: config.table || config.database || 'unknown_table',
-          columns: [] // Would need backend to discover columns
-        }],
+        tableName: config.table || config.database || 'database_table',
+        columns: [], // Would need backend to discover columns
         host: config.host,
         port: config.port,
         database: config.database,
@@ -904,13 +902,14 @@ function TransformConfigWithAI({ node, updateConfig, nodes, connections, aggrega
     // For generated SDK - use SDK methods/schema
     if (config.method === 'generated_sdk' && config.sdkId) {
       return {
+        tableName: 'sdk_source',
+        columns: config.sdkMethods || [],
         sdkId: config.sdkId,
-        sdkName: config.sdkName,
-        methods: config.sdkMethods || []
+        sdkName: config.sdkName
       }
     }
 
-    return { tables: [] }
+    return { tableName: '', columns: [] }
   }
 
   const handleGenerateMapping = async () => {
@@ -928,16 +927,16 @@ function TransformConfigWithAI({ node, updateConfig, nodes, connections, aggrega
     const destinationSchema = buildSchemaFromNode(destinationNode)
 
     // Check if we have meaningful schema data
-    const hasSourceColumns = sourceSchema.tables?.some((t: any) => t.columns && t.columns.length > 0)
-    const hasDestColumns = destinationSchema.tables?.some((t: any) => t.columns && t.columns.length > 0)
+    const hasSourceColumns = sourceSchema.columns && sourceSchema.columns.length > 0
+    const hasDestColumns = destinationSchema.columns && destinationSchema.columns.length > 0
 
-    if (!hasSourceColumns && !sourceSchema.methods?.length) {
+    if (!hasSourceColumns) {
       toast.warning("Limited source schema", { 
         description: "The source node has no column data. Configure the source connection with specific columns for better mappings, or the AI will make its best guess." 
       })
     }
 
-    if (!hasDestColumns && !destinationSchema.methods?.length) {
+    if (!hasDestColumns) {
       toast.warning("Limited destination schema", { 
         description: "The destination node has no column data. Configure the destination connection for better mappings." 
       })

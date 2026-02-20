@@ -208,14 +208,16 @@ export const generateSDK = createAsyncThunk(
   async ({
     openApiSpec,
     className,
+    credentials,
     model
   }: {
     openApiSpec: string | Record<string, any>
     className: string
+    credentials?: { baseUrl: string; apiKey?: string; bearerToken?: string; timeout?: number }
     model?: string
   }, { rejectWithValue }) => {
     try {
-      return await apiClient.generateSDK(openApiSpec, className, model)
+      return await apiClient.generateSDK(openApiSpec, className, credentials, model)
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message)
     }

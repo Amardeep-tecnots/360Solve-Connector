@@ -3180,6 +3180,34 @@
           }
         }
       },
+      "SDKCredentialsDto": {
+        "type": "object",
+        "properties": {
+          "baseUrl": {
+            "type": "string",
+            "description": "Base URL of the API",
+            "example": "https://api.example.com"
+          },
+          "apiKey": {
+            "type": "string",
+            "description": "API Key for authentication",
+            "example": "sk-xxxxx"
+          },
+          "bearerToken": {
+            "type": "string",
+            "description": "Bearer token for OAuth/JWT authentication",
+            "example": "eyJhbGciOiJIUzI1NiIs..."
+          },
+          "timeout": {
+            "type": "number",
+            "description": "Request timeout in milliseconds",
+            "example": 30000
+          }
+        },
+        "required": [
+          "baseUrl"
+        ]
+      },
       "GenerateSDKRequest": {
         "type": "object",
         "properties": {
@@ -3202,6 +3230,14 @@
             "type": "string",
             "description": "Existing aggregator ID to link the SDK to (preserves aggregator name)",
             "example": "agg_123abc"
+          },
+          "credentials": {
+            "description": "API credentials to store for this SDK (used when executing SDK methods)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SDKCredentialsDto"
+              }
+            ]
           }
         },
         "required": [

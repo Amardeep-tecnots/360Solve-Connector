@@ -214,6 +214,10 @@ export interface GenerateSDKRequest {
      * Existing aggregator ID to link the SDK to (preserves aggregator name)
      */
     'aggregatorId'?: string;
+    /**
+     * API credentials to store for this SDK (used when executing SDK methods)
+     */
+    'credentials'?: SDKCredentialsDto;
 }
 export interface GenerateWorkflowRequest {
     /**
@@ -310,6 +314,24 @@ export interface ResumeExecutionDto {
      * Resume context
      */
     'context'?: string;
+}
+export interface SDKCredentialsDto {
+    /**
+     * Base URL of the API
+     */
+    'baseUrl': string;
+    /**
+     * API Key for authentication
+     */
+    'apiKey'?: string;
+    /**
+     * Bearer token for OAuth/JWT authentication
+     */
+    'bearerToken'?: string;
+    /**
+     * Request timeout in milliseconds
+     */
+    'timeout'?: number;
 }
 export interface SchemaDiscoveryResponseDto {
     'success': boolean;
