@@ -353,6 +353,7 @@ export default function WorkflowsPage() {
 
       if (config.method === 'mini_connector' && config.columns?.length) {
         return {
+          type: 'mini-connector',
           tables: [{
             name: config.table || 'unknown_table',
             columns: config.columns
@@ -365,6 +366,7 @@ export default function WorkflowsPage() {
       if (config.method === 'aggregator' && config.aggregatorId) {
         const aggregator = installedAggregators.find(a => a.id === config.aggregatorId)
         return {
+          type: 'aggregator',
           tables: aggregator?.configSchema?.fields?.map((f: any) => f.name) || [],
           aggregatorId: config.aggregatorId,
           aggregatorName: aggregator?.name
@@ -373,6 +375,7 @@ export default function WorkflowsPage() {
 
       if (config.method === 'credentials') {
         return {
+          type: 'database',
           tables: [{
             name: config.table || config.database || 'unknown_table',
             columns: []
@@ -386,6 +389,7 @@ export default function WorkflowsPage() {
 
       if (config.method === 'generated_sdk' && config.sdkId) {
         return {
+          type: 'sdk',
           sdkId: config.sdkId,
           sdkName: config.sdkName,
           methods: config.sdkMethods || []

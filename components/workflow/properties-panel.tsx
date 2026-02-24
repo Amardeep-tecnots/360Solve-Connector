@@ -835,10 +835,12 @@ function TransformConfigWithAI({ node, updateConfig, nodes, connections, aggrega
   // Handle mapping generation result
   useEffect(() => {
     if (lastGeneratedMapping && showMapping) {
-      // Update transform config with the generated mappings
-      const fieldMappings = lastGeneratedMapping.mappings.map(m => ({
-        from: m.sourceField,
-        to: m.destinationField,
+      // Handle both 'mappings' (legacy) and 'generatedRules' (new backend format)
+      const rules = (lastGeneratedMapping.mappings || lastGeneratedMapping.generatedRules || []) as any[]
+      
+      const fieldMappings = rules.map(m => ({
+        from: m.sourceField || m.from,
+        to: m.destinationField || m.to,
         transform: m.transform
       }))
       
@@ -909,6 +911,7 @@ function TransformConfigWithAI({ node, updateConfig, nodes, connections, aggrega
     if (config.method === 'generated_sdk' && config.sdkId) {
       return {
         type: 'sdk',
+        instanceId: config.sdkId,
         name: config.sdkName || 'sdk_source',
         fields: (config.sdkMethods || []).map((method: string) => ({
           name: method,

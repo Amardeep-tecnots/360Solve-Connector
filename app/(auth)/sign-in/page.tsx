@@ -43,7 +43,7 @@ export default function SignInPage() {
             <Zap className="h-5 w-5 text-primary-foreground" />
           </div>
           <div className="flex flex-col">
-            <span className="text-lg font-semibold text-foreground">360Solve</span>
+            <span className="text-lg font-semibold text-foreground">Nia</span>
             <span className="text-xs text-muted-foreground">Connector</span>
           </div>
         </div>

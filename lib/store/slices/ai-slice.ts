@@ -48,13 +48,23 @@ export interface WorkflowGenerationResult {
 }
 
 export interface MappingResult {
-  mappings: Array<{
+  // Support both 'mappings' (legacy) and 'generatedRules' (new backend format)
+  mappings?: Array<{
     sourceField: string
     destinationField: string
     transform?: string
-    confidence: number
+    confidence?: number
   }>
-  suggestions: string[]
+  generatedRules?: Array<{
+    sourceField: string
+    destinationField: string
+    transform?: string
+    confidence?: number
+  }>
+  // Legacy fields
+  suggestions?: string[]
+  recommendations?: string[]
+  transformCode?: string
 }
 
 interface AIState {
