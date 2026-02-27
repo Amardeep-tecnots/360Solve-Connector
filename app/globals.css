@@ -4,12 +4,12 @@
 
 @layer base {
   :root {
-    /* Brand */
+    /* Brand - Nia Connect Design System */
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
     
-    /* Backgrounds */
-    --background: 210 40% 98%;
+    /* Nia Canvas Background - warm white like engineering drafting paper */
+    --background: 40 20% 97%;
     --foreground: 222 47% 11%;
     
     /* Cards / Panels */
@@ -67,6 +67,24 @@
     --chart-4: 0 84% 60%;
     --chart-5: 192 91% 36%;
   }
+
+  /* Dark mode override */
+  .dark {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 9%;
+    --popover-foreground: 210 40% 98%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    --border: 217 33% 22%;
+    --input: 217 33% 22%;
+  }
 }
 
 @layer base {
@@ -74,6 +92,89 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-canvas text-ink antialiased;
+  }
+  
+  /* Selection styling */
+  ::selection {
+    background-color: #DBEAFE;
+    color: #3B82F6;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #E8EBF0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Blueprint grid base */
+@layer utilities {
+  .blueprint-grid {
+    background-image: 
+      linear-gradient(to right, #E8EBF0 0.5px, transparent 0.5px),
+      linear-gradient(to bottom, #E8EBF0 0.5px, transparent 0.5px);
+    background-size: 48px 48px;
+  }
+  
+  .blueprint-grid-secondary {
+    background-image: 
+      linear-gradient(to right, #F0F2F5 0.2px, transparent 0.2px),
+      linear-gradient(to bottom, #F0F2F5 0.2px, transparent 0.2px);
+    background-size: 16px 16px;
+  }
+  
+  /* Text balance for headlines */
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Isometric transform utility */
+  .isometric {
+    transform: translateY(var(--isometric-y, 0)) scaleY(0.5) rotate(var(--isometric-rotate, 45deg));
+  }
+  
+  /* Trust ticker overflow */
+  .ticker-wrap {
+    overflow: hidden;
+  }
+  
+  .ticker {
+    display: flex;
+    white-space: nowrap;
+    animation: tickerScroll 30s linear infinite;
+  }
+  
+  .ticker:hover {
+    animation-play-state: paused;
   }
 }

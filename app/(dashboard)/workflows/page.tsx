@@ -118,30 +118,33 @@ export default function WorkflowsPage() {
     }
   }, [workflowIdFromQuery, dispatch])
 
-  // Map loaded workflow to canvas state
+      // Map loaded workflow to canvas state
   useEffect(() => {
     if (selectedWorkflow && workflowIdFromQuery) {
       // Map API workflow to canvas state
       const canvasNodes: CanvasNode[] = selectedWorkflow.definition.activities.map(
-        (activity): CanvasNode => ({
-          id: activity.id,
-          type:
-            activity.type === "extract" || 
-            activity.type === "mini-connector-source" || 
-            activity.type === "cloud-connector-source"
-              ? "source"
-              : activity.type === "load" || 
-                activity.type === "cloud-connector-sink"
-                ? "destination"
-                : "transform",
-          label: activity.name,
-          description: "",
-          icon: activity.config?.ui_metadata?.icon || "Database",
-          x: activity.config?.ui_metadata?.x || 100,
-          y: activity.config?.ui_metadata?.y || 100,
-          connectionConfig: (activity.config || {}) as any,
-          transformConfig: (activity.config || {}) as any,
-        })
+        (activity): CanvasNode => {
+          const actType = activity.type as string
+          return {
+            id: activity.id,
+            type:
+              actType === "extract" || 
+              actType === "mini-connector-source" || 
+              actType === "cloud-connector-source"
+                ? "source"
+                : actType === "load" || 
+                  actType === "cloud-connector-sink"
+                  ? "destination"
+                  : "transform",
+            label: activity.name,
+            description: "",
+            icon: activity.config?.ui_metadata?.icon || "Database",
+            x: activity.config?.ui_metadata?.x || 100,
+            y: activity.config?.ui_metadata?.y || 100,
+            connectionConfig: (activity.config || {}) as any,
+            transformConfig: (activity.config || {}) as any,
+          }
+        }
       )
 
       const stepToActivity = new Map<string, string>()

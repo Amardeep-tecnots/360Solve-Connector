@@ -55,9 +55,9 @@ export function DownloadModal({ open, onClose }: DownloadModalProps) {
       }))
 
       if (createConnector.fulfilled.match(resultAction)) {
-        const newConnector = resultAction.payload
+        const newConnector = resultAction.payload as { apiKey?: string }
         // API returns apiKey only on creation
-        if (newConnector.apiKey) {
+        if (newConnector?.apiKey) {
           setApiKey(newConnector.apiKey)
           setStep(1)
         } else {

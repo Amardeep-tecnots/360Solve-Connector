@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server"
 
 // Public routes that don't require authentication
 const publicRoutes = [
+  "/landing",
   "/sign-in",
   "/sign-up",
   "/forgot-password",
@@ -11,7 +12,7 @@ const publicRoutes = [
 ]
 
 // Routes that should redirect to dashboard if already authenticated
-const authRoutes = ["/sign-in", "/sign-up", "/forgot-password"]
+const authRoutes = ["/sign-in", "/sign-up", "/forgot-password", "/landing"]
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -30,6 +31,9 @@ export function middleware(request: NextRequest) {
 
   // If accessing protected route without token, redirect to sign-in
   if (!isPublicRoute && !token) {
+    if (pathname === "/") {
+      return NextResponse.redirect(new URL("/landing", request.url))
+    }
     const signInUrl = new URL("/sign-in", request.url)
     signInUrl.searchParams.set("callbackUrl", pathname)
     return NextResponse.redirect(signInUrl)
