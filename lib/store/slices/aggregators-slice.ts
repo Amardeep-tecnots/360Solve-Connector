@@ -330,14 +330,16 @@ const aggregatorsSlice = createSlice({
       })
       .addCase(configureAggregator.fulfilled, (state, action) => {
         state.isConfiguring = false
-        const idx = state.installed.findIndex(a => a.id === action.payload.id)
+        const payload = action.payload as any
+        if (!payload || typeof payload !== "object") return
+        const idx = state.installed.findIndex(a => a.id === payload.id)
         if (idx !== -1) {
           state.installed[idx] = {
             ...state.installed[idx],
-            ...action.payload,
+            ...payload,
             // Ensure config is explicitly updated if present in payload
-            config: action.payload.config || state.installed[idx].config,
-            configuration: action.payload.configuration || state.installed[idx].configuration
+            config: payload.config || state.installed[idx].config,
+            configuration: payload.configuration || state.installed[idx].configuration
           }
         }
       })

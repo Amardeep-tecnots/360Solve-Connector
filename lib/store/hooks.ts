@@ -30,8 +30,8 @@ export const useSelectedNode = () => {
 }
 
 export const useSelectedEdge = () => {
-  const { edges, selectedEdgeId } = useAppSelector((state) => state.workflow)
-  return edges.find((e) => e.id === selectedEdgeId) || null
+  const { connections = [], selectedEdgeId } = useAppSelector((state) => state.workflow as any)
+  return connections.find((c: any) => c.id === selectedEdgeId) || null
 }
 
 // UI hooks

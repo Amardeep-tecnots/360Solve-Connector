@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useCallback, useEffect, useMemo } from "react"
+import { useState, useCallback, useEffect, useMemo, Suspense } from "react"
+
 import { useSearchParams, useRouter } from "next/navigation"
 import { Save, Play, Undo, Sparkles, Loader2, ArrowLeft } from "lucide-react"
 import { useDispatch, useSelector } from "react-redux"
@@ -39,7 +40,16 @@ import { toast } from "sonner"
 import { apiClient } from "@/lib/api/api-client"
 
 export default function WorkflowsPage() {
+  return (
+    <Suspense fallback={null}>
+      <WorkflowsPageContent />
+    </Suspense>
+  )
+}
+
+function WorkflowsPageContent() {
   const router = useRouter()
+
   const searchParams = useSearchParams()
   const workflowIdFromQuery = searchParams.get("id")
 
@@ -338,64 +348,49 @@ export default function WorkflowsPage() {
 
   // Build source and destination connectors for AI Chat Panel mapping
   const { sourceConnector, destinationConnector } = useMemo(() => {
-    // Find source nodes (nodes with no incoming connections)
-    const sourceNode = nodes.find(n => 
-      n.type === 'source' && !connections.some(c => c.to === n.id)
-    )
-    
-    // Find destination nodes (nodes with no outgoing connections)
-    const destinationNode = nodes.find(n => 
-      n.type === 'destination' && !connections.some(c => c.from === n.id)
-    )
+    const sourceNode = nodes.find(n => n.type === "source" && !connections.some(c => c.to === n.id))
+    const destinationNode = nodes.find(n => n.type === "destination" && !connections.some(c => c.from === n.id))
 
-    // Helper to build schema from node config
     const buildSchemaFromNode = (node: CanvasNode | undefined): Record<string, any> | undefined => {
       if (!node || !node.connectionConfig) return undefined
-
       const config = node.connectionConfig
 
-      if (config.method === 'mini_connector' && config.columns?.length) {
+      if (config.method === "mini_connector" && config.columns?.length) {
         return {
-          type: 'mini-connector',
-          tables: [{
-            name: config.table || 'unknown_table',
-            columns: config.columns
-          }],
+          type: "mini-connector",
+          tables: [{ name: config.table || "unknown_table", columns: config.columns }],
           connectorId: config.connectorId,
-          database: config.database
+          database: config.database,
         }
       }
 
-      if (config.method === 'aggregator' && config.aggregatorId) {
-        const aggregator = installedAggregators.find(a => a.id === config.aggregatorId)
+      if (config.method === "aggregator" && config.aggregatorId) {
+        const aggregator = installedAggregators.find((a) => a.id === config.aggregatorId)
         return {
-          type: 'aggregator',
+          type: "aggregator",
           tables: aggregator?.configSchema?.fields?.map((f: any) => f.name) || [],
           aggregatorId: config.aggregatorId,
-          aggregatorName: aggregator?.name
+          aggregatorName: aggregator?.name,
         }
       }
 
-      if (config.method === 'credentials') {
+      if (config.method === "credentials") {
         return {
-          type: 'database',
-          tables: [{
-            name: config.table || config.database || 'unknown_table',
-            columns: []
-          }],
+          type: "database",
+          tables: [{ name: config.table || config.database || "unknown_table", columns: [] }],
           host: config.host,
           port: config.port,
           database: config.database,
-          dbType: config.dbType
+          dbType: config.dbType,
         }
       }
 
-      if (config.method === 'generated_sdk' && config.sdkId) {
+      if (config.method === "generated_sdk" && config.sdkId) {
         return {
-          type: 'sdk',
+          type: "sdk",
           sdkId: config.sdkId,
           sdkName: config.sdkName,
-          methods: config.sdkMethods || []
+          methods: config.sdkMethods || [],
         }
       }
 
@@ -403,16 +398,12 @@ export default function WorkflowsPage() {
     }
 
     return {
-      sourceConnector: sourceNode ? {
-        id: sourceNode.id,
-        name: sourceNode.label,
-        schema: buildSchemaFromNode(sourceNode)
-      } : undefined,
-      destinationConnector: destinationNode ? {
-        id: destinationNode.id,
-        name: destinationNode.label,
-        schema: buildSchemaFromNode(destinationNode)
-      } : undefined
+      sourceConnector: sourceNode
+        ? { id: sourceNode.id, name: sourceNode.label, schema: buildSchemaFromNode(sourceNode) }
+        : undefined,
+      destinationConnector: destinationNode
+        ? { id: destinationNode.id, name: destinationNode.label, schema: buildSchemaFromNode(destinationNode) }
+        : undefined,
     }
   }, [nodes, connections, installedAggregators])
 
@@ -429,9 +420,7 @@ export default function WorkflowsPage() {
         await dispatch(
           updateWorkflow({
             id: workflowId,
-            data: {
-              isActive: true,
-            },
+            data: { isActive: true },
           })
         ).unwrap()
       }
@@ -455,29 +444,25 @@ export default function WorkflowsPage() {
 
   // Build palette nodes from backend data only - no mock data
   const enrichedPaletteNodes = useMemo(() => {
-    // Source nodes from installed aggregators, mini connectors, and SDKs
     const sourceNodes: PaletteNode[] = [
-      // Mini Connectors as source nodes
-      ...miniConnectors.map(mc => ({
+      ...miniConnectors.map((mc) => ({
         id: `mc-source-${mc.id}`,
         type: "source" as NodeType,
         label: mc.name,
-        description: `${mc.status} - ${mc.ipAddress || 'No IP'}`,
+        description: `${mc.status} - ${mc.ipAddress || "No IP"}`,
         icon: "Server",
         connectionMethod: "mini_connector" as ConnectionMethod,
-        connectorId: mc.id
+        connectorId: mc.id,
       })),
-      // Installed aggregators as source nodes
-      ...installedAggregators.map(agg => ({
+      ...installedAggregators.map((agg) => ({
         id: `agg-source-${agg.id}`,
         type: "source" as NodeType,
         label: agg.name,
         description: agg.description || agg.category,
         icon: "Store",
         connectionMethod: "aggregator" as ConnectionMethod,
-        aggregatorId: agg.id
+        aggregatorId: agg.id,
       })),
-      // Generated SDKs as source nodes
       ...(sdks || []).map((sdk: any) => ({
         id: `sdk-source-${sdk.id}`,
         type: "source" as NodeType,
@@ -485,64 +470,56 @@ export default function WorkflowsPage() {
         description: "AI-generated TypeScript SDK",
         icon: "Code",
         connectionMethod: "generated_sdk" as ConnectionMethod,
-        sdkId: sdk.id
-      }))
+        sdkId: sdk.id,
+      })),
     ]
 
-    // Transform nodes from sub-workflows and SDKs
     const transformNodes: PaletteNode[] = [
-      // AI Transform node
       {
         id: "node-ai-transform",
         type: "transform" as NodeType,
         label: "AI Transform",
         description: "AI-assisted data mapping & conversion",
-        icon: "Sparkles"
+        icon: "Sparkles",
       },
-      // Field Mapper
       {
         id: "node-map",
         type: "transform" as NodeType,
         label: "Field Mapper",
         description: "Map fields between schemas",
-        icon: "ArrowLeftRight"
+        icon: "ArrowLeftRight",
       },
-      // Filter
       {
         id: "node-filter",
         type: "transform" as NodeType,
         label: "Filter",
         description: "Filter records by condition",
-        icon: "Filter"
+        icon: "Filter",
       },
-      // Aggregate
       {
         id: "node-aggregate",
         type: "transform" as NodeType,
         label: "Aggregate",
         description: "Group and aggregate data",
-        icon: "Layers"
+        icon: "Layers",
       },
-      // Custom Script
       {
         id: "node-script",
         type: "transform" as NodeType,
         label: "Custom Script",
         description: "Run custom TypeScript logic",
-        icon: "Code"
+        icon: "Code",
       },
-      // Sub-workflows
       ...allWorkflows
-        .filter(wf => wf.id !== workflowId)
-        .map(wf => ({
+        .filter((wf) => wf.id !== workflowId)
+        .map((wf) => ({
           id: `wf-${wf.id}`,
           type: "transform" as NodeType,
           label: wf.name,
           description: wf.description || "Sub-workflow",
           icon: "Workflow" as any,
-          workflowId: wf.id
+          workflowId: wf.id,
         })),
-      // Generated SDKs as transform nodes
       ...(sdks || []).map((sdk: any) => ({
         id: `sdk-transform-${sdk.id}`,
         type: "transform" as NodeType,
@@ -550,33 +527,29 @@ export default function WorkflowsPage() {
         description: "AI-generated TypeScript SDK",
         icon: "Code",
         connectionMethod: "generated_sdk" as ConnectionMethod,
-        sdkId: sdk.id
-      }))
+        sdkId: sdk.id,
+      })),
     ]
 
-    // Destination nodes from installed aggregators, mini connectors, and SDKs
     const destinationNodes: PaletteNode[] = [
-      // Mini Connectors as destination nodes
-      ...miniConnectors.map(mc => ({
+      ...miniConnectors.map((mc) => ({
         id: `mc-dest-${mc.id}`,
         type: "destination" as NodeType,
         label: mc.name,
-        description: `${mc.status} - ${mc.ipAddress || 'No IP'}`,
+        description: `${mc.status} - ${mc.ipAddress || "No IP"}`,
         icon: "Server",
         connectionMethod: "mini_connector" as ConnectionMethod,
-        connectorId: mc.id
+        connectorId: mc.id,
       })),
-      // Installed aggregators as destination nodes
-      ...installedAggregators.map(agg => ({
+      ...installedAggregators.map((agg) => ({
         id: `agg-dest-${agg.id}`,
         type: "destination" as NodeType,
         label: agg.name,
         description: agg.description || agg.category,
         icon: "Store",
         connectionMethod: "aggregator" as ConnectionMethod,
-        aggregatorId: agg.id
+        aggregatorId: agg.id,
       })),
-      // Generated SDKs as destination nodes
       ...(sdks || []).map((sdk: any) => ({
         id: `sdk-dest-${sdk.id}`,
         type: "destination" as NodeType,
@@ -584,22 +557,10 @@ export default function WorkflowsPage() {
         description: "AI-generated TypeScript SDK",
         icon: "Code",
         connectionMethod: "generated_sdk" as ConnectionMethod,
-        sdkId: sdk.id
-      }))
+        sdkId: sdk.id,
+      })),
     ]
 
-    // Marketplace category - installed aggregators
-    const marketplaceNodes: PaletteNode[] = installedAggregators.map(agg => ({
-      id: `agg-${agg.id}`,
-      type: "source" as NodeType,
-      label: agg.name,
-      description: agg.category,
-      icon: "Store",
-      connectionMethod: "aggregator" as ConnectionMethod,
-      aggregatorId: agg.id
-    }))
-
-    // SDKs category
     const sdkNodes: PaletteNode[] = (sdks || []).map((sdk: any) => ({
       id: `sdk-${sdk.id}`,
       type: "source" as NodeType,
@@ -607,28 +568,37 @@ export default function WorkflowsPage() {
       description: "AI-generated TypeScript SDK",
       icon: "Code",
       connectionMethod: "generated_sdk" as ConnectionMethod,
-      sdkId: sdk.id
+      sdkId: sdk.id,
     }))
 
-    // Workflows category - sub-workflows
+    const marketplaceNodes: PaletteNode[] = installedAggregators.map((agg) => ({
+      id: `agg-${agg.id}`,
+      type: "source" as NodeType,
+      label: agg.name,
+      description: agg.category,
+      icon: "Store",
+      connectionMethod: "aggregator" as ConnectionMethod,
+      aggregatorId: agg.id,
+    }))
+
     const workflowNodes: PaletteNode[] = allWorkflows
-      .filter(wf => wf.id !== workflowId)
-      .map(wf => ({
+      .filter((wf) => wf.id !== workflowId)
+      .map((wf) => ({
         id: `wf-${wf.id}`,
         type: "transform" as NodeType,
         label: wf.name,
-        description: "Sub-workflow",
-        icon: "Workflow",
-        workflowId: wf.id
+        description: wf.description || "Sub-workflow",
+        icon: "Workflow" as any,
+        workflowId: wf.id,
       }))
 
     return {
       source: sourceNodes,
       transform: transformNodes,
       destination: destinationNodes,
+      generated_sdk: sdkNodes,
       marketplace: marketplaceNodes,
-      sdks: sdkNodes,
-      workflows: workflowNodes
+      workflows: workflowNodes,
     }
   }, [installedAggregators, miniConnectors, allWorkflows, sdks, workflowId])
 
