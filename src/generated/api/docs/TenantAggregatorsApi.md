@@ -8,8 +8,8 @@ All URIs are relative to *http://localhost*
 |[**tenantAggregatorsControllerFindAll**](#tenantaggregatorscontrollerfindall) | **GET** /api/tenant-aggregators | |
 |[**tenantAggregatorsControllerFindOne**](#tenantaggregatorscontrollerfindone) | **GET** /api/tenant-aggregators/{id} | |
 |[**tenantAggregatorsControllerInstall**](#tenantaggregatorscontrollerinstall) | **POST** /api/tenant-aggregators/install | |
-|[**tenantAggregatorsControllerSaveCredentials**](#tenantaggregatorscontrollersavecredentials) | **PUT** /api/tenant-aggregators/{id}/credentials | |
 |[**tenantAggregatorsControllerTestConnection**](#tenantaggregatorscontrollertestconnection) | **POST** /api/tenant-aggregators/{id}/test | |
+|[**tenantAggregatorsControllerUpdate**](#tenantaggregatorscontrollerupdate) | **PUT** /api/tenant-aggregators/{id} | |
 
 # **tenantAggregatorsControllerDelete**
 > tenantAggregatorsControllerDelete()
@@ -212,60 +212,6 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **tenantAggregatorsControllerSaveCredentials**
-> tenantAggregatorsControllerSaveCredentials(saveTenantAggregatorCredentialsDto)
-
-
-### Example
-
-```typescript
-import {
-    TenantAggregatorsApi,
-    Configuration,
-    SaveTenantAggregatorCredentialsDto
-} from '360solve-api-client';
-
-const configuration = new Configuration();
-const apiInstance = new TenantAggregatorsApi(configuration);
-
-let id: string; // (default to undefined)
-let saveTenantAggregatorCredentialsDto: SaveTenantAggregatorCredentialsDto; //
-
-const { status, data } = await apiInstance.tenantAggregatorsControllerSaveCredentials(
-    id,
-    saveTenantAggregatorCredentialsDto
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **saveTenantAggregatorCredentialsDto** | **SaveTenantAggregatorCredentialsDto**|  | |
-| **id** | [**string**] |  | defaults to undefined|
-
-
-### Return type
-
-void (empty response body)
-
-### Authorization
-
-[bearer](../README.md#bearer)
-
-### HTTP request headers
-
- - **Content-Type**: application/json
- - **Accept**: Not defined
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** |  |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
 # **tenantAggregatorsControllerTestConnection**
 > tenantAggregatorsControllerTestConnection()
 
@@ -313,6 +259,60 @@ void (empty response body)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** |  |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **tenantAggregatorsControllerUpdate**
+> tenantAggregatorsControllerUpdate(updateTenantAggregatorDto)
+
+
+### Example
+
+```typescript
+import {
+    TenantAggregatorsApi,
+    Configuration,
+    UpdateTenantAggregatorDto
+} from '360solve-api-client';
+
+const configuration = new Configuration();
+const apiInstance = new TenantAggregatorsApi(configuration);
+
+let id: string; // (default to undefined)
+let updateTenantAggregatorDto: UpdateTenantAggregatorDto; //
+
+const { status, data } = await apiInstance.tenantAggregatorsControllerUpdate(
+    id,
+    updateTenantAggregatorDto
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateTenantAggregatorDto** | **UpdateTenantAggregatorDto**|  | |
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

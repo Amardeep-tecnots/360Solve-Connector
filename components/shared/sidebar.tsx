@@ -31,7 +31,7 @@ const navGroups = [
     label: "Integration",
     items: [
       { label: "Marketplace", href: "/marketplace", icon: Store },
-      { label: "Workflows", href: "/workflows", icon: GitBranch },
+      { label: "Workflows", href: "/workflows/list", icon: GitBranch },
       { label: "Executions", href: "/executions", icon: Activity },
     ],
   },
@@ -90,10 +90,10 @@ export function Sidebar() {
         {!collapsed && (
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-foreground leading-tight">
-              360Solve
+              Nia Connect
             </span>
             <span className="text-[11px] text-muted-foreground leading-tight">
-              Connector
+              Platform
             </span>
           </div>
         )}

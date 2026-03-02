@@ -1,27 +1,30 @@
 import type { Metadata, Viewport } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Sora, IBM_Plex_Mono } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 import { ReduxProvider } from "@/lib/store/provider"
 
-const geistSans = Geist({
+const sora = Sora({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
+  variable: "--font-sora",
+  display: "swap",
 })
 
-const geistMono = Geist_Mono({
+const ibmPlexMono = IBM_Plex_Mono({
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
-  variable: "--font-geist-mono",
+  variable: "--font-ibm-plex-mono",
+  display: "swap",
 })
 
 export const metadata: Metadata = {
-  title: "360Solve Connector - AI-Powered Data Pipeline Builder",
+  title: "Nia Connect - AI-Powered Data Synchronization",
   description:
-    "Build cloud-to-cloud and on-premise data pipelines with AI assistance. Connect any database, API, or aggregator with drag-and-drop workflows.",
+    "Nia connects and synchronizes data across any system — cloud, database, or on-premise — using AI that maps fields automatically so your team never touches a spreadsheet again.",
 }
 
 export const viewport: Viewport = {
-  themeColor: "#2563EB",
+  themeColor: "#2463EB",
   width: "device-width",
   initialScale: 1,
 }
@@ -32,8 +35,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
-      <body className="font-sans" suppressHydrationWarning>
+    <html lang="en" className={`${sora.variable} ${ibmPlexMono.variable}`} suppressHydrationWarning>
+      <body className="font-sans antialiased" suppressHydrationWarning>
         <ReduxProvider>
           {children}
         </ReduxProvider>

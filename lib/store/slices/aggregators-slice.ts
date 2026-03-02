@@ -107,6 +107,7 @@ interface AggregatorsState {
   isConfiguring: boolean
   isTesting: boolean
   isDeleting: boolean
+  isFetchingTables: boolean
   operationError: string | null
 }
 
@@ -122,6 +123,7 @@ const initialState: AggregatorsState = {
   isConfiguring: false,
   isTesting: false,
   isDeleting: false,
+  isFetchingTables: false,
   operationError: null,
 }
 
@@ -383,10 +385,11 @@ const aggregatorsSlice = createSlice({
       })
       .addCase(triggerDiscovery.fulfilled, (state, action) => {
         const idx = state.installed.findIndex(a => a.id === action.meta.arg)
-        if (idx !== -1) {
+        if (idx !== -1 && action.payload) {
           // If the response contains data immediately, mark as discovered
-          if (action.payload && (action.payload.tables || action.payload.tableCount)) {
-            state.installed[idx].schema = action.payload
+          const payload = action.payload as any
+          if (payload.tables || payload.tableCount) {
+            state.installed[idx].schema = payload
             state.installed[idx].schemaStatus = 'discovered'
           } else {
             state.installed[idx].schemaStatus = 'discovering'
@@ -406,26 +409,35 @@ const aggregatorsSlice = createSlice({
           state.installed[idx].schemaStatus = 'discovered'
         }
       })
+      .addCase(fetchTables.pending, (state) => {
+        state.isFetchingTables = true
+      })
       .addCase(fetchTables.fulfilled, (state, action) => {
+        state.isFetchingTables = false
         const idx = state.installed.findIndex(a => a.id === action.meta.arg)
-        if (idx !== -1) {
+        if (idx !== -1 && action.payload) {
           if (!state.installed[idx].schema) {
             state.installed[idx].schema = {}
           }
-          const tablesArray = Array.isArray(action.payload) ? action.payload : (action.payload?.tables || [])
+          const tablesArray = Array.isArray(action.payload) ? action.payload : ((action.payload as any)?.tables || [])
           state.installed[idx].schema!.tables = tablesArray
           state.installed[idx].schema!.tableCount = tablesArray.length
           state.installed[idx].schemaStatus = 'discovered'
         }
       })
+      .addCase(fetchTables.rejected, (state, action) => {
+        state.isFetchingTables = false
+        state.operationError = action.payload as string
+      })
       .addCase(fetchRelationships.fulfilled, (state, action) => {
         const idx = state.installed.findIndex(a => a.id === action.meta.arg)
-        if (idx !== -1) {
+        if (idx !== -1 && action.payload) {
           if (!state.installed[idx].schema) {
             state.installed[idx].schema = {}
           }
-          state.installed[idx].schema!.relationships = action.payload.relationships || []
-          state.installed[idx].schema!.relationshipCount = action.payload.relationshipCount || 0
+          const payload = action.payload as any
+          state.installed[idx].schema!.relationships = payload.relationships || []
+          state.installed[idx].schema!.relationshipCount = payload.relationshipCount || 0
         }
       })
   },

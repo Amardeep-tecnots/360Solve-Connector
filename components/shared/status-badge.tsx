@@ -72,6 +72,21 @@ const connectorConfig: Record<
     icon: RefreshCw,
     className: "bg-primary/10 text-primary",
   },
+  error: {
+    label: "Error",
+    icon: XCircle,
+    className: "bg-destructive/10 text-destructive",
+  },
+  connecting: {
+    label: "Connecting",
+    icon: Loader2,
+    className: "bg-primary/10 text-primary",
+  },
+  busy: {
+    label: "Busy",
+    icon: Clock,
+    className: "bg-warning/10 text-warning",
+  },
 }
 
 export function StatusBadge({ status, size = "sm" }: StatusBadgeProps) {

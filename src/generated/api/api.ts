@@ -23,24 +23,615 @@ import type { RequestArgs } from './base';
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from './base';
 
+export interface ActivityDto {
+    'id': string;
+    'type': ActivityDtoTypeEnum;
+    'name': string;
+    'config': object;
+}
+
+export const ActivityDtoTypeEnum = {
+    Extract: 'extract',
+    Transform: 'transform',
+    Load: 'load',
+    Filter: 'filter',
+    Join: 'join',
+    MultiExtract: 'multi-extract',
+    MultiLoad: 'multi-load',
+    Sync: 'sync',
+    MiniConnectorSource: 'mini-connector-source',
+    CloudConnectorSource: 'cloud-connector-source',
+    CloudConnectorSink: 'cloud-connector-sink'
+} as const;
+
+export type ActivityDtoTypeEnum = typeof ActivityDtoTypeEnum[keyof typeof ActivityDtoTypeEnum];
+
+export interface ApplyMappingDto {
+    /**
+     * Mapping ID to apply
+     */
+    'mappingId': string;
+    /**
+     * Data to apply mapping to
+     */
+    'data': object;
+    /**
+     * Apply only specific fields
+     */
+    'fields'?: Array<string>;
+}
+export interface CancelExecutionDto {
+    /**
+     * Reason for cancellation
+     */
+    'reason'?: string;
+}
+export interface ConnectorListResponseDto {
+    'data': Array<ConnectorResponseDto>;
+    'total': number;
+    'page': number;
+    'limit': number;
+}
+export interface ConnectorResponseDto {
+    'id': string;
+    'name': string;
+    'type': ConnectorResponseDtoTypeEnum;
+    'status': ConnectorResponseDtoStatusEnum;
+    'lastHeartbeat': string | null;
+    'ipAddress': string | null;
+    'version': string | null;
+    'networkAccess': ConnectorResponseDtoNetworkAccessEnum;
+    'createdAt': string;
+    'updatedAt': string;
+    /**
+     * API Key (only returned on creation for Mini connectors)
+     */
+    'apiKey'?: string;
+}
+
+export const ConnectorResponseDtoTypeEnum = {
+    Cloud: 'CLOUD',
+    Mini: 'MINI'
+} as const;
+
+export type ConnectorResponseDtoTypeEnum = typeof ConnectorResponseDtoTypeEnum[keyof typeof ConnectorResponseDtoTypeEnum];
+export const ConnectorResponseDtoStatusEnum = {
+    Online: 'ONLINE',
+    Offline: 'OFFLINE',
+    Connecting: 'CONNECTING',
+    Error: 'ERROR',
+    Busy: 'BUSY'
+} as const;
+
+export type ConnectorResponseDtoStatusEnum = typeof ConnectorResponseDtoStatusEnum[keyof typeof ConnectorResponseDtoStatusEnum];
+export const ConnectorResponseDtoNetworkAccessEnum = {
+    Local: 'LOCAL',
+    Vpn: 'VPN',
+    Internet: 'INTERNET'
+} as const;
+
+export type ConnectorResponseDtoNetworkAccessEnum = typeof ConnectorResponseDtoNetworkAccessEnum[keyof typeof ConnectorResponseDtoNetworkAccessEnum];
+
+export interface CreateConnectorDto {
+    /**
+     * Name of the connector
+     */
+    'name': string;
+    /**
+     * Type of connector (CLOUD or MINI)
+     */
+    'type': CreateConnectorDtoTypeEnum;
+    'networkAccess'?: CreateConnectorDtoNetworkAccessEnum;
+    /**
+     * Supported aggregator types
+     */
+    'supportedAggregators'?: Array<string>;
+}
+
+export const CreateConnectorDtoTypeEnum = {
+    Cloud: 'CLOUD',
+    Mini: 'MINI'
+} as const;
+
+export type CreateConnectorDtoTypeEnum = typeof CreateConnectorDtoTypeEnum[keyof typeof CreateConnectorDtoTypeEnum];
+export const CreateConnectorDtoNetworkAccessEnum = {
+    Local: 'LOCAL',
+    Vpn: 'VPN',
+    Internet: 'INTERNET'
+} as const;
+
+export type CreateConnectorDtoNetworkAccessEnum = typeof CreateConnectorDtoNetworkAccessEnum[keyof typeof CreateConnectorDtoNetworkAccessEnum];
+
+export interface CreateMappingDto {
+    /**
+     * Mapping name
+     */
+    'name': string;
+    /**
+     * Mapping description
+     */
+    'description'?: string;
+    /**
+     * Mapping type
+     */
+    'type'?: CreateMappingDtoTypeEnum;
+    /**
+     * Source aggregator instance ID
+     */
+    'sourceInstanceId'?: string;
+    /**
+     * Source type
+     */
+    'sourceType': CreateMappingDtoSourceTypeEnum;
+    /**
+     * Source connector ID (for mini-connector sources)
+     */
+    'sourceConnectorId'?: string;
+    /**
+     * Source table, endpoint, or object name
+     */
+    'sourceName': string;
+    /**
+     * Source schema definition
+     */
+    'sourceSchema': object;
+    /**
+     * Destination aggregator instance ID
+     */
+    'destinationInstanceId'?: string;
+    /**
+     * Destination type
+     */
+    'destinationType': CreateMappingDtoDestinationTypeEnum;
+    /**
+     * Destination connector ID (for mini-connector destinations)
+     */
+    'destinationConnectorId'?: string;
+    /**
+     * Destination table, endpoint, or object name
+     */
+    'destinationName': string;
+    /**
+     * Destination schema definition
+     */
+    'destinationSchema': object;
+    /**
+     * Mapping rules
+     */
+    'mappingRules': Array<MappingRuleDto>;
+    /**
+     * Custom transformation code (JavaScript function)
+     */
+    'transformCode'?: string;
+    /**
+     * Whether the mapping is active
+     */
+    'isActive'?: boolean;
+}
+
+export const CreateMappingDtoTypeEnum = {
+    Column: 'COLUMN',
+    Field: 'FIELD',
+    Transform: 'TRANSFORM',
+    Aggregator: 'AGGREGATOR',
+    MiniConnector: 'MINI_CONNECTOR',
+    Hybrid: 'HYBRID'
+} as const;
+
+export type CreateMappingDtoTypeEnum = typeof CreateMappingDtoTypeEnum[keyof typeof CreateMappingDtoTypeEnum];
+export const CreateMappingDtoSourceTypeEnum = {
+    Database: 'database',
+    Sdk: 'sdk',
+    Aggregator: 'aggregator',
+    MiniConnector: 'mini-connector'
+} as const;
+
+export type CreateMappingDtoSourceTypeEnum = typeof CreateMappingDtoSourceTypeEnum[keyof typeof CreateMappingDtoSourceTypeEnum];
+export const CreateMappingDtoDestinationTypeEnum = {
+    Database: 'database',
+    Sdk: 'sdk',
+    Aggregator: 'aggregator',
+    MiniConnector: 'mini-connector'
+} as const;
+
+export type CreateMappingDtoDestinationTypeEnum = typeof CreateMappingDtoDestinationTypeEnum[keyof typeof CreateMappingDtoDestinationTypeEnum];
+
+export interface CreateWorkflowDto {
+    /**
+     * Workflow name
+     */
+    'name': string;
+    /**
+     * Workflow description
+     */
+    'description'?: string;
+    /**
+     * Workflow definition with activities and DAG
+     */
+    'definition': WorkflowDefinitionDto;
+    /**
+     * Activate workflow immediately
+     */
+    'isActive'?: boolean;
+    /**
+     * Cron expression for scheduling
+     */
+    'schedule'?: string;
+}
+export interface ExecuteWorkflowDto {
+    /**
+     * Optional execution trigger context
+     */
+    'triggerContext'?: object;
+    /**
+     * Override workflow schedule for this run
+     */
+    'scheduledFor'?: string;
+    /**
+     * Execute immediately vs queue
+     */
+    'immediate'?: boolean;
+}
+export interface ExecutionControlResponseDto {
+    'success': boolean;
+    'data': object;
+}
+export interface ExecutionDetailResponseDto {
+    'success': boolean;
+    'data': ExecutionResponseDto;
+}
+export interface ExecutionListResponseDto {
+    'success': boolean;
+    'data': Array<string>;
+    'total': number;
+    'limit': number;
+    'offset': number;
+}
+export interface ExecutionResponseDto {
+    'id': string;
+    'tenantId': string;
+    'workflowId': string;
+    'workflowVersion': number;
+    'workflowHash': string;
+    'status': string;
+    'currentStepId'?: string;
+    'activities': Array<string>;
+    'events': Array<string>;
+    'startedAt': string;
+    'completedAt'?: string;
+    'errorMessage'?: string;
+}
+export interface ExecutionTriggerResponseDto {
+    'success': boolean;
+    'data': object;
+}
+export interface GenerateMappingDto {
+    /**
+     * Name for the generated mapping
+     */
+    'name'?: string;
+    /**
+     * Description for the generated mapping
+     */
+    'description'?: string;
+    /**
+     * Source schema configuration
+     */
+    'source': GenerateSchemaConfigDto;
+    /**
+     * Destination schema configuration
+     */
+    'destination': GenerateSchemaConfigDto;
+    /**
+     * Natural language description of the desired mapping
+     */
+    'mappingHint'?: string;
+    /**
+     * Custom AI model to use
+     */
+    'model'?: string;
+    /**
+     * Save the generated mapping automatically
+     */
+    'saveMapping'?: boolean;
+}
+export interface GenerateSDKRequest {
+    /**
+     * OpenAPI spec URL or raw JSON content
+     */
+    'openApiSpec': string;
+    /**
+     * Custom model to use for generation
+     */
+    'model'?: string;
+    /**
+     * SDK class name - used as the TypeScript class name in generated SDK
+     */
+    'className'?: string;
+    /**
+     * Existing aggregator ID to link the SDK to (preserves aggregator name)
+     */
+    'aggregatorId'?: string;
+    /**
+     * API credentials to store for this SDK (used when executing SDK methods)
+     */
+    'credentials'?: SDKCredentialsDto;
+}
+export interface GenerateSchemaConfigDto {
+    /**
+     * Aggregator instance ID (if using existing instance)
+     */
+    'instanceId'?: string;
+    /**
+     * Type of data source
+     */
+    'type': GenerateSchemaConfigDtoTypeEnum;
+    /**
+     * Connector ID (for mini-connector sources)
+     */
+    'connectorId'?: string;
+    /**
+     * Table name, endpoint name, or object name
+     */
+    'name': string;
+    /**
+     * Fields in the schema
+     */
+    'fields'?: Array<GenerateSchemaFieldDto>;
+    /**
+     * Full schema object (alternative to fields array)
+     */
+    'schema'?: object;
+    /**
+     * Description of the data source for AI context
+     */
+    'description'?: string;
+}
+
+export const GenerateSchemaConfigDtoTypeEnum = {
+    Database: 'database',
+    Sdk: 'sdk',
+    Aggregator: 'aggregator',
+    MiniConnector: 'mini-connector'
+} as const;
+
+export type GenerateSchemaConfigDtoTypeEnum = typeof GenerateSchemaConfigDtoTypeEnum[keyof typeof GenerateSchemaConfigDtoTypeEnum];
+
+export interface GenerateSchemaFieldDto {
+    /**
+     * Field name
+     */
+    'name': string;
+    /**
+     * Field data type
+     */
+    'type': string;
+    /**
+     * Whether the field can be null
+     */
+    'nullable'?: boolean;
+    /**
+     * Sample value for AI context
+     */
+    'sampleValue'?: object;
+    /**
+     * Field description
+     */
+    'description'?: string;
+    /**
+     * Nested fields for object/array types
+     */
+    'nested'?: Array<GenerateSchemaFieldDto>;
+}
+export interface GenerateSchemaMappingRequest {
+    /**
+     * Source schema
+     */
+    'sourceSchema': TableSchemaDto;
+    /**
+     * Destination schema
+     */
+    'destinationSchema': TableSchemaDto;
+    /**
+     * Optional description of transformation
+     */
+    'description'?: string;
+    /**
+     * Custom model to use
+     */
+    'model'?: string;
+}
+export interface GenerateWorkflowRequest {
+    /**
+     * Natural language description of the workflow to generate
+     */
+    'description': string;
+    /**
+     * Source aggregator details
+     */
+    'source': object;
+    /**
+     * Destination aggregator details
+     */
+    'destination': object;
+    /**
+     * Field mappings between source and destination
+     */
+    'mappings'?: Array<string>;
+    /**
+     * Custom AI model to use
+     */
+    'model'?: string;
+}
+export interface HeartbeatDto {
+    /**
+     * Connector version
+     */
+    'version': string;
+    /**
+     * CPU usage percentage (0-100)
+     */
+    'cpuUsage'?: number;
+    /**
+     * Memory usage percentage (0-100)
+     */
+    'memoryUsage'?: number;
+    /**
+     * Connector status (online|busy|offline)
+     */
+    'status'?: string;
+    /**
+     * ISO timestamp from connector
+     */
+    'timestamp'?: string;
+    /**
+     * Supported aggregator types
+     */
+    'supportedAggregators'?: Array<string>;
+    /**
+     * Job capacity
+     */
+    'maxConcurrentJobs'?: number;
+    /**
+     * Number of active commands
+     */
+    'activeCommands'?: number;
+    /**
+     * OS Information
+     */
+    'os'?: string;
+    /**
+     * IP Address
+     */
+    'ipAddress'?: string;
+    /**
+     * Hostname
+     */
+    'hostname'?: string;
+}
 export interface InstallTenantAggregatorDto {
     'aggregatorId'?: string;
     'marketplaceId'?: string;
     'name': string;
     'config'?: object;
+    'credentialId'?: string;
     'credentials'?: object;
+    'connectorId'?: string;
     'testConnection'?: boolean;
+}
+export interface MappingRuleDto {
+    /**
+     * Source field path (supports nested paths like \"user.address.city\")
+     */
+    'sourceField': string;
+    /**
+     * Destination field path
+     */
+    'destinationField': string;
+    /**
+     * Transformation type: direct, uppercase, lowercase, date-format, number-format, custom
+     */
+    'transform'?: string;
+    /**
+     * Transformation configuration (e.g., format string for dates)
+     */
+    'transformConfig'?: object;
+    /**
+     * Whether the source field can be null
+     */
+    'nullable'?: boolean;
+    /**
+     * Data type of the field
+     */
+    'dataType'?: string;
+    /**
+     * Default value if source is null
+     */
+    'defaultValue'?: object;
+}
+export interface PauseExecutionDto {
+    /**
+     * Reason for pausing
+     */
+    'reason'?: string;
 }
 export interface PreviewTableDto {
     'limit'?: number;
 }
+export interface QuickGenerateMappingDto {
+    /**
+     * Source aggregator instance ID
+     */
+    'sourceInstanceId': string;
+    /**
+     * Destination aggregator instance ID
+     */
+    'destinationInstanceId': string;
+    /**
+     * Source table/object name (auto-discovered if not provided)
+     */
+    'sourceName'?: string;
+    /**
+     * Destination table/object name (auto-discovered if not provided)
+     */
+    'destinationName'?: string;
+    /**
+     * Mapping name
+     */
+    'name'?: string;
+    /**
+     * Mapping description
+     */
+    'description'?: string;
+    /**
+     * Natural language hint for mapping generation
+     */
+    'mappingHint'?: string;
+    /**
+     * Save mapping after generation
+     */
+    'saveMapping'?: boolean;
+}
 export interface RefreshTokenDto {
     'refreshToken': string;
 }
-export interface SaveTenantAggregatorCredentialsDto {
-    'name'?: string;
-    'config'?: object;
-    'credentials': object;
+export interface ResumeExecutionDto {
+    /**
+     * Resume context
+     */
+    'context'?: string;
+}
+export interface SDKCredentialsDto {
+    /**
+     * Base URL of the API
+     */
+    'baseUrl': string;
+    /**
+     * API Key for authentication
+     */
+    'apiKey'?: string;
+    /**
+     * Bearer token for OAuth/JWT authentication
+     */
+    'bearerToken'?: string;
+    /**
+     * Request timeout in milliseconds
+     */
+    'timeout'?: number;
+}
+export interface SchemaColumnDto {
+    /**
+     * Column name
+     */
+    'name': string;
+    /**
+     * Column data type
+     */
+    'type': string;
+    /**
+     * Whether column is nullable
+     */
+    'nullable'?: boolean;
 }
 export interface SchemaDiscoveryResponseDto {
     'success': boolean;
@@ -67,6 +658,16 @@ export const SignUpDtoTierEnum = {
 
 export type SignUpDtoTierEnum = typeof SignUpDtoTierEnum[keyof typeof SignUpDtoTierEnum];
 
+export interface TableSchemaDto {
+    /**
+     * Table name
+     */
+    'tableName': string;
+    /**
+     * Table columns
+     */
+    'columns': Array<SchemaColumnDto>;
+}
 export interface TenantAggregatorDetailResponseDto {
     'success': boolean;
     'data': TenantAggregatorResponseDto;
@@ -97,6 +698,1110 @@ export interface TenantAggregatorResponseDto {
     'installedAt': string;
     'updatedAt': string;
 }
+export interface TenantResponseDto {
+    'id': string;
+    'name': string;
+    'tier': TenantResponseDtoTierEnum;
+    'status': TenantResponseDtoStatusEnum;
+    'maxConcurrentWorkflows': number;
+    'maxJobsPerHour': number;
+    'maxConcurrentJobs': number;
+    'maxStorageGB': number;
+    'createdAt': string;
+}
+
+export const TenantResponseDtoTierEnum = {
+    Free: 'FREE',
+    Standard: 'STANDARD',
+    Enterprise: 'ENTERPRISE'
+} as const;
+
+export type TenantResponseDtoTierEnum = typeof TenantResponseDtoTierEnum[keyof typeof TenantResponseDtoTierEnum];
+export const TenantResponseDtoStatusEnum = {
+    Active: 'ACTIVE',
+    Suspended: 'SUSPENDED',
+    Deleted: 'DELETED'
+} as const;
+
+export type TenantResponseDtoStatusEnum = typeof TenantResponseDtoStatusEnum[keyof typeof TenantResponseDtoStatusEnum];
+
+export interface UpdateConnectorDto {
+    /**
+     * Name of the connector
+     */
+    'name'?: string;
+    /**
+     * Type of connector (CLOUD or MINI)
+     */
+    'type'?: UpdateConnectorDtoTypeEnum;
+    'networkAccess'?: UpdateConnectorDtoNetworkAccessEnum;
+    /**
+     * Supported aggregator types
+     */
+    'supportedAggregators'?: Array<string>;
+}
+
+export const UpdateConnectorDtoTypeEnum = {
+    Cloud: 'CLOUD',
+    Mini: 'MINI'
+} as const;
+
+export type UpdateConnectorDtoTypeEnum = typeof UpdateConnectorDtoTypeEnum[keyof typeof UpdateConnectorDtoTypeEnum];
+export const UpdateConnectorDtoNetworkAccessEnum = {
+    Local: 'LOCAL',
+    Vpn: 'VPN',
+    Internet: 'INTERNET'
+} as const;
+
+export type UpdateConnectorDtoNetworkAccessEnum = typeof UpdateConnectorDtoNetworkAccessEnum[keyof typeof UpdateConnectorDtoNetworkAccessEnum];
+
+export interface UpdateMappingDto {
+    /**
+     * Mapping name
+     */
+    'name'?: string;
+    /**
+     * Mapping description
+     */
+    'description'?: string;
+    /**
+     * Mapping type
+     */
+    'type'?: UpdateMappingDtoTypeEnum;
+    /**
+     * Source aggregator instance ID
+     */
+    'sourceInstanceId'?: string;
+    /**
+     * Source type
+     */
+    'sourceType'?: UpdateMappingDtoSourceTypeEnum;
+    /**
+     * Source connector ID
+     */
+    'sourceConnectorId'?: string;
+    /**
+     * Source name
+     */
+    'sourceName'?: string;
+    /**
+     * Source schema
+     */
+    'sourceSchema'?: object;
+    /**
+     * Destination aggregator instance ID
+     */
+    'destinationInstanceId'?: string;
+    /**
+     * Destination type
+     */
+    'destinationType'?: UpdateMappingDtoDestinationTypeEnum;
+    /**
+     * Destination connector ID
+     */
+    'destinationConnectorId'?: string;
+    /**
+     * Destination name
+     */
+    'destinationName'?: string;
+    /**
+     * Destination schema
+     */
+    'destinationSchema'?: object;
+    /**
+     * Mapping rules
+     */
+    'mappingRules'?: Array<MappingRuleDto>;
+    /**
+     * Transformation code
+     */
+    'transformCode'?: string;
+    /**
+     * Whether the mapping is active
+     */
+    'isActive'?: boolean;
+}
+
+export const UpdateMappingDtoTypeEnum = {
+    Column: 'COLUMN',
+    Field: 'FIELD',
+    Transform: 'TRANSFORM',
+    Aggregator: 'AGGREGATOR',
+    MiniConnector: 'MINI_CONNECTOR',
+    Hybrid: 'HYBRID'
+} as const;
+
+export type UpdateMappingDtoTypeEnum = typeof UpdateMappingDtoTypeEnum[keyof typeof UpdateMappingDtoTypeEnum];
+export const UpdateMappingDtoSourceTypeEnum = {
+    Database: 'database',
+    Sdk: 'sdk',
+    Aggregator: 'aggregator',
+    MiniConnector: 'mini-connector'
+} as const;
+
+export type UpdateMappingDtoSourceTypeEnum = typeof UpdateMappingDtoSourceTypeEnum[keyof typeof UpdateMappingDtoSourceTypeEnum];
+export const UpdateMappingDtoDestinationTypeEnum = {
+    Database: 'database',
+    Sdk: 'sdk',
+    Aggregator: 'aggregator',
+    MiniConnector: 'mini-connector'
+} as const;
+
+export type UpdateMappingDtoDestinationTypeEnum = typeof UpdateMappingDtoDestinationTypeEnum[keyof typeof UpdateMappingDtoDestinationTypeEnum];
+
+export interface UpdateTenantAggregatorDto {
+    'name': string;
+    'config'?: object;
+    'credentialId'?: string;
+    'connectorId'?: string;
+}
+export interface UpdateTenantDto {
+    'name'?: string;
+}
+export interface UpdateUserDto {
+    'name'?: string;
+    'role'?: UpdateUserDtoRoleEnum;
+}
+
+export const UpdateUserDtoRoleEnum = {
+    Admin: 'ADMIN',
+    Member: 'MEMBER',
+    Viewer: 'VIEWER'
+} as const;
+
+export type UpdateUserDtoRoleEnum = typeof UpdateUserDtoRoleEnum[keyof typeof UpdateUserDtoRoleEnum];
+
+export interface UpdateWorkflowDto {
+    'name'?: string;
+    'description'?: string;
+    'definition'?: WorkflowDefinitionDto;
+    'isActive'?: boolean;
+    'schedule'?: string;
+}
+export interface UserResponseDto {
+    'id': string;
+    'email': string;
+    'name': string;
+    'role': UserResponseDtoRoleEnum;
+    'createdAt': string;
+}
+
+export const UserResponseDtoRoleEnum = {
+    Admin: 'ADMIN',
+    Member: 'MEMBER',
+    Viewer: 'VIEWER'
+} as const;
+
+export type UserResponseDtoRoleEnum = typeof UserResponseDtoRoleEnum[keyof typeof UserResponseDtoRoleEnum];
+
+export interface ValidateMappingDto {
+    /**
+     * Mapping ID to validate (if updating existing)
+     */
+    'mappingId'?: string;
+    /**
+     * Source schema to validate against
+     */
+    'sourceSchema'?: object;
+    /**
+     * Destination schema to validate against
+     */
+    'destinationSchema'?: object;
+    /**
+     * Mapping rules to validate
+     */
+    'mappingRules'?: Array<object>;
+    /**
+     * Sample data to test mapping
+     */
+    'sampleData'?: object;
+}
+export interface ValidationErrorDto {
+    'field': string;
+    'message': string;
+}
+export interface WorkflowActivityResponseDto {
+    'id': string;
+    'type': string;
+    'name': string;
+    'config': object;
+}
+export interface WorkflowDefinitionDto {
+    'version': string;
+    'activities': Array<ActivityDto>;
+    'steps': Array<WorkflowStepDto>;
+    'schedule'?: string;
+}
+export interface WorkflowDefinitionResponseDto {
+    'version': string;
+    'activities': Array<WorkflowActivityResponseDto>;
+    'steps': Array<WorkflowStepResponseDto>;
+    'schedule'?: string;
+}
+export interface WorkflowDetailResponseDto {
+    'success': boolean;
+    'data': WorkflowResponseDto;
+}
+export interface WorkflowListResponseDto {
+    'success': boolean;
+    'data': Array<WorkflowResponseDto>;
+}
+export interface WorkflowResponseDto {
+    'id': string;
+    'tenantId': string;
+    'version': number;
+    'hash': string;
+    'name': string;
+    'description'?: string;
+    'definition': WorkflowDefinitionResponseDto;
+    'status': string;
+    'isActive': boolean;
+    'schedule'?: string;
+    'createdAt': string;
+    'updatedAt': string;
+    'deprecatedAfter'?: string;
+    'forceCancelAfter'?: string;
+}
+export interface WorkflowStepDto {
+    'id': string;
+    'activityId': string;
+    'dependsOn': Array<string>;
+}
+export interface WorkflowStepResponseDto {
+    'id': string;
+    'activityId': string;
+    'dependsOn': Array<string>;
+}
+export interface WorkflowValidationDataDto {
+    'valid': boolean;
+    'errors': Array<ValidationErrorDto>;
+    'warnings': Array<string>;
+    'activitiesChecked': number;
+    'aggregatorsVerified': Array<string>;
+}
+export interface WorkflowValidationResponseDto {
+    'success': boolean;
+    'data': WorkflowValidationDataDto;
+}
+
+/**
+ * AIApi - axios parameter creator
+ */
+export const AIApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Download SDK source code
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerDownloadSDK: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('aIControllerDownloadSDK', 'id', id)
+            const localVarPath = `/ai/sdk/{id}/download`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Execute an SDK method
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerExecuteSDKMethod: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('aIControllerExecuteSDKMethod', 'id', id)
+            const localVarPath = `/ai/sdk/{id}/execute`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Generate schema mapping between source and destination
+         * @param {GenerateSchemaMappingRequest} generateSchemaMappingRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGenerateMapping: async (generateSchemaMappingRequest: GenerateSchemaMappingRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'generateSchemaMappingRequest' is not null or undefined
+            assertParamExists('aIControllerGenerateMapping', 'generateSchemaMappingRequest', generateSchemaMappingRequest)
+            const localVarPath = `/ai/generate-mapping`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(generateSchemaMappingRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Generate TypeScript SDK from OpenAPI specification
+         * @param {GenerateSDKRequest} generateSDKRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGenerateSDK: async (generateSDKRequest: GenerateSDKRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'generateSDKRequest' is not null or undefined
+            assertParamExists('aIControllerGenerateSDK', 'generateSDKRequest', generateSDKRequest)
+            const localVarPath = `/ai/generate-sdk`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(generateSDKRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Generate workflow from natural language description
+         * @param {GenerateWorkflowRequest} generateWorkflowRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGenerateWorkflow: async (generateWorkflowRequest: GenerateWorkflowRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'generateWorkflowRequest' is not null or undefined
+            assertParamExists('aIControllerGenerateWorkflow', 'generateWorkflowRequest', generateWorkflowRequest)
+            const localVarPath = `/ai/generate-workflow`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(generateWorkflowRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get models for a specific provider
+         * @param {string} provider 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetModels: async (provider: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'provider' is not null or undefined
+            assertParamExists('aIControllerGetModels', 'provider', provider)
+            const localVarPath = `/ai/models/{provider}`
+                .replace(`{${"provider"}}`, encodeURIComponent(String(provider)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get available AI providers and models
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetProviders: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/ai/providers`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get generated SDK by ID
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetSDK: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('aIControllerGetSDK', 'id', id)
+            const localVarPath = `/ai/sdk/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get SDK information including available methods
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetSDKInfo: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('aIControllerGetSDKInfo', 'id', id)
+            const localVarPath = `/ai/sdk/{id}/info`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List all generated SDKs
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerListSDKs: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/ai/sdks`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List all SDKs for a tenant
+         * @param {string} tenantId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerListTenantSDKs: async (tenantId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'tenantId' is not null or undefined
+            assertParamExists('aIControllerListTenantSDKs', 'tenantId', tenantId)
+            const localVarPath = `/ai/sdks/tenant/{tenantId}`
+                .replace(`{${"tenantId"}}`, encodeURIComponent(String(tenantId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Test AI completion
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerTestAI: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/ai/test`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AIApi - functional programming interface
+ */
+export const AIApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AIApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Download SDK source code
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerDownloadSDK(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerDownloadSDK(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerDownloadSDK']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Execute an SDK method
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerExecuteSDKMethod(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerExecuteSDKMethod(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerExecuteSDKMethod']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Generate schema mapping between source and destination
+         * @param {GenerateSchemaMappingRequest} generateSchemaMappingRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerGenerateMapping(generateSchemaMappingRequest: GenerateSchemaMappingRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGenerateMapping(generateSchemaMappingRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGenerateMapping']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Generate TypeScript SDK from OpenAPI specification
+         * @param {GenerateSDKRequest} generateSDKRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerGenerateSDK(generateSDKRequest: GenerateSDKRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGenerateSDK(generateSDKRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGenerateSDK']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Generate workflow from natural language description
+         * @param {GenerateWorkflowRequest} generateWorkflowRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerGenerateWorkflow(generateWorkflowRequest: GenerateWorkflowRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGenerateWorkflow(generateWorkflowRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGenerateWorkflow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get models for a specific provider
+         * @param {string} provider 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerGetModels(provider: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGetModels(provider, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGetModels']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get available AI providers and models
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerGetProviders(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGetProviders(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGetProviders']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get generated SDK by ID
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerGetSDK(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGetSDK(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGetSDK']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get SDK information including available methods
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerGetSDKInfo(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerGetSDKInfo(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerGetSDKInfo']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List all generated SDKs
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerListSDKs(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerListSDKs(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerListSDKs']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List all SDKs for a tenant
+         * @param {string} tenantId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerListTenantSDKs(tenantId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerListTenantSDKs(tenantId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerListTenantSDKs']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Test AI completion
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aIControllerTestAI(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aIControllerTestAI(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AIApi.aIControllerTestAI']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AIApi - factory interface
+ */
+export const AIApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AIApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Download SDK source code
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerDownloadSDK(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerDownloadSDK(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Execute an SDK method
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerExecuteSDKMethod(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerExecuteSDKMethod(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Generate schema mapping between source and destination
+         * @param {GenerateSchemaMappingRequest} generateSchemaMappingRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGenerateMapping(generateSchemaMappingRequest: GenerateSchemaMappingRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGenerateMapping(generateSchemaMappingRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Generate TypeScript SDK from OpenAPI specification
+         * @param {GenerateSDKRequest} generateSDKRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGenerateSDK(generateSDKRequest: GenerateSDKRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGenerateSDK(generateSDKRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Generate workflow from natural language description
+         * @param {GenerateWorkflowRequest} generateWorkflowRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGenerateWorkflow(generateWorkflowRequest: GenerateWorkflowRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGenerateWorkflow(generateWorkflowRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get models for a specific provider
+         * @param {string} provider 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetModels(provider: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGetModels(provider, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get available AI providers and models
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetProviders(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGetProviders(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get generated SDK by ID
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetSDK(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGetSDK(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get SDK information including available methods
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerGetSDKInfo(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerGetSDKInfo(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List all generated SDKs
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerListSDKs(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerListSDKs(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List all SDKs for a tenant
+         * @param {string} tenantId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerListTenantSDKs(tenantId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerListTenantSDKs(tenantId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Test AI completion
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aIControllerTestAI(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.aIControllerTestAI(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AIApi - object-oriented interface
+ */
+export class AIApi extends BaseAPI {
+    /**
+     * 
+     * @summary Download SDK source code
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerDownloadSDK(id: string, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerDownloadSDK(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Execute an SDK method
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerExecuteSDKMethod(id: string, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerExecuteSDKMethod(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Generate schema mapping between source and destination
+     * @param {GenerateSchemaMappingRequest} generateSchemaMappingRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerGenerateMapping(generateSchemaMappingRequest: GenerateSchemaMappingRequest, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGenerateMapping(generateSchemaMappingRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Generate TypeScript SDK from OpenAPI specification
+     * @param {GenerateSDKRequest} generateSDKRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerGenerateSDK(generateSDKRequest: GenerateSDKRequest, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGenerateSDK(generateSDKRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Generate workflow from natural language description
+     * @param {GenerateWorkflowRequest} generateWorkflowRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerGenerateWorkflow(generateWorkflowRequest: GenerateWorkflowRequest, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGenerateWorkflow(generateWorkflowRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get models for a specific provider
+     * @param {string} provider 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerGetModels(provider: string, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGetModels(provider, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get available AI providers and models
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerGetProviders(options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGetProviders(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get generated SDK by ID
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerGetSDK(id: string, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGetSDK(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get SDK information including available methods
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerGetSDKInfo(id: string, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerGetSDKInfo(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List all generated SDKs
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerListSDKs(options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerListSDKs(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List all SDKs for a tenant
+     * @param {string} tenantId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerListTenantSDKs(tenantId: string, options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerListTenantSDKs(tenantId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Test AI completion
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public aIControllerTestAI(options?: RawAxiosRequestConfig) {
+        return AIApiFp(this.configuration).aIControllerTestAI(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
 
 /**
  * AggregatorsApi - axios parameter creator
@@ -590,6 +2295,2389 @@ export class AuthApi extends BaseAPI {
      */
     public authControllerSignUp(signUpDto: SignUpDto, options?: RawAxiosRequestConfig) {
         return AuthApiFp(this.configuration).authControllerSignUp(signUpDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ConnectorsApi - axios parameter creator
+ */
+export const ConnectorsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {CreateConnectorDto} createConnectorDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerCreate: async (createConnectorDto: CreateConnectorDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createConnectorDto' is not null or undefined
+            assertParamExists('connectorsControllerCreate', 'createConnectorDto', createConnectorDto)
+            const localVarPath = `/api/connectors`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createConnectorDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {ConnectorsControllerFindAllStatusEnum} [status] 
+         * @param {ConnectorsControllerFindAllTypeEnum} [type] 
+         * @param {string} [search] Search by name
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerFindAll: async (status?: ConnectorsControllerFindAllStatusEnum, type?: ConnectorsControllerFindAllTypeEnum, search?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/connectors`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (type !== undefined) {
+                localVarQueryParameter['type'] = type;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('connectorsControllerFindOne', 'id', id)
+            const localVarPath = `/api/connectors/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {string} database 
+         * @param {string} table 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerGetMiniColumns: async (id: string, database: string, table: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('connectorsControllerGetMiniColumns', 'id', id)
+            // verify required parameter 'database' is not null or undefined
+            assertParamExists('connectorsControllerGetMiniColumns', 'database', database)
+            // verify required parameter 'table' is not null or undefined
+            assertParamExists('connectorsControllerGetMiniColumns', 'table', table)
+            const localVarPath = `/api/connectors/mini/{id}/columns`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (database !== undefined) {
+                localVarQueryParameter['database'] = database;
+            }
+
+            if (table !== undefined) {
+                localVarQueryParameter['table'] = table;
+            }
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerGetMiniDatabases: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('connectorsControllerGetMiniDatabases', 'id', id)
+            const localVarPath = `/api/connectors/mini/{id}/databases`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {string} database 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerGetMiniTables: async (id: string, database: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('connectorsControllerGetMiniTables', 'id', id)
+            // verify required parameter 'database' is not null or undefined
+            assertParamExists('connectorsControllerGetMiniTables', 'database', database)
+            const localVarPath = `/api/connectors/mini/{id}/tables`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (database !== undefined) {
+                localVarQueryParameter['database'] = database;
+            }
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {HeartbeatDto} heartbeatDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerHeartbeat: async (id: string, heartbeatDto: HeartbeatDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('connectorsControllerHeartbeat', 'id', id)
+            // verify required parameter 'heartbeatDto' is not null or undefined
+            assertParamExists('connectorsControllerHeartbeat', 'heartbeatDto', heartbeatDto)
+            const localVarPath = `/api/connectors/{id}/heartbeat`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(heartbeatDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerRemove: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('connectorsControllerRemove', 'id', id)
+            const localVarPath = `/api/connectors/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateConnectorDto} updateConnectorDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerUpdate: async (id: string, updateConnectorDto: UpdateConnectorDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('connectorsControllerUpdate', 'id', id)
+            // verify required parameter 'updateConnectorDto' is not null or undefined
+            assertParamExists('connectorsControllerUpdate', 'updateConnectorDto', updateConnectorDto)
+            const localVarPath = `/api/connectors/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateConnectorDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ConnectorsApi - functional programming interface
+ */
+export const ConnectorsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ConnectorsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {CreateConnectorDto} createConnectorDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerCreate(createConnectorDto: CreateConnectorDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ConnectorResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerCreate(createConnectorDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {ConnectorsControllerFindAllStatusEnum} [status] 
+         * @param {ConnectorsControllerFindAllTypeEnum} [type] 
+         * @param {string} [search] Search by name
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerFindAll(status?: ConnectorsControllerFindAllStatusEnum, type?: ConnectorsControllerFindAllTypeEnum, search?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ConnectorListResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerFindAll(status, type, search, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ConnectorResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerFindOne(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {string} database 
+         * @param {string} table 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerGetMiniColumns(id: string, database: string, table: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerGetMiniColumns(id, database, table, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerGetMiniColumns']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerGetMiniDatabases(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerGetMiniDatabases(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerGetMiniDatabases']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {string} database 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerGetMiniTables(id: string, database: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerGetMiniTables(id, database, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerGetMiniTables']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {HeartbeatDto} heartbeatDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerHeartbeat(id: string, heartbeatDto: HeartbeatDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ConnectorResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerHeartbeat(id, heartbeatDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerHeartbeat']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerRemove(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerRemove(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerRemove']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateConnectorDto} updateConnectorDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async connectorsControllerUpdate(id: string, updateConnectorDto: UpdateConnectorDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ConnectorResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.connectorsControllerUpdate(id, updateConnectorDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConnectorsApi.connectorsControllerUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ConnectorsApi - factory interface
+ */
+export const ConnectorsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ConnectorsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {CreateConnectorDto} createConnectorDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerCreate(createConnectorDto: CreateConnectorDto, options?: RawAxiosRequestConfig): AxiosPromise<ConnectorResponseDto> {
+            return localVarFp.connectorsControllerCreate(createConnectorDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {ConnectorsControllerFindAllStatusEnum} [status] 
+         * @param {ConnectorsControllerFindAllTypeEnum} [type] 
+         * @param {string} [search] Search by name
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerFindAll(status?: ConnectorsControllerFindAllStatusEnum, type?: ConnectorsControllerFindAllTypeEnum, search?: string, options?: RawAxiosRequestConfig): AxiosPromise<ConnectorListResponseDto> {
+            return localVarFp.connectorsControllerFindAll(status, type, search, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<ConnectorResponseDto> {
+            return localVarFp.connectorsControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {string} database 
+         * @param {string} table 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerGetMiniColumns(id: string, database: string, table: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.connectorsControllerGetMiniColumns(id, database, table, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerGetMiniDatabases(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.connectorsControllerGetMiniDatabases(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {string} database 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerGetMiniTables(id: string, database: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.connectorsControllerGetMiniTables(id, database, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {HeartbeatDto} heartbeatDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerHeartbeat(id: string, heartbeatDto: HeartbeatDto, options?: RawAxiosRequestConfig): AxiosPromise<ConnectorResponseDto> {
+            return localVarFp.connectorsControllerHeartbeat(id, heartbeatDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerRemove(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.connectorsControllerRemove(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateConnectorDto} updateConnectorDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        connectorsControllerUpdate(id: string, updateConnectorDto: UpdateConnectorDto, options?: RawAxiosRequestConfig): AxiosPromise<ConnectorResponseDto> {
+            return localVarFp.connectorsControllerUpdate(id, updateConnectorDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ConnectorsApi - object-oriented interface
+ */
+export class ConnectorsApi extends BaseAPI {
+    /**
+     * 
+     * @param {CreateConnectorDto} createConnectorDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerCreate(createConnectorDto: CreateConnectorDto, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerCreate(createConnectorDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {ConnectorsControllerFindAllStatusEnum} [status] 
+     * @param {ConnectorsControllerFindAllTypeEnum} [type] 
+     * @param {string} [search] Search by name
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerFindAll(status?: ConnectorsControllerFindAllStatusEnum, type?: ConnectorsControllerFindAllTypeEnum, search?: string, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerFindAll(status, type, search, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {string} database 
+     * @param {string} table 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerGetMiniColumns(id: string, database: string, table: string, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerGetMiniColumns(id, database, table, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerGetMiniDatabases(id: string, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerGetMiniDatabases(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {string} database 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerGetMiniTables(id: string, database: string, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerGetMiniTables(id, database, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {HeartbeatDto} heartbeatDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerHeartbeat(id: string, heartbeatDto: HeartbeatDto, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerHeartbeat(id, heartbeatDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerRemove(id: string, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerRemove(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {UpdateConnectorDto} updateConnectorDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public connectorsControllerUpdate(id: string, updateConnectorDto: UpdateConnectorDto, options?: RawAxiosRequestConfig) {
+        return ConnectorsApiFp(this.configuration).connectorsControllerUpdate(id, updateConnectorDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+export const ConnectorsControllerFindAllStatusEnum = {
+    Online: 'ONLINE',
+    Offline: 'OFFLINE',
+    Connecting: 'CONNECTING',
+    Error: 'ERROR',
+    Busy: 'BUSY'
+} as const;
+export type ConnectorsControllerFindAllStatusEnum = typeof ConnectorsControllerFindAllStatusEnum[keyof typeof ConnectorsControllerFindAllStatusEnum];
+export const ConnectorsControllerFindAllTypeEnum = {
+    Cloud: 'CLOUD',
+    Mini: 'MINI'
+} as const;
+export type ConnectorsControllerFindAllTypeEnum = typeof ConnectorsControllerFindAllTypeEnum[keyof typeof ConnectorsControllerFindAllTypeEnum];
+
+
+/**
+ * DefaultApi - axios parameter creator
+ */
+export const DefaultApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        activitiesControllerExecuteActivity: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/activities/execute`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        activitiesControllerHealthCheck: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/activities/health`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        activitiesControllerValidateActivity: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/activities/validate`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * DefaultApi - functional programming interface
+ */
+export const DefaultApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = DefaultApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async activitiesControllerExecuteActivity(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.activitiesControllerExecuteActivity(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.activitiesControllerExecuteActivity']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async activitiesControllerHealthCheck(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.activitiesControllerHealthCheck(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.activitiesControllerHealthCheck']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async activitiesControllerValidateActivity(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.activitiesControllerValidateActivity(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.activitiesControllerValidateActivity']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * DefaultApi - factory interface
+ */
+export const DefaultApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = DefaultApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        activitiesControllerExecuteActivity(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.activitiesControllerExecuteActivity(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        activitiesControllerHealthCheck(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.activitiesControllerHealthCheck(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        activitiesControllerValidateActivity(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.activitiesControllerValidateActivity(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * DefaultApi - object-oriented interface
+ */
+export class DefaultApi extends BaseAPI {
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public activitiesControllerExecuteActivity(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).activitiesControllerExecuteActivity(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public activitiesControllerHealthCheck(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).activitiesControllerHealthCheck(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public activitiesControllerValidateActivity(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).activitiesControllerValidateActivity(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ExecutionsApi - axios parameter creator
+ */
+export const ExecutionsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {string} id 
+         * @param {CancelExecutionDto} cancelExecutionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        executionsControllerCancel: async (id: string, cancelExecutionDto: CancelExecutionDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('executionsControllerCancel', 'id', id)
+            // verify required parameter 'cancelExecutionDto' is not null or undefined
+            assertParamExists('executionsControllerCancel', 'cancelExecutionDto', cancelExecutionDto)
+            const localVarPath = `/api/executions/{id}/cancel`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(cancelExecutionDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} [workflowId] Filter by workflow ID
+         * @param {ExecutionsControllerFindAllStatusEnum} [status] 
+         * @param {string} [startDate] Filter by date range start
+         * @param {string} [endDate] Filter by date range end
+         * @param {number} [limit] 
+         * @param {number} [offset] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        executionsControllerFindAll: async (workflowId?: string, status?: ExecutionsControllerFindAllStatusEnum, startDate?: string, endDate?: string, limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/executions`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (workflowId !== undefined) {
+                localVarQueryParameter['workflowId'] = workflowId;
+            }
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (startDate !== undefined) {
+                localVarQueryParameter['startDate'] = startDate;
+            }
+
+            if (endDate !== undefined) {
+                localVarQueryParameter['endDate'] = endDate;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (offset !== undefined) {
+                localVarQueryParameter['offset'] = offset;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        executionsControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('executionsControllerFindOne', 'id', id)
+            const localVarPath = `/api/executions/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {PauseExecutionDto} pauseExecutionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        executionsControllerPause: async (id: string, pauseExecutionDto: PauseExecutionDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('executionsControllerPause', 'id', id)
+            // verify required parameter 'pauseExecutionDto' is not null or undefined
+            assertParamExists('executionsControllerPause', 'pauseExecutionDto', pauseExecutionDto)
+            const localVarPath = `/api/executions/{id}/pause`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(pauseExecutionDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {ResumeExecutionDto} resumeExecutionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        executionsControllerResume: async (id: string, resumeExecutionDto: ResumeExecutionDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('executionsControllerResume', 'id', id)
+            // verify required parameter 'resumeExecutionDto' is not null or undefined
+            assertParamExists('executionsControllerResume', 'resumeExecutionDto', resumeExecutionDto)
+            const localVarPath = `/api/executions/{id}/resume`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(resumeExecutionDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {ExecuteWorkflowDto} executeWorkflowDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        executionsControllerTriggerWorkflow: async (id: string, executeWorkflowDto: ExecuteWorkflowDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('executionsControllerTriggerWorkflow', 'id', id)
+            // verify required parameter 'executeWorkflowDto' is not null or undefined
+            assertParamExists('executionsControllerTriggerWorkflow', 'executeWorkflowDto', executeWorkflowDto)
+            const localVarPath = `/api/workflows/{id}/execute`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(executeWorkflowDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ExecutionsApi - functional programming interface
+ */
+export const ExecutionsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ExecutionsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {string} id 
+         * @param {CancelExecutionDto} cancelExecutionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async executionsControllerCancel(id: string, cancelExecutionDto: CancelExecutionDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExecutionControlResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.executionsControllerCancel(id, cancelExecutionDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExecutionsApi.executionsControllerCancel']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} [workflowId] Filter by workflow ID
+         * @param {ExecutionsControllerFindAllStatusEnum} [status] 
+         * @param {string} [startDate] Filter by date range start
+         * @param {string} [endDate] Filter by date range end
+         * @param {number} [limit] 
+         * @param {number} [offset] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async executionsControllerFindAll(workflowId?: string, status?: ExecutionsControllerFindAllStatusEnum, startDate?: string, endDate?: string, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExecutionListResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.executionsControllerFindAll(workflowId, status, startDate, endDate, limit, offset, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExecutionsApi.executionsControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async executionsControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExecutionDetailResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.executionsControllerFindOne(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExecutionsApi.executionsControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {PauseExecutionDto} pauseExecutionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async executionsControllerPause(id: string, pauseExecutionDto: PauseExecutionDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExecutionControlResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.executionsControllerPause(id, pauseExecutionDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExecutionsApi.executionsControllerPause']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {ResumeExecutionDto} resumeExecutionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async executionsControllerResume(id: string, resumeExecutionDto: ResumeExecutionDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExecutionControlResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.executionsControllerResume(id, resumeExecutionDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExecutionsApi.executionsControllerResume']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {ExecuteWorkflowDto} executeWorkflowDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async executionsControllerTriggerWorkflow(id: string, executeWorkflowDto: ExecuteWorkflowDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExecutionTriggerResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.executionsControllerTriggerWorkflow(id, executeWorkflowDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ExecutionsApi.executionsControllerTriggerWorkflow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ExecutionsApi - factory interface
+ */
+export const ExecutionsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ExecutionsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {string} id 
+         * @param {CancelExecutionDto} cancelExecutionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        executionsControllerCancel(id: string, cancelExecutionDto: CancelExecutionDto, options?: RawAxiosRequestConfig): AxiosPromise<ExecutionControlResponseDto> {
+            return localVarFp.executionsControllerCancel(id, cancelExecutionDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} [workflowId] Filter by workflow ID
+         * @param {ExecutionsControllerFindAllStatusEnum} [status] 
+         * @param {string} [startDate] Filter by date range start
+         * @param {string} [endDate] Filter by date range end
+         * @param {number} [limit] 
+         * @param {number} [offset] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        executionsControllerFindAll(workflowId?: string, status?: ExecutionsControllerFindAllStatusEnum, startDate?: string, endDate?: string, limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<ExecutionListResponseDto> {
+            return localVarFp.executionsControllerFindAll(workflowId, status, startDate, endDate, limit, offset, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        executionsControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<ExecutionDetailResponseDto> {
+            return localVarFp.executionsControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {PauseExecutionDto} pauseExecutionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        executionsControllerPause(id: string, pauseExecutionDto: PauseExecutionDto, options?: RawAxiosRequestConfig): AxiosPromise<ExecutionControlResponseDto> {
+            return localVarFp.executionsControllerPause(id, pauseExecutionDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {ResumeExecutionDto} resumeExecutionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        executionsControllerResume(id: string, resumeExecutionDto: ResumeExecutionDto, options?: RawAxiosRequestConfig): AxiosPromise<ExecutionControlResponseDto> {
+            return localVarFp.executionsControllerResume(id, resumeExecutionDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {ExecuteWorkflowDto} executeWorkflowDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        executionsControllerTriggerWorkflow(id: string, executeWorkflowDto: ExecuteWorkflowDto, options?: RawAxiosRequestConfig): AxiosPromise<ExecutionTriggerResponseDto> {
+            return localVarFp.executionsControllerTriggerWorkflow(id, executeWorkflowDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ExecutionsApi - object-oriented interface
+ */
+export class ExecutionsApi extends BaseAPI {
+    /**
+     * 
+     * @param {string} id 
+     * @param {CancelExecutionDto} cancelExecutionDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public executionsControllerCancel(id: string, cancelExecutionDto: CancelExecutionDto, options?: RawAxiosRequestConfig) {
+        return ExecutionsApiFp(this.configuration).executionsControllerCancel(id, cancelExecutionDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} [workflowId] Filter by workflow ID
+     * @param {ExecutionsControllerFindAllStatusEnum} [status] 
+     * @param {string} [startDate] Filter by date range start
+     * @param {string} [endDate] Filter by date range end
+     * @param {number} [limit] 
+     * @param {number} [offset] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public executionsControllerFindAll(workflowId?: string, status?: ExecutionsControllerFindAllStatusEnum, startDate?: string, endDate?: string, limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
+        return ExecutionsApiFp(this.configuration).executionsControllerFindAll(workflowId, status, startDate, endDate, limit, offset, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public executionsControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return ExecutionsApiFp(this.configuration).executionsControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {PauseExecutionDto} pauseExecutionDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public executionsControllerPause(id: string, pauseExecutionDto: PauseExecutionDto, options?: RawAxiosRequestConfig) {
+        return ExecutionsApiFp(this.configuration).executionsControllerPause(id, pauseExecutionDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {ResumeExecutionDto} resumeExecutionDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public executionsControllerResume(id: string, resumeExecutionDto: ResumeExecutionDto, options?: RawAxiosRequestConfig) {
+        return ExecutionsApiFp(this.configuration).executionsControllerResume(id, resumeExecutionDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {ExecuteWorkflowDto} executeWorkflowDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public executionsControllerTriggerWorkflow(id: string, executeWorkflowDto: ExecuteWorkflowDto, options?: RawAxiosRequestConfig) {
+        return ExecutionsApiFp(this.configuration).executionsControllerTriggerWorkflow(id, executeWorkflowDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+export const ExecutionsControllerFindAllStatusEnum = {
+    Pending: 'PENDING',
+    Running: 'RUNNING',
+    Paused: 'PAUSED',
+    Completed: 'COMPLETED',
+    Failed: 'FAILED',
+    Cancelled: 'CANCELLED'
+} as const;
+export type ExecutionsControllerFindAllStatusEnum = typeof ExecutionsControllerFindAllStatusEnum[keyof typeof ExecutionsControllerFindAllStatusEnum];
+
+
+/**
+ * FieldMappingsApi - axios parameter creator
+ */
+export const FieldMappingsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Apply a mapping to data
+         * @param {ApplyMappingDto} applyMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerApplyMapping: async (applyMappingDto: ApplyMappingDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'applyMappingDto' is not null or undefined
+            assertParamExists('mappingsControllerApplyMapping', 'applyMappingDto', applyMappingDto)
+            const localVarPath = `/mappings/apply`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(applyMappingDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Create a new field mapping
+         * @param {CreateMappingDto} createMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerCreate: async (createMappingDto: CreateMappingDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createMappingDto' is not null or undefined
+            assertParamExists('mappingsControllerCreate', 'createMappingDto', createMappingDto)
+            const localVarPath = `/mappings`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createMappingDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete a field mapping
+         * @param {string} id Mapping ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerDelete: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('mappingsControllerDelete', 'id', id)
+            const localVarPath = `/mappings/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List all field mappings
+         * @param {string} [sourceInstanceId] Filter by source instance ID
+         * @param {string} [destinationInstanceId] Filter by destination instance ID
+         * @param {MappingsControllerFindAllTypeEnum} [type] Filter by mapping type
+         * @param {MappingsControllerFindAllSourceTypeEnum} [sourceType] Filter by source type
+         * @param {MappingsControllerFindAllDestinationTypeEnum} [destinationType] Filter by destination type
+         * @param {boolean} [isActive] Filter by active status
+         * @param {string} [search] Search by name
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerFindAll: async (sourceInstanceId?: string, destinationInstanceId?: string, type?: MappingsControllerFindAllTypeEnum, sourceType?: MappingsControllerFindAllSourceTypeEnum, destinationType?: MappingsControllerFindAllDestinationTypeEnum, isActive?: boolean, search?: string, page?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/mappings`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (sourceInstanceId !== undefined) {
+                localVarQueryParameter['sourceInstanceId'] = sourceInstanceId;
+            }
+
+            if (destinationInstanceId !== undefined) {
+                localVarQueryParameter['destinationInstanceId'] = destinationInstanceId;
+            }
+
+            if (type !== undefined) {
+                localVarQueryParameter['type'] = type;
+            }
+
+            if (sourceType !== undefined) {
+                localVarQueryParameter['sourceType'] = sourceType;
+            }
+
+            if (destinationType !== undefined) {
+                localVarQueryParameter['destinationType'] = destinationType;
+            }
+
+            if (isActive !== undefined) {
+                localVarQueryParameter['isActive'] = isActive;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get a field mapping by ID
+         * @param {string} id Mapping ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('mappingsControllerFindOne', 'id', id)
+            const localVarPath = `/mappings/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Generate field mapping using AI
+         * @param {GenerateMappingDto} generateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerGenerateMapping: async (generateMappingDto: GenerateMappingDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'generateMappingDto' is not null or undefined
+            assertParamExists('mappingsControllerGenerateMapping', 'generateMappingDto', generateMappingDto)
+            const localVarPath = `/mappings/generate`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(generateMappingDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get available mappings for an instance
+         * @param {string} instanceId Aggregator instance ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerGetAvailableMappings: async (instanceId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'instanceId' is not null or undefined
+            assertParamExists('mappingsControllerGetAvailableMappings', 'instanceId', instanceId)
+            const localVarPath = `/mappings/instance/{instanceId}/available`
+                .replace(`{${"instanceId"}}`, encodeURIComponent(String(instanceId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Quick generate mapping from existing instances
+         * @param {QuickGenerateMappingDto} quickGenerateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerQuickGenerateMapping: async (quickGenerateMappingDto: QuickGenerateMappingDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'quickGenerateMappingDto' is not null or undefined
+            assertParamExists('mappingsControllerQuickGenerateMapping', 'quickGenerateMappingDto', quickGenerateMappingDto)
+            const localVarPath = `/mappings/generate/quick`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(quickGenerateMappingDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update a field mapping
+         * @param {string} id Mapping ID
+         * @param {UpdateMappingDto} updateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerUpdate: async (id: string, updateMappingDto: UpdateMappingDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('mappingsControllerUpdate', 'id', id)
+            // verify required parameter 'updateMappingDto' is not null or undefined
+            assertParamExists('mappingsControllerUpdate', 'updateMappingDto', updateMappingDto)
+            const localVarPath = `/mappings/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateMappingDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Validate a mapping
+         * @param {ValidateMappingDto} validateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerValidateMapping: async (validateMappingDto: ValidateMappingDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'validateMappingDto' is not null or undefined
+            assertParamExists('mappingsControllerValidateMapping', 'validateMappingDto', validateMappingDto)
+            const localVarPath = `/mappings/validate`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(validateMappingDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * FieldMappingsApi - functional programming interface
+ */
+export const FieldMappingsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = FieldMappingsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Apply a mapping to data
+         * @param {ApplyMappingDto} applyMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerApplyMapping(applyMappingDto: ApplyMappingDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerApplyMapping(applyMappingDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerApplyMapping']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Create a new field mapping
+         * @param {CreateMappingDto} createMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerCreate(createMappingDto: CreateMappingDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerCreate(createMappingDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete a field mapping
+         * @param {string} id Mapping ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerDelete(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerDelete(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List all field mappings
+         * @param {string} [sourceInstanceId] Filter by source instance ID
+         * @param {string} [destinationInstanceId] Filter by destination instance ID
+         * @param {MappingsControllerFindAllTypeEnum} [type] Filter by mapping type
+         * @param {MappingsControllerFindAllSourceTypeEnum} [sourceType] Filter by source type
+         * @param {MappingsControllerFindAllDestinationTypeEnum} [destinationType] Filter by destination type
+         * @param {boolean} [isActive] Filter by active status
+         * @param {string} [search] Search by name
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerFindAll(sourceInstanceId?: string, destinationInstanceId?: string, type?: MappingsControllerFindAllTypeEnum, sourceType?: MappingsControllerFindAllSourceTypeEnum, destinationType?: MappingsControllerFindAllDestinationTypeEnum, isActive?: boolean, search?: string, page?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerFindAll(sourceInstanceId, destinationInstanceId, type, sourceType, destinationType, isActive, search, page, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get a field mapping by ID
+         * @param {string} id Mapping ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerFindOne(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Generate field mapping using AI
+         * @param {GenerateMappingDto} generateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerGenerateMapping(generateMappingDto: GenerateMappingDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerGenerateMapping(generateMappingDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerGenerateMapping']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get available mappings for an instance
+         * @param {string} instanceId Aggregator instance ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerGetAvailableMappings(instanceId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerGetAvailableMappings(instanceId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerGetAvailableMappings']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Quick generate mapping from existing instances
+         * @param {QuickGenerateMappingDto} quickGenerateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerQuickGenerateMapping(quickGenerateMappingDto: QuickGenerateMappingDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerQuickGenerateMapping(quickGenerateMappingDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerQuickGenerateMapping']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update a field mapping
+         * @param {string} id Mapping ID
+         * @param {UpdateMappingDto} updateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerUpdate(id: string, updateMappingDto: UpdateMappingDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerUpdate(id, updateMappingDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Validate a mapping
+         * @param {ValidateMappingDto} validateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mappingsControllerValidateMapping(validateMappingDto: ValidateMappingDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mappingsControllerValidateMapping(validateMappingDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FieldMappingsApi.mappingsControllerValidateMapping']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * FieldMappingsApi - factory interface
+ */
+export const FieldMappingsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = FieldMappingsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Apply a mapping to data
+         * @param {ApplyMappingDto} applyMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerApplyMapping(applyMappingDto: ApplyMappingDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerApplyMapping(applyMappingDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Create a new field mapping
+         * @param {CreateMappingDto} createMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerCreate(createMappingDto: CreateMappingDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerCreate(createMappingDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete a field mapping
+         * @param {string} id Mapping ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerDelete(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerDelete(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List all field mappings
+         * @param {string} [sourceInstanceId] Filter by source instance ID
+         * @param {string} [destinationInstanceId] Filter by destination instance ID
+         * @param {MappingsControllerFindAllTypeEnum} [type] Filter by mapping type
+         * @param {MappingsControllerFindAllSourceTypeEnum} [sourceType] Filter by source type
+         * @param {MappingsControllerFindAllDestinationTypeEnum} [destinationType] Filter by destination type
+         * @param {boolean} [isActive] Filter by active status
+         * @param {string} [search] Search by name
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerFindAll(sourceInstanceId?: string, destinationInstanceId?: string, type?: MappingsControllerFindAllTypeEnum, sourceType?: MappingsControllerFindAllSourceTypeEnum, destinationType?: MappingsControllerFindAllDestinationTypeEnum, isActive?: boolean, search?: string, page?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerFindAll(sourceInstanceId, destinationInstanceId, type, sourceType, destinationType, isActive, search, page, limit, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get a field mapping by ID
+         * @param {string} id Mapping ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Generate field mapping using AI
+         * @param {GenerateMappingDto} generateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerGenerateMapping(generateMappingDto: GenerateMappingDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerGenerateMapping(generateMappingDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get available mappings for an instance
+         * @param {string} instanceId Aggregator instance ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerGetAvailableMappings(instanceId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerGetAvailableMappings(instanceId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Quick generate mapping from existing instances
+         * @param {QuickGenerateMappingDto} quickGenerateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerQuickGenerateMapping(quickGenerateMappingDto: QuickGenerateMappingDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerQuickGenerateMapping(quickGenerateMappingDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update a field mapping
+         * @param {string} id Mapping ID
+         * @param {UpdateMappingDto} updateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerUpdate(id: string, updateMappingDto: UpdateMappingDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerUpdate(id, updateMappingDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Validate a mapping
+         * @param {ValidateMappingDto} validateMappingDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mappingsControllerValidateMapping(validateMappingDto: ValidateMappingDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.mappingsControllerValidateMapping(validateMappingDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * FieldMappingsApi - object-oriented interface
+ */
+export class FieldMappingsApi extends BaseAPI {
+    /**
+     * 
+     * @summary Apply a mapping to data
+     * @param {ApplyMappingDto} applyMappingDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerApplyMapping(applyMappingDto: ApplyMappingDto, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerApplyMapping(applyMappingDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Create a new field mapping
+     * @param {CreateMappingDto} createMappingDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerCreate(createMappingDto: CreateMappingDto, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerCreate(createMappingDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete a field mapping
+     * @param {string} id Mapping ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerDelete(id: string, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerDelete(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List all field mappings
+     * @param {string} [sourceInstanceId] Filter by source instance ID
+     * @param {string} [destinationInstanceId] Filter by destination instance ID
+     * @param {MappingsControllerFindAllTypeEnum} [type] Filter by mapping type
+     * @param {MappingsControllerFindAllSourceTypeEnum} [sourceType] Filter by source type
+     * @param {MappingsControllerFindAllDestinationTypeEnum} [destinationType] Filter by destination type
+     * @param {boolean} [isActive] Filter by active status
+     * @param {string} [search] Search by name
+     * @param {number} [page] Page number
+     * @param {number} [limit] Items per page
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerFindAll(sourceInstanceId?: string, destinationInstanceId?: string, type?: MappingsControllerFindAllTypeEnum, sourceType?: MappingsControllerFindAllSourceTypeEnum, destinationType?: MappingsControllerFindAllDestinationTypeEnum, isActive?: boolean, search?: string, page?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerFindAll(sourceInstanceId, destinationInstanceId, type, sourceType, destinationType, isActive, search, page, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get a field mapping by ID
+     * @param {string} id Mapping ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Generate field mapping using AI
+     * @param {GenerateMappingDto} generateMappingDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerGenerateMapping(generateMappingDto: GenerateMappingDto, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerGenerateMapping(generateMappingDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get available mappings for an instance
+     * @param {string} instanceId Aggregator instance ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerGetAvailableMappings(instanceId: string, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerGetAvailableMappings(instanceId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Quick generate mapping from existing instances
+     * @param {QuickGenerateMappingDto} quickGenerateMappingDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerQuickGenerateMapping(quickGenerateMappingDto: QuickGenerateMappingDto, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerQuickGenerateMapping(quickGenerateMappingDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update a field mapping
+     * @param {string} id Mapping ID
+     * @param {UpdateMappingDto} updateMappingDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerUpdate(id: string, updateMappingDto: UpdateMappingDto, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerUpdate(id, updateMappingDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Validate a mapping
+     * @param {ValidateMappingDto} validateMappingDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public mappingsControllerValidateMapping(validateMappingDto: ValidateMappingDto, options?: RawAxiosRequestConfig) {
+        return FieldMappingsApiFp(this.configuration).mappingsControllerValidateMapping(validateMappingDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+export const MappingsControllerFindAllTypeEnum = {
+    Column: 'COLUMN',
+    Field: 'FIELD',
+    Transform: 'TRANSFORM',
+    Aggregator: 'AGGREGATOR',
+    MiniConnector: 'MINI_CONNECTOR',
+    Hybrid: 'HYBRID'
+} as const;
+export type MappingsControllerFindAllTypeEnum = typeof MappingsControllerFindAllTypeEnum[keyof typeof MappingsControllerFindAllTypeEnum];
+export const MappingsControllerFindAllSourceTypeEnum = {
+    Database: 'database',
+    Sdk: 'sdk',
+    Aggregator: 'aggregator',
+    MiniConnector: 'mini-connector'
+} as const;
+export type MappingsControllerFindAllSourceTypeEnum = typeof MappingsControllerFindAllSourceTypeEnum[keyof typeof MappingsControllerFindAllSourceTypeEnum];
+export const MappingsControllerFindAllDestinationTypeEnum = {
+    Database: 'database',
+    Sdk: 'sdk',
+    Aggregator: 'aggregator',
+    MiniConnector: 'mini-connector'
+} as const;
+export type MappingsControllerFindAllDestinationTypeEnum = typeof MappingsControllerFindAllDestinationTypeEnum[keyof typeof MappingsControllerFindAllDestinationTypeEnum];
+
+
+/**
+ * PublicConnectorsApi - axios parameter creator
+ */
+export const PublicConnectorsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {object} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        publicConnectorsControllerValidateApiKey: async (body: object, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'body' is not null or undefined
+            assertParamExists('publicConnectorsControllerValidateApiKey', 'body', body)
+            const localVarPath = `/api/public/connectors/validate-api-key`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * PublicConnectorsApi - functional programming interface
+ */
+export const PublicConnectorsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = PublicConnectorsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {object} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async publicConnectorsControllerValidateApiKey(body: object, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.publicConnectorsControllerValidateApiKey(body, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PublicConnectorsApi.publicConnectorsControllerValidateApiKey']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * PublicConnectorsApi - factory interface
+ */
+export const PublicConnectorsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = PublicConnectorsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {object} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        publicConnectorsControllerValidateApiKey(body: object, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.publicConnectorsControllerValidateApiKey(body, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * PublicConnectorsApi - object-oriented interface
+ */
+export class PublicConnectorsApi extends BaseAPI {
+    /**
+     * 
+     * @param {object} body 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public publicConnectorsControllerValidateApiKey(body: object, options?: RawAxiosRequestConfig) {
+        return PublicConnectorsApiFp(this.configuration).publicConnectorsControllerValidateApiKey(body, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -1219,47 +5307,6 @@ export const TenantAggregatorsApiAxiosParamCreator = function (configuration?: C
         /**
          * 
          * @param {string} id 
-         * @param {SaveTenantAggregatorCredentialsDto} saveTenantAggregatorCredentialsDto 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        tenantAggregatorsControllerSaveCredentials: async (id: string, saveTenantAggregatorCredentialsDto: SaveTenantAggregatorCredentialsDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'id' is not null or undefined
-            assertParamExists('tenantAggregatorsControllerSaveCredentials', 'id', id)
-            // verify required parameter 'saveTenantAggregatorCredentialsDto' is not null or undefined
-            assertParamExists('tenantAggregatorsControllerSaveCredentials', 'saveTenantAggregatorCredentialsDto', saveTenantAggregatorCredentialsDto)
-            const localVarPath = `/api/tenant-aggregators/{id}/credentials`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication bearer required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(saveTenantAggregatorCredentialsDto, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1287,6 +5334,47 @@ export const TenantAggregatorsApiAxiosParamCreator = function (configuration?: C
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateTenantAggregatorDto} updateTenantAggregatorDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tenantAggregatorsControllerUpdate: async (id: string, updateTenantAggregatorDto: UpdateTenantAggregatorDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('tenantAggregatorsControllerUpdate', 'id', id)
+            // verify required parameter 'updateTenantAggregatorDto' is not null or undefined
+            assertParamExists('tenantAggregatorsControllerUpdate', 'updateTenantAggregatorDto', updateTenantAggregatorDto)
+            const localVarPath = `/api/tenant-aggregators/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateTenantAggregatorDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1353,19 +5441,6 @@ export const TenantAggregatorsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {string} id 
-         * @param {SaveTenantAggregatorCredentialsDto} saveTenantAggregatorCredentialsDto 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async tenantAggregatorsControllerSaveCredentials(id: string, saveTenantAggregatorCredentialsDto: SaveTenantAggregatorCredentialsDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.tenantAggregatorsControllerSaveCredentials(id, saveTenantAggregatorCredentialsDto, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TenantAggregatorsApi.tenantAggregatorsControllerSaveCredentials']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1373,6 +5448,19 @@ export const TenantAggregatorsApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.tenantAggregatorsControllerTestConnection(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['TenantAggregatorsApi.tenantAggregatorsControllerTestConnection']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateTenantAggregatorDto} updateTenantAggregatorDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tenantAggregatorsControllerUpdate(id: string, updateTenantAggregatorDto: UpdateTenantAggregatorDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.tenantAggregatorsControllerUpdate(id, updateTenantAggregatorDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TenantAggregatorsApi.tenantAggregatorsControllerUpdate']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -1423,21 +5511,21 @@ export const TenantAggregatorsApiFactory = function (configuration?: Configurati
         /**
          * 
          * @param {string} id 
-         * @param {SaveTenantAggregatorCredentialsDto} saveTenantAggregatorCredentialsDto 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        tenantAggregatorsControllerSaveCredentials(id: string, saveTenantAggregatorCredentialsDto: SaveTenantAggregatorCredentialsDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.tenantAggregatorsControllerSaveCredentials(id, saveTenantAggregatorCredentialsDto, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         tenantAggregatorsControllerTestConnection(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.tenantAggregatorsControllerTestConnection(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateTenantAggregatorDto} updateTenantAggregatorDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tenantAggregatorsControllerUpdate(id: string, updateTenantAggregatorDto: UpdateTenantAggregatorDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.tenantAggregatorsControllerUpdate(id, updateTenantAggregatorDto, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1489,12 +5577,459 @@ export class TenantAggregatorsApi extends BaseAPI {
     /**
      * 
      * @param {string} id 
-     * @param {SaveTenantAggregatorCredentialsDto} saveTenantAggregatorCredentialsDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public tenantAggregatorsControllerSaveCredentials(id: string, saveTenantAggregatorCredentialsDto: SaveTenantAggregatorCredentialsDto, options?: RawAxiosRequestConfig) {
-        return TenantAggregatorsApiFp(this.configuration).tenantAggregatorsControllerSaveCredentials(id, saveTenantAggregatorCredentialsDto, options).then((request) => request(this.axios, this.basePath));
+    public tenantAggregatorsControllerTestConnection(id: string, options?: RawAxiosRequestConfig) {
+        return TenantAggregatorsApiFp(this.configuration).tenantAggregatorsControllerTestConnection(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {UpdateTenantAggregatorDto} updateTenantAggregatorDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public tenantAggregatorsControllerUpdate(id: string, updateTenantAggregatorDto: UpdateTenantAggregatorDto, options?: RawAxiosRequestConfig) {
+        return TenantAggregatorsApiFp(this.configuration).tenantAggregatorsControllerUpdate(id, updateTenantAggregatorDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * TenantsApi - axios parameter creator
+ */
+export const TenantsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tenantsControllerGetCurrent: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/tenants/current`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {UpdateTenantDto} updateTenantDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tenantsControllerUpdateCurrent: async (updateTenantDto: UpdateTenantDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'updateTenantDto' is not null or undefined
+            assertParamExists('tenantsControllerUpdateCurrent', 'updateTenantDto', updateTenantDto)
+            const localVarPath = `/api/tenants/current`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateTenantDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * TenantsApi - functional programming interface
+ */
+export const TenantsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = TenantsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tenantsControllerGetCurrent(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TenantResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.tenantsControllerGetCurrent(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TenantsApi.tenantsControllerGetCurrent']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {UpdateTenantDto} updateTenantDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tenantsControllerUpdateCurrent(updateTenantDto: UpdateTenantDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TenantResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.tenantsControllerUpdateCurrent(updateTenantDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TenantsApi.tenantsControllerUpdateCurrent']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * TenantsApi - factory interface
+ */
+export const TenantsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = TenantsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tenantsControllerGetCurrent(options?: RawAxiosRequestConfig): AxiosPromise<TenantResponseDto> {
+            return localVarFp.tenantsControllerGetCurrent(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {UpdateTenantDto} updateTenantDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tenantsControllerUpdateCurrent(updateTenantDto: UpdateTenantDto, options?: RawAxiosRequestConfig): AxiosPromise<TenantResponseDto> {
+            return localVarFp.tenantsControllerUpdateCurrent(updateTenantDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * TenantsApi - object-oriented interface
+ */
+export class TenantsApi extends BaseAPI {
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public tenantsControllerGetCurrent(options?: RawAxiosRequestConfig) {
+        return TenantsApiFp(this.configuration).tenantsControllerGetCurrent(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {UpdateTenantDto} updateTenantDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public tenantsControllerUpdateCurrent(updateTenantDto: UpdateTenantDto, options?: RawAxiosRequestConfig) {
+        return TenantsApiFp(this.configuration).tenantsControllerUpdateCurrent(updateTenantDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * UsersApi - axios parameter creator
+ */
+export const UsersApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerFindAll: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/users`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('usersControllerFindOne', 'id', id)
+            const localVarPath = `/api/users/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerRemove: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('usersControllerRemove', 'id', id)
+            const localVarPath = `/api/users/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateUserDto} updateUserDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerUpdate: async (id: string, updateUserDto: UpdateUserDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('usersControllerUpdate', 'id', id)
+            // verify required parameter 'updateUserDto' is not null or undefined
+            assertParamExists('usersControllerUpdate', 'updateUserDto', updateUserDto)
+            const localVarPath = `/api/users/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateUserDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * UsersApi - functional programming interface
+ */
+export const UsersApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = UsersApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async usersControllerFindAll(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<UserResponseDto>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersControllerFindAll(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.usersControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async usersControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersControllerFindOne(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.usersControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async usersControllerRemove(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersControllerRemove(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.usersControllerRemove']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateUserDto} updateUserDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async usersControllerUpdate(id: string, updateUserDto: UpdateUserDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersControllerUpdate(id, updateUserDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.usersControllerUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * UsersApi - factory interface
+ */
+export const UsersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = UsersApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerFindAll(options?: RawAxiosRequestConfig): AxiosPromise<Array<UserResponseDto>> {
+            return localVarFp.usersControllerFindAll(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<UserResponseDto> {
+            return localVarFp.usersControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerRemove(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.usersControllerRemove(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateUserDto} updateUserDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerUpdate(id: string, updateUserDto: UpdateUserDto, options?: RawAxiosRequestConfig): AxiosPromise<UserResponseDto> {
+            return localVarFp.usersControllerUpdate(id, updateUserDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * UsersApi - object-oriented interface
+ */
+export class UsersApi extends BaseAPI {
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public usersControllerFindAll(options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).usersControllerFindAll(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1503,8 +6038,482 @@ export class TenantAggregatorsApi extends BaseAPI {
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public tenantAggregatorsControllerTestConnection(id: string, options?: RawAxiosRequestConfig) {
-        return TenantAggregatorsApiFp(this.configuration).tenantAggregatorsControllerTestConnection(id, options).then((request) => request(this.axios, this.basePath));
+    public usersControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).usersControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public usersControllerRemove(id: string, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).usersControllerRemove(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {UpdateUserDto} updateUserDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public usersControllerUpdate(id: string, updateUserDto: UpdateUserDto, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).usersControllerUpdate(id, updateUserDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * WorkflowsApi - axios parameter creator
+ */
+export const WorkflowsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {CreateWorkflowDto} createWorkflowDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workflowsControllerCreate: async (createWorkflowDto: CreateWorkflowDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createWorkflowDto' is not null or undefined
+            assertParamExists('workflowsControllerCreate', 'createWorkflowDto', createWorkflowDto)
+            const localVarPath = `/api/workflows`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createWorkflowDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workflowsControllerDelete: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('workflowsControllerDelete', 'id', id)
+            const localVarPath = `/api/workflows/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} status 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workflowsControllerFindAll: async (status: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'status' is not null or undefined
+            assertParamExists('workflowsControllerFindAll', 'status', status)
+            const localVarPath = `/api/workflows`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workflowsControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('workflowsControllerFindOne', 'id', id)
+            const localVarPath = `/api/workflows/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateWorkflowDto} updateWorkflowDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workflowsControllerUpdate: async (id: string, updateWorkflowDto: UpdateWorkflowDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('workflowsControllerUpdate', 'id', id)
+            // verify required parameter 'updateWorkflowDto' is not null or undefined
+            assertParamExists('workflowsControllerUpdate', 'updateWorkflowDto', updateWorkflowDto)
+            const localVarPath = `/api/workflows/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateWorkflowDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {WorkflowDefinitionDto} workflowDefinitionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workflowsControllerValidate: async (workflowDefinitionDto: WorkflowDefinitionDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'workflowDefinitionDto' is not null or undefined
+            assertParamExists('workflowsControllerValidate', 'workflowDefinitionDto', workflowDefinitionDto)
+            const localVarPath = `/api/workflows/validate`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(workflowDefinitionDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * WorkflowsApi - functional programming interface
+ */
+export const WorkflowsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = WorkflowsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @param {CreateWorkflowDto} createWorkflowDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async workflowsControllerCreate(createWorkflowDto: CreateWorkflowDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WorkflowDetailResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.workflowsControllerCreate(createWorkflowDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WorkflowsApi.workflowsControllerCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async workflowsControllerDelete(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.workflowsControllerDelete(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WorkflowsApi.workflowsControllerDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} status 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async workflowsControllerFindAll(status: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WorkflowListResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.workflowsControllerFindAll(status, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WorkflowsApi.workflowsControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async workflowsControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WorkflowDetailResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.workflowsControllerFindOne(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WorkflowsApi.workflowsControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateWorkflowDto} updateWorkflowDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async workflowsControllerUpdate(id: string, updateWorkflowDto: UpdateWorkflowDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WorkflowDetailResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.workflowsControllerUpdate(id, updateWorkflowDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WorkflowsApi.workflowsControllerUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {WorkflowDefinitionDto} workflowDefinitionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async workflowsControllerValidate(workflowDefinitionDto: WorkflowDefinitionDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WorkflowValidationResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.workflowsControllerValidate(workflowDefinitionDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WorkflowsApi.workflowsControllerValidate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * WorkflowsApi - factory interface
+ */
+export const WorkflowsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = WorkflowsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @param {CreateWorkflowDto} createWorkflowDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workflowsControllerCreate(createWorkflowDto: CreateWorkflowDto, options?: RawAxiosRequestConfig): AxiosPromise<WorkflowDetailResponseDto> {
+            return localVarFp.workflowsControllerCreate(createWorkflowDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workflowsControllerDelete(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.workflowsControllerDelete(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} status 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workflowsControllerFindAll(status: string, options?: RawAxiosRequestConfig): AxiosPromise<WorkflowListResponseDto> {
+            return localVarFp.workflowsControllerFindAll(status, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workflowsControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<WorkflowDetailResponseDto> {
+            return localVarFp.workflowsControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} id 
+         * @param {UpdateWorkflowDto} updateWorkflowDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workflowsControllerUpdate(id: string, updateWorkflowDto: UpdateWorkflowDto, options?: RawAxiosRequestConfig): AxiosPromise<WorkflowDetailResponseDto> {
+            return localVarFp.workflowsControllerUpdate(id, updateWorkflowDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {WorkflowDefinitionDto} workflowDefinitionDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workflowsControllerValidate(workflowDefinitionDto: WorkflowDefinitionDto, options?: RawAxiosRequestConfig): AxiosPromise<WorkflowValidationResponseDto> {
+            return localVarFp.workflowsControllerValidate(workflowDefinitionDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * WorkflowsApi - object-oriented interface
+ */
+export class WorkflowsApi extends BaseAPI {
+    /**
+     * 
+     * @param {CreateWorkflowDto} createWorkflowDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public workflowsControllerCreate(createWorkflowDto: CreateWorkflowDto, options?: RawAxiosRequestConfig) {
+        return WorkflowsApiFp(this.configuration).workflowsControllerCreate(createWorkflowDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public workflowsControllerDelete(id: string, options?: RawAxiosRequestConfig) {
+        return WorkflowsApiFp(this.configuration).workflowsControllerDelete(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} status 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public workflowsControllerFindAll(status: string, options?: RawAxiosRequestConfig) {
+        return WorkflowsApiFp(this.configuration).workflowsControllerFindAll(status, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public workflowsControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return WorkflowsApiFp(this.configuration).workflowsControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {UpdateWorkflowDto} updateWorkflowDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public workflowsControllerUpdate(id: string, updateWorkflowDto: UpdateWorkflowDto, options?: RawAxiosRequestConfig) {
+        return WorkflowsApiFp(this.configuration).workflowsControllerUpdate(id, updateWorkflowDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {WorkflowDefinitionDto} workflowDefinitionDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public workflowsControllerValidate(workflowDefinitionDto: WorkflowDefinitionDto, options?: RawAxiosRequestConfig) {
+        return WorkflowsApiFp(this.configuration).workflowsControllerValidate(workflowDefinitionDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

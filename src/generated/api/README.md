@@ -51,12 +51,53 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*AIApi* | [**aIControllerDownloadSDK**](docs/AIApi.md#aicontrollerdownloadsdk) | **GET** /ai/sdk/{id}/download | Download SDK source code
+*AIApi* | [**aIControllerExecuteSDKMethod**](docs/AIApi.md#aicontrollerexecutesdkmethod) | **POST** /ai/sdk/{id}/execute | Execute an SDK method
+*AIApi* | [**aIControllerGenerateMapping**](docs/AIApi.md#aicontrollergeneratemapping) | **POST** /ai/generate-mapping | Generate schema mapping between source and destination
+*AIApi* | [**aIControllerGenerateSDK**](docs/AIApi.md#aicontrollergeneratesdk) | **POST** /ai/generate-sdk | Generate TypeScript SDK from OpenAPI specification
+*AIApi* | [**aIControllerGenerateWorkflow**](docs/AIApi.md#aicontrollergenerateworkflow) | **POST** /ai/generate-workflow | Generate workflow from natural language description
+*AIApi* | [**aIControllerGetModels**](docs/AIApi.md#aicontrollergetmodels) | **GET** /ai/models/{provider} | Get models for a specific provider
+*AIApi* | [**aIControllerGetProviders**](docs/AIApi.md#aicontrollergetproviders) | **GET** /ai/providers | Get available AI providers and models
+*AIApi* | [**aIControllerGetSDK**](docs/AIApi.md#aicontrollergetsdk) | **GET** /ai/sdk/{id} | Get generated SDK by ID
+*AIApi* | [**aIControllerGetSDKInfo**](docs/AIApi.md#aicontrollergetsdkinfo) | **GET** /ai/sdk/{id}/info | Get SDK information including available methods
+*AIApi* | [**aIControllerListSDKs**](docs/AIApi.md#aicontrollerlistsdks) | **GET** /ai/sdks | List all generated SDKs
+*AIApi* | [**aIControllerListTenantSDKs**](docs/AIApi.md#aicontrollerlisttenantsdks) | **GET** /ai/sdks/tenant/{tenantId} | List all SDKs for a tenant
+*AIApi* | [**aIControllerTestAI**](docs/AIApi.md#aicontrollertestai) | **POST** /ai/test | Test AI completion
 *AggregatorsApi* | [**aggregatorsControllerFindAll**](docs/AggregatorsApi.md#aggregatorscontrollerfindall) | **GET** /api/aggregators | 
 *AggregatorsApi* | [**aggregatorsControllerFindOne**](docs/AggregatorsApi.md#aggregatorscontrollerfindone) | **GET** /api/aggregators/{id} | 
 *AuthApi* | [**authControllerRefresh**](docs/AuthApi.md#authcontrollerrefresh) | **POST** /auth/refresh | Refresh access token
 *AuthApi* | [**authControllerSignIn**](docs/AuthApi.md#authcontrollersignin) | **POST** /auth/sign-in | Authenticate user
 *AuthApi* | [**authControllerSignOut**](docs/AuthApi.md#authcontrollersignout) | **POST** /auth/sign-out | Sign out
 *AuthApi* | [**authControllerSignUp**](docs/AuthApi.md#authcontrollersignup) | **POST** /auth/sign-up | Create new tenant and user
+*ConnectorsApi* | [**connectorsControllerCreate**](docs/ConnectorsApi.md#connectorscontrollercreate) | **POST** /api/connectors | 
+*ConnectorsApi* | [**connectorsControllerFindAll**](docs/ConnectorsApi.md#connectorscontrollerfindall) | **GET** /api/connectors | 
+*ConnectorsApi* | [**connectorsControllerFindOne**](docs/ConnectorsApi.md#connectorscontrollerfindone) | **GET** /api/connectors/{id} | 
+*ConnectorsApi* | [**connectorsControllerGetMiniColumns**](docs/ConnectorsApi.md#connectorscontrollergetminicolumns) | **GET** /api/connectors/mini/{id}/columns | 
+*ConnectorsApi* | [**connectorsControllerGetMiniDatabases**](docs/ConnectorsApi.md#connectorscontrollergetminidatabases) | **GET** /api/connectors/mini/{id}/databases | 
+*ConnectorsApi* | [**connectorsControllerGetMiniTables**](docs/ConnectorsApi.md#connectorscontrollergetminitables) | **GET** /api/connectors/mini/{id}/tables | 
+*ConnectorsApi* | [**connectorsControllerHeartbeat**](docs/ConnectorsApi.md#connectorscontrollerheartbeat) | **POST** /api/connectors/{id}/heartbeat | 
+*ConnectorsApi* | [**connectorsControllerRemove**](docs/ConnectorsApi.md#connectorscontrollerremove) | **DELETE** /api/connectors/{id} | 
+*ConnectorsApi* | [**connectorsControllerUpdate**](docs/ConnectorsApi.md#connectorscontrollerupdate) | **PUT** /api/connectors/{id} | 
+*DefaultApi* | [**activitiesControllerExecuteActivity**](docs/DefaultApi.md#activitiescontrollerexecuteactivity) | **POST** /activities/execute | 
+*DefaultApi* | [**activitiesControllerHealthCheck**](docs/DefaultApi.md#activitiescontrollerhealthcheck) | **GET** /activities/health | 
+*DefaultApi* | [**activitiesControllerValidateActivity**](docs/DefaultApi.md#activitiescontrollervalidateactivity) | **POST** /activities/validate | 
+*ExecutionsApi* | [**executionsControllerCancel**](docs/ExecutionsApi.md#executionscontrollercancel) | **POST** /api/executions/{id}/cancel | 
+*ExecutionsApi* | [**executionsControllerFindAll**](docs/ExecutionsApi.md#executionscontrollerfindall) | **GET** /api/executions | 
+*ExecutionsApi* | [**executionsControllerFindOne**](docs/ExecutionsApi.md#executionscontrollerfindone) | **GET** /api/executions/{id} | 
+*ExecutionsApi* | [**executionsControllerPause**](docs/ExecutionsApi.md#executionscontrollerpause) | **POST** /api/executions/{id}/pause | 
+*ExecutionsApi* | [**executionsControllerResume**](docs/ExecutionsApi.md#executionscontrollerresume) | **POST** /api/executions/{id}/resume | 
+*ExecutionsApi* | [**executionsControllerTriggerWorkflow**](docs/ExecutionsApi.md#executionscontrollertriggerworkflow) | **POST** /api/workflows/{id}/execute | 
+*FieldMappingsApi* | [**mappingsControllerApplyMapping**](docs/FieldMappingsApi.md#mappingscontrollerapplymapping) | **POST** /mappings/apply | Apply a mapping to data
+*FieldMappingsApi* | [**mappingsControllerCreate**](docs/FieldMappingsApi.md#mappingscontrollercreate) | **POST** /mappings | Create a new field mapping
+*FieldMappingsApi* | [**mappingsControllerDelete**](docs/FieldMappingsApi.md#mappingscontrollerdelete) | **DELETE** /mappings/{id} | Delete a field mapping
+*FieldMappingsApi* | [**mappingsControllerFindAll**](docs/FieldMappingsApi.md#mappingscontrollerfindall) | **GET** /mappings | List all field mappings
+*FieldMappingsApi* | [**mappingsControllerFindOne**](docs/FieldMappingsApi.md#mappingscontrollerfindone) | **GET** /mappings/{id} | Get a field mapping by ID
+*FieldMappingsApi* | [**mappingsControllerGenerateMapping**](docs/FieldMappingsApi.md#mappingscontrollergeneratemapping) | **POST** /mappings/generate | Generate field mapping using AI
+*FieldMappingsApi* | [**mappingsControllerGetAvailableMappings**](docs/FieldMappingsApi.md#mappingscontrollergetavailablemappings) | **GET** /mappings/instance/{instanceId}/available | Get available mappings for an instance
+*FieldMappingsApi* | [**mappingsControllerQuickGenerateMapping**](docs/FieldMappingsApi.md#mappingscontrollerquickgeneratemapping) | **POST** /mappings/generate/quick | Quick generate mapping from existing instances
+*FieldMappingsApi* | [**mappingsControllerUpdate**](docs/FieldMappingsApi.md#mappingscontrollerupdate) | **PUT** /mappings/{id} | Update a field mapping
+*FieldMappingsApi* | [**mappingsControllerValidateMapping**](docs/FieldMappingsApi.md#mappingscontrollervalidatemapping) | **POST** /mappings/validate | Validate a mapping
+*PublicConnectorsApi* | [**publicConnectorsControllerValidateApiKey**](docs/PublicConnectorsApi.md#publicconnectorscontrollervalidateapikey) | **POST** /api/public/connectors/validate-api-key | 
 *SchemaDiscoveryApi* | [**schemaDiscoveryControllerDiscover**](docs/SchemaDiscoveryApi.md#schemadiscoverycontrollerdiscover) | **POST** /api/tenant-aggregators/{id}/discover | 
 *SchemaDiscoveryApi* | [**schemaDiscoveryControllerGetRelationships**](docs/SchemaDiscoveryApi.md#schemadiscoverycontrollergetrelationships) | **GET** /api/tenant-aggregators/{id}/schema/relationships | 
 *SchemaDiscoveryApi* | [**schemaDiscoveryControllerGetSchema**](docs/SchemaDiscoveryApi.md#schemadiscoverycontrollergetschema) | **GET** /api/tenant-aggregators/{id}/schema | 
@@ -67,22 +108,81 @@ Class | Method | HTTP request | Description
 *TenantAggregatorsApi* | [**tenantAggregatorsControllerFindAll**](docs/TenantAggregatorsApi.md#tenantaggregatorscontrollerfindall) | **GET** /api/tenant-aggregators | 
 *TenantAggregatorsApi* | [**tenantAggregatorsControllerFindOne**](docs/TenantAggregatorsApi.md#tenantaggregatorscontrollerfindone) | **GET** /api/tenant-aggregators/{id} | 
 *TenantAggregatorsApi* | [**tenantAggregatorsControllerInstall**](docs/TenantAggregatorsApi.md#tenantaggregatorscontrollerinstall) | **POST** /api/tenant-aggregators/install | 
-*TenantAggregatorsApi* | [**tenantAggregatorsControllerSaveCredentials**](docs/TenantAggregatorsApi.md#tenantaggregatorscontrollersavecredentials) | **PUT** /api/tenant-aggregators/{id}/credentials | 
 *TenantAggregatorsApi* | [**tenantAggregatorsControllerTestConnection**](docs/TenantAggregatorsApi.md#tenantaggregatorscontrollertestconnection) | **POST** /api/tenant-aggregators/{id}/test | 
+*TenantAggregatorsApi* | [**tenantAggregatorsControllerUpdate**](docs/TenantAggregatorsApi.md#tenantaggregatorscontrollerupdate) | **PUT** /api/tenant-aggregators/{id} | 
+*TenantsApi* | [**tenantsControllerGetCurrent**](docs/TenantsApi.md#tenantscontrollergetcurrent) | **GET** /api/tenants/current | 
+*TenantsApi* | [**tenantsControllerUpdateCurrent**](docs/TenantsApi.md#tenantscontrollerupdatecurrent) | **PUT** /api/tenants/current | 
+*UsersApi* | [**usersControllerFindAll**](docs/UsersApi.md#userscontrollerfindall) | **GET** /api/users | 
+*UsersApi* | [**usersControllerFindOne**](docs/UsersApi.md#userscontrollerfindone) | **GET** /api/users/{id} | 
+*UsersApi* | [**usersControllerRemove**](docs/UsersApi.md#userscontrollerremove) | **DELETE** /api/users/{id} | 
+*UsersApi* | [**usersControllerUpdate**](docs/UsersApi.md#userscontrollerupdate) | **PUT** /api/users/{id} | 
+*WorkflowsApi* | [**workflowsControllerCreate**](docs/WorkflowsApi.md#workflowscontrollercreate) | **POST** /api/workflows | 
+*WorkflowsApi* | [**workflowsControllerDelete**](docs/WorkflowsApi.md#workflowscontrollerdelete) | **DELETE** /api/workflows/{id} | 
+*WorkflowsApi* | [**workflowsControllerFindAll**](docs/WorkflowsApi.md#workflowscontrollerfindall) | **GET** /api/workflows | 
+*WorkflowsApi* | [**workflowsControllerFindOne**](docs/WorkflowsApi.md#workflowscontrollerfindone) | **GET** /api/workflows/{id} | 
+*WorkflowsApi* | [**workflowsControllerUpdate**](docs/WorkflowsApi.md#workflowscontrollerupdate) | **PUT** /api/workflows/{id} | 
+*WorkflowsApi* | [**workflowsControllerValidate**](docs/WorkflowsApi.md#workflowscontrollervalidate) | **POST** /api/workflows/validate | 
 
 
 ### Documentation For Models
 
+ - [ActivityDto](docs/ActivityDto.md)
+ - [ApplyMappingDto](docs/ApplyMappingDto.md)
+ - [CancelExecutionDto](docs/CancelExecutionDto.md)
+ - [ConnectorListResponseDto](docs/ConnectorListResponseDto.md)
+ - [ConnectorResponseDto](docs/ConnectorResponseDto.md)
+ - [CreateConnectorDto](docs/CreateConnectorDto.md)
+ - [CreateMappingDto](docs/CreateMappingDto.md)
+ - [CreateWorkflowDto](docs/CreateWorkflowDto.md)
+ - [ExecuteWorkflowDto](docs/ExecuteWorkflowDto.md)
+ - [ExecutionControlResponseDto](docs/ExecutionControlResponseDto.md)
+ - [ExecutionDetailResponseDto](docs/ExecutionDetailResponseDto.md)
+ - [ExecutionListResponseDto](docs/ExecutionListResponseDto.md)
+ - [ExecutionResponseDto](docs/ExecutionResponseDto.md)
+ - [ExecutionTriggerResponseDto](docs/ExecutionTriggerResponseDto.md)
+ - [GenerateMappingDto](docs/GenerateMappingDto.md)
+ - [GenerateSDKRequest](docs/GenerateSDKRequest.md)
+ - [GenerateSchemaConfigDto](docs/GenerateSchemaConfigDto.md)
+ - [GenerateSchemaFieldDto](docs/GenerateSchemaFieldDto.md)
+ - [GenerateSchemaMappingRequest](docs/GenerateSchemaMappingRequest.md)
+ - [GenerateWorkflowRequest](docs/GenerateWorkflowRequest.md)
+ - [HeartbeatDto](docs/HeartbeatDto.md)
  - [InstallTenantAggregatorDto](docs/InstallTenantAggregatorDto.md)
+ - [MappingRuleDto](docs/MappingRuleDto.md)
+ - [PauseExecutionDto](docs/PauseExecutionDto.md)
  - [PreviewTableDto](docs/PreviewTableDto.md)
+ - [QuickGenerateMappingDto](docs/QuickGenerateMappingDto.md)
  - [RefreshTokenDto](docs/RefreshTokenDto.md)
- - [SaveTenantAggregatorCredentialsDto](docs/SaveTenantAggregatorCredentialsDto.md)
+ - [ResumeExecutionDto](docs/ResumeExecutionDto.md)
+ - [SDKCredentialsDto](docs/SDKCredentialsDto.md)
+ - [SchemaColumnDto](docs/SchemaColumnDto.md)
  - [SchemaDiscoveryResponseDto](docs/SchemaDiscoveryResponseDto.md)
  - [SignInDto](docs/SignInDto.md)
  - [SignUpDto](docs/SignUpDto.md)
+ - [TableSchemaDto](docs/TableSchemaDto.md)
  - [TenantAggregatorDetailResponseDto](docs/TenantAggregatorDetailResponseDto.md)
  - [TenantAggregatorListResponseDto](docs/TenantAggregatorListResponseDto.md)
  - [TenantAggregatorResponseDto](docs/TenantAggregatorResponseDto.md)
+ - [TenantResponseDto](docs/TenantResponseDto.md)
+ - [UpdateConnectorDto](docs/UpdateConnectorDto.md)
+ - [UpdateMappingDto](docs/UpdateMappingDto.md)
+ - [UpdateTenantAggregatorDto](docs/UpdateTenantAggregatorDto.md)
+ - [UpdateTenantDto](docs/UpdateTenantDto.md)
+ - [UpdateUserDto](docs/UpdateUserDto.md)
+ - [UpdateWorkflowDto](docs/UpdateWorkflowDto.md)
+ - [UserResponseDto](docs/UserResponseDto.md)
+ - [ValidateMappingDto](docs/ValidateMappingDto.md)
+ - [ValidationErrorDto](docs/ValidationErrorDto.md)
+ - [WorkflowActivityResponseDto](docs/WorkflowActivityResponseDto.md)
+ - [WorkflowDefinitionDto](docs/WorkflowDefinitionDto.md)
+ - [WorkflowDefinitionResponseDto](docs/WorkflowDefinitionResponseDto.md)
+ - [WorkflowDetailResponseDto](docs/WorkflowDetailResponseDto.md)
+ - [WorkflowListResponseDto](docs/WorkflowListResponseDto.md)
+ - [WorkflowResponseDto](docs/WorkflowResponseDto.md)
+ - [WorkflowStepDto](docs/WorkflowStepDto.md)
+ - [WorkflowStepResponseDto](docs/WorkflowStepResponseDto.md)
+ - [WorkflowValidationDataDto](docs/WorkflowValidationDataDto.md)
+ - [WorkflowValidationResponseDto](docs/WorkflowValidationResponseDto.md)
 
 
 <a id="documentation-for-authorization"></a>

@@ -9,7 +9,9 @@ Name | Type | Description | Notes
 **marketplaceId** | **string** |  | [optional] [default to undefined]
 **name** | **string** |  | [default to undefined]
 **config** | **object** |  | [optional] [default to undefined]
+**credentialId** | **string** |  | [optional] [default to undefined]
 **credentials** | **object** |  | [optional] [default to undefined]
+**connectorId** | **string** |  | [optional] [default to undefined]
 **testConnection** | **boolean** |  | [optional] [default to false]
 
 ## Example
@@ -22,7 +24,9 @@ const instance: InstallTenantAggregatorDto = {
     marketplaceId,
     name,
     config,
+    credentialId,
     credentials,
+    connectorId,
     testConnection,
 };
 ```

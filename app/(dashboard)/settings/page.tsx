@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import {
   User,
   Building2,
@@ -16,7 +17,10 @@ import {
   AlertTriangle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { toast } from "sonner"
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks"
+import { useEffect } from "react"
+import { fetchUsers } from "@/lib/store/slices/users-slice"
+import { fetchCurrentTenant } from "@/lib/store/slices/tenant-slice"
 
 const sections = [
   { id: "profile", label: "Profile", icon: User },
@@ -32,14 +36,22 @@ const mockApiKeys = [
   { id: "key-2", name: "Development", key: "sk_test_f6g7h8...i9j0", created: "Feb 1, 2025", lastUsed: "5 mins ago" },
 ]
 
-const mockTeam = [
-  { id: "u-1", name: "Sarah Kim", email: "sarah@company.com", role: "Owner", avatar: "SK" },
-  { id: "u-2", name: "Michael Chen", email: "michael@company.com", role: "Admin", avatar: "MC" },
-  { id: "u-3", name: "David Patel", email: "david@company.com", role: "Member", avatar: "DP" },
-]
-
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState("profile")
+  const dispatch = useAppDispatch()
+
+  const { user } = useAppSelector(state => state.auth)
+  const { currentTenant } = useAppSelector(state => state.tenant)
+  const { users } = useAppSelector(state => state.users)
+
+  useEffect(() => {
+    if (activeSection === 'team') {
+      dispatch(fetchUsers())
+    }
+    if (activeSection === 'account' && !currentTenant) {
+      dispatch(fetchCurrentTenant())
+    }
+  }, [activeSection, dispatch, currentTenant])
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -104,7 +116,7 @@ export default function SettingsPage() {
               <div className="mt-6 flex max-w-lg flex-col gap-5">
                 <div className="flex items-center gap-4">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
-                    SK
+                    {user?.name?.substring(0, 2).toUpperCase() || 'ME'}
                   </div>
                   <button className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent">
                     Change Avatar
@@ -114,21 +126,11 @@ export default function SettingsPage() {
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-medium text-card-foreground">
-                      First Name
+                      Full Name
                     </label>
                     <input
                       type="text"
-                      defaultValue="Sarah"
-                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/10"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-card-foreground">
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue="Kim"
+                      defaultValue={user?.name || ''}
                       className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/10"
                     />
                   </div>
@@ -140,8 +142,9 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="email"
-                    defaultValue="sarah@company.com"
-                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/10"
+                    defaultValue={user?.email || ''}
+                    disabled
+                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/10 opacity-70"
                   />
                 </div>
 
@@ -151,8 +154,9 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="text"
-                    defaultValue="Operations Manager"
-                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/10"
+                    defaultValue={user?.role || ''}
+                    disabled
+                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/10 opacity-70"
                   />
                 </div>
 
@@ -183,7 +187,7 @@ export default function SettingsPage() {
                     </label>
                     <input
                       type="text"
-                      defaultValue="Acme Corp"
+                      defaultValue={currentTenant?.name || ''}
                       className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/10"
                     />
                   </div>
@@ -197,7 +201,7 @@ export default function SettingsPage() {
                       </span>
                       <input
                         type="text"
-                        defaultValue="acme-corp"
+                        defaultValue={currentTenant?.name?.toLowerCase().replace(/\s+/g, '-') || ''}
                         className="w-full border-l border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none"
                       />
                     </div>
@@ -285,14 +289,16 @@ export default function SettingsPage() {
                 </button>
               </div>
               <div className="mt-6 flex flex-col divide-y divide-border">
-                {mockTeam.map((member) => (
+                {users.length === 0 ? (
+                  <div className="text-center py-4 text-muted-foreground">No team members found</div>
+                ) : users.map((member) => (
                   <div
                     key={member.id}
                     className="flex items-center justify-between py-3"
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-                        {member.avatar}
+                        {member.name?.substring(0, 2).toUpperCase()}
                       </div>
                       <div>
                         <p className="text-sm font-medium text-card-foreground">
@@ -307,7 +313,7 @@ export default function SettingsPage() {
                       <span className="rounded bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                         {member.role}
                       </span>
-                      {member.role !== "Owner" && (
+                      {member.id !== user?.id && (
                         <button
                           className="text-muted-foreground transition-colors hover:text-destructive"
                           aria-label={`Remove ${member.name}`}

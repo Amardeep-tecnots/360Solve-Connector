@@ -6,15 +6,26 @@ import { workflowSlice } from './slices/workflow-slice'
 import { uiSlice } from './slices/ui-slice'
 import { connectorSlice } from './slices/connector-slice'
 import { aggregatorsSlice } from './slices/aggregators-slice'
+import { aiSlice } from './slices/ai-slice'
+
+import { workflowsSlice } from './slices/workflows-slice'
+import executionsReducer from './slices/executions-slice'
+import { tenantSlice } from './slices/tenant-slice'
+import { usersSlice } from './slices/users-slice'
 
 export const store = configureStore({
   reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
     auth: authSlice.reducer,
     workflow: workflowSlice.reducer,
+    workflows: workflowsSlice.reducer,
     ui: uiSlice.reducer,
     connector: connectorSlice.reducer,
     aggregators: aggregatorsSlice.reducer,
+    ai: aiSlice.reducer,
+    executions: executionsReducer,
+    tenant: tenantSlice.reducer,
+    users: usersSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
