@@ -51,7 +51,7 @@ export default function SignUpPage() {
         password: formData.password,
         companyName: formData.companyName,
       })
-      router.push("/")
+      router.push("/sign-in")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign up failed")
     }

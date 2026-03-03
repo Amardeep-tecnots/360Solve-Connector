@@ -1,0 +1,51 @@
+name: Build Frontend
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "GitHub Environment to build from (loads its secrets/vars)"
+        type: choice
+        required: true
+        options:
+          - production
+          - development
+      app-version:
+        description: "Version tag for the artifact (e.g. v1.0.0)"
+        default: v1.0.0
+        required: true
+
+jobs:
+  frontend-build:
+    name: Build frontend
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      APP_VERSION: ${{ inputs.app-version }}
+      NEXT_TELEMETRY_DISABLED: 1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-${{ inputs.environment }}-${{ inputs.app-version }}
+          path: .next
+          if-no-files-found: error

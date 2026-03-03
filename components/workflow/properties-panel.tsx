@@ -40,6 +40,7 @@ const typeLabels: Record<NodeType, string> = {
   source: "Source Node",
   transform: "Transform Node",
   destination: "Destination Node",
+  generated_sdk: "Generated SDK",
 }
 
 const connectionMethods: Array<{
@@ -843,8 +844,8 @@ function TransformConfigWithAI({ node, updateConfig, nodes, connections, aggrega
         to: m.destinationField || m.to,
         transform: m.transform
       }))
-      
-      updateConfig({ fieldMappings })
+      // ConnectionConfig has no fieldMappings; store under transformConfig
+      updateConfig({ transformConfig: { ...(node.connectionConfig?.transformConfig || {}), fieldMappings } })
       toast.success("Field mappings generated successfully!")
       dispatch(clearGeneratedMapping())
       setShowMapping(false)

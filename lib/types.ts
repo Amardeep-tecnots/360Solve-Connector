@@ -22,6 +22,8 @@ export interface ConnectionConfig {
   connectorId?: string
   table?: string
   columns?: string[]
+  // Optional per-node transform settings
+  transformConfig?: Record<string, any>
   // For credentials
   host?: string
   port?: number
@@ -170,15 +172,42 @@ export interface CanvasConnection {
 }
 
 // ─── AI Chat Messages ─────────────────────────────────
+interface AddNodeAction {
+  type: "add_node"
+  payload: { nodes: CanvasNode[] }
+}
+
+interface ConnectNodesAction {
+  type: "connect_nodes"
+  payload: { connections: Array<{ sourceId: string; targetId: string }> }
+}
+
+interface ConfigureNodeAction {
+  type: "configure_node"
+  payload: {
+    mappings?: Array<{ sourceField: string; destinationField: string; confidence: number }>
+    sourceConnector?: { id: string; name: string; schema?: Record<string, any> }
+    destinationConnector?: { id: string; name: string; schema?: Record<string, any> }
+  }
+}
+
+interface SuggestWorkflowAction {
+  type: "suggest_workflow"
+  payload: { nodes: CanvasNode[]; workflow?: Record<string, any> }
+}
+
+export type AIChatAction =
+  | AddNodeAction
+  | ConnectNodesAction
+  | ConfigureNodeAction
+  | SuggestWorkflowAction
+
 export interface AIChatMessage {
   id: string
   role: "user" | "assistant" | "system"
   content: string
   timestamp: Date
-  action?: {
-    type: "add_node" | "connect_nodes" | "configure_node" | "suggest_workflow"
-    payload: Record<string, unknown>
-  }
+  action?: AIChatAction
 }
 
 // ─── Execution ────────────────────────────────────────

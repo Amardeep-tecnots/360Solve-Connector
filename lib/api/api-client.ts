@@ -18,10 +18,8 @@ import type {
   HeartbeatDto,
   UpdateTenantDto,
   UpdateUserDto,
-  GenerateWorkflowDto,
   GenerateMappingDto,
-  GenerateSDKRequest,
-  TestAIDto
+  GenerateSDKRequest
 } from '@/src/generated/api/api'
 
 // Cookie utilities for auth tokens

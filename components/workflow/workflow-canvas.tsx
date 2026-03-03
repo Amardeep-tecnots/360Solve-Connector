@@ -63,6 +63,13 @@ const typeAccents: Record<
     label: "Destination",
     glow: "shadow-[0_0_15px_rgba(var(--success-rgb),0.15)]",
   },
+  generated_sdk: {
+    border: "border-orange-500/50",
+    bg: "bg-orange-500/10",
+    dot: "bg-orange-500",
+    label: "text-orange-500",
+    glow: "shadow-[0_0_0_2px_rgba(249,115,22,0.25)]",
+  },
 }
 
 interface WorkflowCanvasProps {

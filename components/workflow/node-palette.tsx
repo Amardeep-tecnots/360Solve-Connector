@@ -37,8 +37,8 @@ const iconMap: Record<string, React.ElementType> = {
   Workflow: Zap,
 }
 
-// Fixed type and adding marketplace/workflows/sdks
-type PaletteCategory = NodeType | "marketplace" | "workflows" | "sdks"
+// Fixed type and adding marketplace/workflows/sdks/generated_sdk
+type PaletteCategory = NodeType | "marketplace" | "workflows" | "sdks" | "generated_sdk"
 
 const categoryConfig: Record<PaletteCategory, { label: string; accent: string; border: string; description: string }> = {
   source: {
@@ -58,6 +58,12 @@ const categoryConfig: Record<PaletteCategory, { label: string; accent: string; b
     accent: "bg-success/10 text-success",
     border: "border-l-success",
     description: "Data delivery points",
+  },
+  generated_sdk: {
+    label: "Generated SDKs",
+    accent: "bg-orange-500/10 text-orange-400",
+    border: "border-l-orange-500",
+    description: "AI-created SDK connectors",
   },
   marketplace: {
     label: "Marketplace",
@@ -84,6 +90,7 @@ interface NodePaletteProps {
     source: PaletteNode[]
     transform: PaletteNode[]
     destination: PaletteNode[]
+    generated_sdk: PaletteNode[]
     marketplace?: PaletteNode[]
     sdks?: PaletteNode[]
     workflows?: PaletteNode[]
@@ -93,7 +100,7 @@ interface NodePaletteProps {
 export function NodePalette({ nodes }: NodePaletteProps) {
   const [search, setSearch] = useState("")
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(["source", "transform", "destination", "marketplace", "sdks", "workflows"])
+    new Set(["source", "transform", "destination", "generated_sdk", "marketplace", "sdks", "workflows"])
   )
 
   const toggleCategory = (cat: string) => {

@@ -150,7 +150,12 @@ export function AIChatPanel({
   useEffect(() => {
     if (lastGeneratedMapping && isTyping) {
       const timestamp = Date.now()
-      const mappings = lastGeneratedMapping.mappings || []
+      const mappings = (lastGeneratedMapping.mappings || []).map((m: any) => ({
+        sourceField: m.sourceField,
+        destinationField: m.destinationField,
+        confidence: m.confidence ?? 0,
+      }))
+      
       const suggestions = lastGeneratedMapping.suggestions || []
       
       const aiMessage: AIChatMessage = {
@@ -288,7 +293,7 @@ export function AIChatPanel({
   }
 
   function handleApplyNodes(msg: AIChatMessage) {
-    if (msg.action?.payload?.nodes) {
+    if (msg.action?.type === "suggest_workflow" && msg.action.payload?.nodes) {
       onAddNodes(msg.action.payload.nodes as CanvasNode[])
     }
   }
@@ -403,15 +408,17 @@ export function AIChatPanel({
               </div>
 
               {/* Apply nodes button for AI messages with workflow suggestions */}
-              {msg.role === "assistant" && msg.action?.type === "suggest_workflow" && (
-                <button
-                  onClick={() => handleApplyNodes(msg)}
-                  className="inline-flex items-center gap-1.5 self-start rounded-md border border-primary/30 bg-primary/5 px-2.5 py-1.5 text-[11px] font-medium text-primary transition-colors hover:bg-primary/10"
-                >
-                  <Wand2 className="h-3 w-3" />
-                  Apply to canvas
-                </button>
-              )}
+              {msg.role === "assistant" && msg.action?.type === "suggest_workflow" && msg.action.payload
+                ? (
+                  <button
+                    onClick={() => handleApplyNodes(msg)}
+                    className="inline-flex items-center gap-1.5 self-start rounded-md border border-primary/30 bg-primary/5 px-2.5 py-1.5 text-[11px] font-medium text-primary transition-colors hover:bg-primary/10"
+                  >
+                    <Wand2 className="h-3 w-3" />
+                    Apply to canvas
+                  </button>
+                )
+                : null}
 
               {/* Show mapping suggestions */}
               {msg.role === "assistant" && msg.action?.type === "configure_node" && msg.action?.payload?.mappings && (

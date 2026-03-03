@@ -20,20 +20,19 @@ export default function SignInPage() {
   })
   const [error, setError] = useState("")
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
     try {
       const result = await dispatch(signIn(formData)).unwrap()
       if (result) {
-        router.push("/")
+        router.push("/dashboard")
       }
     } catch (err: any) {
       setError(err || "Sign in failed")
     }
   }
-
   return (
     <div className="w-full max-w-md">
       {/* Logo */}
